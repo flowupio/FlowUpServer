@@ -8,6 +8,6 @@ ENV PATH $PATH:/activator-dist-1.3.10/bin
 EXPOSE 9000
 ADD . /app
 
-WORKDIR /app
+WORKDIR /app/flowup-app
 
 CMD ["activator", "run"]
