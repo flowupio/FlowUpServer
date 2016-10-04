@@ -9,7 +9,9 @@ http://flowupapp-env.eu-west-1.elasticbeanstalk.com/
 
 ### Process
 
-Travis is configure that if all test are passing in master, to compile and generate a zip file, with `sbt dist`.
+Travis is configured to automatically deploy the project to our AWS instances of any commits merge to master that are passing tests. 
+
+Travis compiles and generates a zip using `sbt dist`.
 
 When the zip is ready, travis upload it to a versioned bucket named `flowupserver-builds`
 
