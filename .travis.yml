@@ -1,5 +1,21 @@
 language: scala
 scala:
-   - 2.11.2
+- 2.11.2
 jdk:
-  - oraclejdk8
+- oraclejdk8
+
+before_deploy:
+- sbt dist
+
+deploy:
+  provider: s3
+  access_key_id: AKIAIAPEE3H7SQK6BIJQ
+  secret_access_key:
+    secure: HVT0wuVemWvt0dhFBrE/cqm0XSKedn7PkKfq9ZBm7NuQYKiV819r4FeYRdH/yu/cr8npfei0aqiavg4knk1zsaTZvA2KZM4iB5o9uIdCGev3nf2Il/S6e5BBi7OMnnIg2RxA9myUb5E6+WzljtK51OvKF1AR+AWYiuzx7SDnaHVyprZI9JQjq/th+qAwfl4VO25PmJ7E5UQO1JjukmyvzcplnK8hOEXuiesp3Ds7o45w4PFQQwW534tF1G3fRuO54EpYcjrwr0KvVUpeHVj5jrnJ7cNkXkYqdHEsif1CygwJnFxcyPDscthQlW1GkDWa9xBS4YfePW/KICqHrIOLgMQ1lPr1QUEQpD1+Bq12YCbe18LtPOCZx6F3X/NpvaLToY6wY1Q7PshQNGcXU45HqLPtlwpVsV8Xmb3xoqs+x3eog7uAww72VPUX+wsK/LWRTh4nGiNQA8OU59VbePdEkbzHZTYp5ZlRT0ExZ5Nu+UZ2VjIjYJPFsQXoZUtM6TJMZIiTmalrnNehmS467rKJYV4FfC5na28pwoY4QWVJ6ElscOdLGbz7ggIVlDDpuBgVJDAgSBKJ58ZcD6fqomppX/8S6pxxzvBD2NizDHV4oypYJU+/vqd71yX74g8vOHoPYf3TCcpoYKCkO0eznOR9bC8Ar7BjDQiqYWE52YtBNNA=
+  bucket: flowupserver-builds
+  acl: ''
+  skip_cleanup: true
+  local_dir: target/universal/
+  on:
+    repo: Karumi/FlowUpServer
+    branch: deploy-s3
