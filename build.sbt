@@ -14,4 +14,6 @@ unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
+topLevelDirectory := None
+
 mappings in Universal in packageBin += file("Dockerfile") -> "Dockerfile"
