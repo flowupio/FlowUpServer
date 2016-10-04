@@ -19,6 +19,7 @@ bin/
 /logs/
 /modules
 /project/target
+/project/project/target
 /target
 tmp/
 test-result
