@@ -11,8 +11,15 @@ import controllers._
 import play.api.i18n._
 import views.html._
 import play.api.templates.PlayMagic._
-import play.api.mvc._
-import play.api.data._
+import java.lang._
+import java.util._
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import play.core.j.PlayMagicForJava._
+import play.mvc._
+import play.data._
+import play.api.data.Field
+import play.mvc.Http.Context.Implicit._
 
 class main extends BaseScalaTemplate[play.twirl.api.HtmlFormat.Appendable,Format[play.twirl.api.HtmlFormat.Appendable]](play.twirl.api.HtmlFormat) with play.twirl.api.Template2[String,Html,play.twirl.api.HtmlFormat.Appendable] {
 
@@ -57,11 +64,11 @@ Seq[Any](format.raw/*1.32*/("""
 object main extends main_Scope0.main
               /*
                   -- GENERATED --
-                  DATE: Tue Oct 04 11:01:58 CEST 2016
+                  DATE: Tue Oct 04 11:10:51 CEST 2016
                   SOURCE: /Users/davide/GitHub/FlowUpServer/app/views/main.scala.html
-                  HASH: 3f8c08eaaffee7e90d5b8439bc98eb8a34a0f1cf
-                  MATRIX: 530->1|655->31|683->33|760->84|785->89|873->151|887->157|941->191|1028->252|1042->258|1094->290|1146->315|1161->321|1227->366|1321->433|1349->440|1381->445
-                  LINES: 20->1|25->1|27->3|31->7|31->7|32->8|32->8|32->8|33->9|33->9|33->9|34->10|34->10|34->10|37->13|37->13|38->14
+                  HASH: 8cedbde37a63dab360e2e303da0f97d7c7a9eb31
+                  MATRIX: 748->1|873->31|901->33|978->84|1003->89|1091->151|1105->157|1159->191|1246->252|1260->258|1312->290|1364->315|1379->321|1445->366|1539->433|1567->440|1599->445
+                  LINES: 27->1|32->1|34->3|38->7|38->7|39->8|39->8|39->8|40->9|40->9|40->9|41->10|41->10|41->10|44->13|44->13|45->14
                   -- GENERATED --
               */
           

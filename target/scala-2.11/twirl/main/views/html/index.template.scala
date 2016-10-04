@@ -11,8 +11,15 @@ import controllers._
 import play.api.i18n._
 import views.html._
 import play.api.templates.PlayMagic._
-import play.api.mvc._
-import play.api.data._
+import java.lang._
+import java.util._
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import play.core.j.PlayMagicForJava._
+import play.mvc._
+import play.data._
+import play.api.data.Field
+import play.mvc.Http.Context.Implicit._
 
 class index extends BaseScalaTemplate[play.twirl.api.HtmlFormat.Appendable,Format[play.twirl.api.HtmlFormat.Appendable]](play.twirl.api.HtmlFormat) with play.twirl.api.Template1[String,play.twirl.api.HtmlFormat.Appendable] {
 
@@ -26,7 +33,7 @@ Seq[Any](format.raw/*1.19*/("""
 
 """),_display_(/*3.2*/main("Welcome to Play")/*3.25*/ {_display_(Seq[Any](format.raw/*3.27*/("""
 
-    """),_display_(/*5.6*/play20/*5.12*/.welcome(message)),format.raw/*5.29*/("""
+    """),_display_(/*5.6*/play20/*5.12*/.welcome(message, style = "Java")),format.raw/*5.45*/("""
 
 """)))}),format.raw/*7.2*/("""
 """))
@@ -49,11 +56,11 @@ Seq[Any](format.raw/*1.19*/("""
 object index extends index_Scope0.index
               /*
                   -- GENERATED --
-                  DATE: Tue Oct 04 11:01:58 CEST 2016
+                  DATE: Tue Oct 04 11:10:51 CEST 2016
                   SOURCE: /Users/davide/GitHub/FlowUpServer/app/views/index.scala.html
-                  HASH: aeb73be514da17904eb1f62ccf8de981a6015ef2
-                  MATRIX: 527->1|639->18|667->21|698->44|737->46|769->53|783->59|820->76|852->79
-                  LINES: 20->1|25->1|27->3|27->3|27->3|29->5|29->5|29->5|31->7
+                  HASH: 8037d5e958aa9a759edcdb5f1116183b2d26c798
+                  MATRIX: 745->1|857->18|885->21|916->44|955->46|987->53|1001->59|1054->92|1086->95
+                  LINES: 27->1|32->1|34->3|34->3|34->3|36->5|36->5|36->5|38->7
                   -- GENERATED --
               */
           

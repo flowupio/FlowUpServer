@@ -1,7 +1,7 @@
 
 // @GENERATOR:play-routes-compiler
 // @SOURCE:/Users/davide/GitHub/FlowUpServer/conf/routes
-// @DATE:Tue Oct 04 11:01:58 CEST 2016
+// @DATE:Tue Oct 04 11:10:51 CEST 2016
 
 
 package router {

@@ -1,13 +1,14 @@
 
 // @GENERATOR:play-routes-compiler
 // @SOURCE:/Users/davide/GitHub/FlowUpServer/conf/routes
-// @DATE:Tue Oct 04 11:01:58 CEST 2016
+// @DATE:Tue Oct 04 11:10:51 CEST 2016
 
 import play.api.mvc.{ QueryStringBindable, PathBindable, Call, JavascriptLiteral }
 import play.core.routing.{ HandlerDef, ReverseRouteContext, queryString, dynamicString }
 
 
 import _root_.controllers.Assets.Asset
+import _root_.play.libs.F
 
 // @LINE:6
 package controllers {
