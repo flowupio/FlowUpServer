@@ -6,7 +6,10 @@ lazy val `flowupserver` = (project in file(".")).enablePlugins(PlayJava)
 
 scalaVersion := "2.11.7"
 
-libraryDependencies ++= Seq( javaJdbc ,  cache , javaWs )
+libraryDependencies ++= Seq( javaJdbc ,  cache , javaWs ,
+  "org.easytesting" % "fest-assert-core" % "2.0M10",
+  "org.easytesting" % "fest-assert" % "1.4"
+)
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
 
