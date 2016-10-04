@@ -1,0 +1,3 @@
+[debug] Copy resource mappings: 
+[debug] 	(/Users/davide/GitHub/FlowUpServer/conf/application.conf,/Users/davide/GitHub/FlowUpServer/target/scala-2.11/classes/application.conf)
+[debug] 	(/Users/davide/GitHub/FlowUpServer/conf/routes,/Users/davide/GitHub/FlowUpServer/target/scala-2.11/classes/routes)
