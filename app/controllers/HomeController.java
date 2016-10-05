@@ -1,15 +1,10 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import play.Logger;
-import play.libs.Json;
-import play.libs.ws.WSClient;
 import play.mvc.Controller;
 import play.mvc.Result;
+import usecases.InsertDataPoints;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -19,9 +14,7 @@ import java.util.concurrent.CompletionStage;
 public class HomeController extends Controller {
 
     @Inject
-    WSClient ws;
-
-    private static String elasticUrl = "http://localhost:9200/_bulk";
+    InsertDataPoints insertDataPoints;
 
     /**
      * An action that renders an HTML page with a welcome message.
@@ -30,23 +23,7 @@ public class HomeController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
     public CompletionStage<Result> index() {
-        ObjectNode actionAndMetadataJson = Json.newObject();
-        actionAndMetadataJson.putObject("index")
-                .put("_index", "statsd-test_counter")
-                .put("_type", "counter");
-
-        JsonNode OptionalSourceJson = Json.newObject()
-                .put("val", 123)
-                .put("@timestamp", Instant.now().toEpochMilli());
-
-        String content = actionAndMetadataJson + "\n" + OptionalSourceJson + "\n";
-
-        Logger.debug(content);
-
-
-
-        return ws.url(elasticUrl).setContentType("application/x-www-form-urlencoded")
-                .post(content).thenApply(response ->
+        return insertDataPoints.execute().thenApply(response ->
                 ok("elastic response: " + response.getBody())
         );
     }
