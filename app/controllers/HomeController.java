@@ -24,7 +24,7 @@ public class HomeController extends Controller {
      */
     public CompletionStage<Result> index() {
         return insertDataPoints.execute().thenApply(response ->
-                ok("elastic response: " + response.getBody())
+                ok("Metric Inserted \n" + "elastic response: " + response.getBody())
         );
     }
 }

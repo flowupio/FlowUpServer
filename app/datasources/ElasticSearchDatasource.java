@@ -41,7 +41,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         String content = actionAndMetadataJson + "\n" + OptionalSourceJson + "\n";
 
         Logger.debug(content);
-        
+
         return ws.url(getElasticUrl()).setContentType("application/x-www-form-urlencoded")
                 .post(content);
     }
