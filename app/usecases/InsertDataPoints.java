@@ -6,13 +6,14 @@ import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
 
 
-/**
- * Created by davide on 05/10/16.
- */
 public class InsertDataPoints {
 
+    private final MetricsDatasource metricsDatasource;
+
     @Inject
-    MetricsDatasource metricsDatasource;
+    public InsertDataPoints(MetricsDatasource metricsDatasource) {
+        this.metricsDatasource = metricsDatasource;
+    }
 
     public CompletionStage<WSResponse> execute() {
         return metricsDatasource.writeFakeCounter();

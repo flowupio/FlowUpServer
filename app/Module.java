@@ -5,9 +5,6 @@ import play.Configuration;
 import play.Environment;
 import usecases.MetricsDatasource;
 
-/**
- * Created by davide on 05/10/16.
- */
 public class Module extends AbstractModule {
 
 
@@ -28,6 +25,7 @@ public class Module extends AbstractModule {
                 .toInstance(elasticsearchConf);
 
         bind(MetricsDatasource.class)
-                .to(ElasticSearchDatasource.class);
+                .to(ElasticSearchDatasource.class)
+                .asEagerSingleton();
     }
 }

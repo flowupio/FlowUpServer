@@ -11,21 +11,19 @@ import usecases.MetricsDatasource;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Singleton;
 import java.time.Instant;
 import java.util.concurrent.CompletionStage;
 
-/**
- * Created by davide on 05/10/16.
- */
-@Singleton
 public class ElasticSearchDatasource implements MetricsDatasource {
 
-    @Inject
-    WSClient ws;
+    private final WSClient ws;
+    private final Configuration elasticsearchConf;
 
-    @Inject @Named("elasticsearch")
-    Configuration elasticsearchConf;
+    @Inject
+    public ElasticSearchDatasource(WSClient ws, @Named("elasticsearch") Configuration elasticsearchConf) {
+        this.ws = ws;
+        this.elasticsearchConf = elasticsearchConf;
+    }
 
     @Override
     public CompletionStage<WSResponse> writeFakeCounter() {
