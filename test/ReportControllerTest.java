@@ -28,7 +28,7 @@ import static play.test.Helpers.*;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ApplicationTest extends WithApplication {
+public class ReportControllerTest extends WithApplication {
 
     @Mock
     private MetricsDatasource metricsDatasource;
@@ -49,7 +49,11 @@ public class ApplicationTest extends WithApplication {
 
         Result result = route(requestBuilder);
 
-        assertEquals("{\"message\":\"Metrics Inserted\"}", contentAsString(result));
+        assertEqualsString("{\"message\":\"Metrics Inserted\"}", result);
+    }
+
+    private void assertEqualsString(String expect, Result result) {
+        assertEquals(expect, contentAsString(result));
         assertEquals(OK, result.status());
         assertEquals("application/json", result.contentType().get());
         assertEquals("UTF-8", result.charset().get());
