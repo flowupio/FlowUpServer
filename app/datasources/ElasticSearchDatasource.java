@@ -45,10 +45,11 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     private String getElasticUrl() {
+        String scheme = elasticsearchConf.getString("scheme");
         String host = elasticsearchConf.getString("host");
         String port = elasticsearchConf.getString("port");
         String bulkEndpoint = elasticsearchConf.getString("bulk_endpoint");
 
-        return "http://" + host + ":" + port + bulkEndpoint;
+        return scheme + "://" + host + ":" + port + bulkEndpoint;
     }
 }
