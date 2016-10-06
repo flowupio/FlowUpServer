@@ -1,0 +1,90 @@
+{
+  "appPackage": "com-nero-elrubius",
+  "deviceModel": "Nexus-5",
+  "screenDensity": "xxhdpi",
+  "screenSize": "800x600",
+  "installationUUID": "23452345",
+  "numberOfCores": 2,
+  "network": [
+    {
+      "timestamp": 123456,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "bytesUploaded": 300,
+      "bytesDownloaded": 1024
+    },
+    {
+      "timestamp": 123457,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "bytesUploaded": 300,
+      "bytesDownloaded": 1024
+    }
+  ],
+  "ui": [
+    {
+      "timestamp": 123458,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "screenName": "MainActivity",
+      "frameTime": 16,
+      "fps": 60
+    },
+    {
+      "timestamp": 123458,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "screenName": "DetailActivity",
+      "frameTime": 32,
+      "fps": 30
+    },
+    {
+      "timestamp": 200000,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "screenName": "MainActivity",
+      "frameTime": 16,
+      "fps": {
+        "avg": 60,
+        "p90": 60
+      }
+    }
+  ],
+  "cpu": [
+    {
+      "timestamp": 300000,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "consumption": 50
+    },
+    {
+      "timestamp": 300010,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "consumption": 50
+    }
+  ],
+  "gpu": [
+    {
+      "timestamp": 300000,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "consumption": 50
+    },
+    {
+      "timestamp": 300010,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "consumption": 50
+    }
+  ]
+}

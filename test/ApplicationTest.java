@@ -1,9 +1,25 @@
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import play.twirl.api.Content;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import play.Application;
+import play.inject.guice.GuiceApplicationBuilder;
+import play.libs.ws.WSResponse;
+import play.mvc.Http.RequestBuilder;
+import play.mvc.Result;
+import play.test.WithApplication;
+import usecases.MetricsDatasource;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static play.inject.Bindings.bind;
+import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.*;
 
 /**
  *
@@ -11,20 +27,46 @@ import static org.junit.Assert.assertTrue;
  * If you are interested in mocking a whole application, see the wiki for more details.
  *
  */
-public class ApplicationTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ApplicationTest extends WithApplication {
 
-    @Test
-    public void simpleCheck() {
-        int a = 1 + 1;
-        assertEquals(2, a);
+    @Mock
+    private MetricsDatasource metricsDatasource;
+
+    @Override
+    protected Application provideApplication() {
+        return new GuiceApplicationBuilder()
+                .overrides(bind(MetricsDatasource.class).toInstance(metricsDatasource))
+                .build();
     }
 
     @Test
-    public void renderTemplate() {
-        Content html = views.html.index.render("Your new application is ready.");
-        assertEquals("text/html", html.contentType());
-        assertTrue(html.body().contains("Your new application is ready."));
+    public void testReportAPI() {
+        RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+            .bodyText(getFile("reportRequest.json"))
+            .header("Content-Type", "application/json");
+        when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
+
+        Result result = route(requestBuilder);
+
+        assertEquals("{\"message\":\"Metrics Inserted\"}", contentAsString(result));
+        assertEquals(OK, result.status());
+        assertEquals("application/json", result.contentType().get());
+        assertEquals("UTF-8", result.charset().get());
     }
 
+    private String getFile(String fileName){
 
+        String result = "";
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        try {
+            result = IOUtils.toString(classLoader.getResourceAsStream(fileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+
+    }
 }
