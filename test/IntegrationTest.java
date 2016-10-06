@@ -20,12 +20,24 @@ import static play.test.Helpers.*;
 public class IntegrationTest {
 
     @Mock private MetricsDatasource metricsDatasource;
-    /**
-     * add your integration test here
-     * in this example we just check if the welcome page is being shown
-     */
+
+
     @Test
-    public void test() {
+    public void testIndex() {
+        Application application;
+        application = new GuiceApplicationBuilder()
+                .overrides(bind(MetricsDatasource.class).toInstance(metricsDatasource))
+                .build();
+
+
+        running(testServer(3333, application), HTMLUNIT, browser -> {
+            browser.goTo("http://localhost:3333");
+            assertTrue(browser.pageSource().contains("Welcome to FlowUp"));
+        });
+    }
+
+    @Test
+    public void testReport() {
         Application application;
         application = new GuiceApplicationBuilder()
                 .overrides(bind(MetricsDatasource.class).toInstance(metricsDatasource))
@@ -34,7 +46,7 @@ public class IntegrationTest {
         when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
 
         running(testServer(3333, application), HTMLUNIT, browser -> {
-            browser.goTo("http://localhost:3333");
+            browser.goTo("http://localhost:3333/report");
             assertTrue(browser.pageSource().contains("Metric Inserted"));
         });
     }
