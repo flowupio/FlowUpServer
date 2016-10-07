@@ -22,7 +22,7 @@ public class ReportController extends Controller {
         return insertDataPoints.execute().thenApply(response -> {
                     ReportResponse reportResponse = new ReportResponse();
                     reportResponse.message = "Metrics Inserted";
-                    return ok(Json.toJson(reportResponse));
+                    return created(Json.toJson(reportResponse));
                 }
         );
     }
