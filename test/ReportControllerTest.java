@@ -59,20 +59,17 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         assertEqualsString("{\"message\":\"Metrics Inserted\"}", result);
     }
 
-    @Test
-    public void testMalformedReportReport() {
-        RequestBuilder requestBuilder = fakeRequest("POST", "/report")
-                .bodyText(getFile("MalformedReportRequest.json"))
-                .header("Content-Type", "application/json");
-        when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
-
-        Result result = route(requestBuilder);
-
-        assertEquals(BAD_REQUEST, result.status());
-        assertTrue(contentAsJson(result).has("message"));
-        assertTrue(contentAsJson(result).get("message").asText().contains("Error decoding json body"));
-    }
-
-
-
+//    @Test
+//    public void testMalformedReportReport() {
+//        RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+//                .bodyText(getFile("MalformedReportRequest.json"))
+//                .header("Content-Type", "application/json");
+//        when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
+//
+//        Result result = route(requestBuilder);
+//
+//        assertEquals(BAD_REQUEST, result.status());
+//        assertTrue(contentAsJson(result).has("message"));
+//        assertTrue(contentAsJson(result).get("message").asText().contains("Error decoding json body"));
+//    }
 }
