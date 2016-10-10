@@ -16,7 +16,7 @@ public class InsertDataPoints {
         this.metricsDatasource = metricsDatasource;
     }
 
-    public CompletionStage<JsonNode> execute(List<DataPoint> dataPoints) {
-        return metricsDatasource.writeDataPoints(dataPoints);
+    public CompletionStage<JsonNode> execute(List<Metric> metrics) {
+        return metricsDatasource.writeDataPoints(metrics);
     }
 }

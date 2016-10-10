@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import play.Logger;
 import play.libs.Json;
-import usecases.BasicValue;
-import usecases.DataPoint;
-import usecases.MetricsDatasource;
+import usecases.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -24,36 +22,61 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     @Override
-    public CompletionStage<JsonNode> writeDataPoints(List<DataPoint> dataPoints) {
-        ObjectNode actionAndMetadataJson = Json.newObject();
-
+    public CompletionStage<JsonNode> writeDataPoints(List<Metric> metrics) {
         List<String> content = new ArrayList<>();
+        metrics.forEach(metric -> {
+            ObjectNode actionAndMetadataJson = Json.newObject();
+            actionAndMetadataJson.putObject("index")
+                    .put("_index", "statsd-" + metric.getName())
+                    .put("_type", "counter");
 
-        actionAndMetadataJson.putObject("index")
-                .put("_index", "statsd-network_data")
-                .put("_type", "counter");
+            metric.getDataPoints().forEach(datapoint -> {
 
-        dataPoints.forEach(datapoint -> {
+                ObjectNode sourceJson = Json.newObject()
+                        .put("@timestamp", datapoint.getTimestamp().getTime());
 
-            ObjectNode sourceJson = Json.newObject()
-                    .put("@timestamp", datapoint.getTimestamp().getTime());
+                datapoint.getMeasurements().stream().filter(measurement -> measurement._2 != null).forEach(measurement -> {
+                    if (measurement._2 instanceof BasicValue) {
+                        BasicValue basicValue = (BasicValue) measurement._2;
+                        sourceJson.put(measurement._1, basicValue.getValue());
+                    } else if (measurement._2 instanceof StatisticalValue) {
+                        StatisticalValue basicValue = (StatisticalValue) measurement._2;
+                        JsonNode statisticalValueJson = Json.newObject()
+                                .put("count", basicValue.getCount())
+                                .put("min", basicValue.getMin())
+                                .put("max", basicValue.getMax())
+                                .put("mean", basicValue.getMean())
+                                .put("median", basicValue.getMedian())
+                                .put("standardDev", basicValue.getStandardDev())
+                                .put("p5", basicValue.getP5())
+                                .put("p10", basicValue.getP10())
+                                .put("p15", basicValue.getP15())
+                                .put("p10", basicValue.getP20())
+                                .put("p25", basicValue.getP25())
+                                .put("p30", basicValue.getP30())
+                                .put("p40", basicValue.getP40())
+                                .put("p50", basicValue.getP50())
+                                .put("p60", basicValue.getP60())
+                                .put("p70", basicValue.getP70())
+                                .put("p80", basicValue.getP80())
+                                .put("p90", basicValue.getP90())
+                                .put("p95", basicValue.getP95())
+                                .put("p98", basicValue.getP98())
+                                .put("p99", basicValue.getP99());
 
-            datapoint.getMeasurements().forEach(measurement -> {
-                if (measurement._2 instanceof BasicValue) {
-                    BasicValue basicValue = (BasicValue) measurement._2;
-                    sourceJson.put(measurement._1, basicValue.getValue());
-                }
+                        sourceJson.put(measurement._1, statisticalValueJson);
+                    }
+                });
+
+                datapoint.getTags().forEach(tag -> {
+                    sourceJson.put(tag._1, tag._2);
+                });
+
+                content.add(actionAndMetadataJson.toString());
+                content.add(sourceJson.toString());
+
             });
-
-            datapoint.getTags().forEach(tag -> {
-                sourceJson.put(tag._1, tag._2);
-            });
-
-            content.add(actionAndMetadataJson.toString());
-            content.add(sourceJson.toString());
-
         });
-
 
         String bulkContent = StringUtils.join(content, "\n");
 
