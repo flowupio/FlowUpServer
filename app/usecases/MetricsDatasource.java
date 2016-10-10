@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public interface MetricsDatasource {
-    CompletionStage<JsonNode> writeDataPoints(List<DataPoint> dataPoints);
+    CompletionStage<JsonNode> writeDataPoints(List<Metric> metrics);
 }
