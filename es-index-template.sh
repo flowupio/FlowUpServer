@@ -2,11 +2,10 @@
 
 curl -XDELETE "${ES_HOST:-localhost}:${ES_PORT:-9200}/_template/statsd-template"
 curl -XDELETE "${ES_HOST:-localhost}:${ES_PORT:-9200}/statsd-network_data"
-curl -XDELETE "${ES_HOST:-localhost}:${ES_PORT:-9200}/_template/statsd-template"
 
 curl -XPUT "${ES_HOST:-localhost}:${ES_PORT:-9200}/_template/statsd-template" -d '
 {
-    "template" : "statsd-network_data",
+    "template" : "statsd-*",
     "settings" : {
         "number_of_shards" : 1
     },
@@ -47,14 +46,6 @@ curl -XPUT "${ES_HOST:-localhost}:${ES_PORT:-9200}/_template/statsd-template" -d
                 },
                 "ScreenSize": {
                     "type": "string",
-                    "index": "not_analyzed"
-                },
-                "BytesDownloaded": {
-                    "type": "double",
-                    "index": "not_analyzed"
-                },
-                "BytesUploaded": {
-                    "type": "double",
                     "index": "not_analyzed"
                 }
             }
