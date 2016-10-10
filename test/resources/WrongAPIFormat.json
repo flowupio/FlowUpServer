@@ -1,73 +1,96 @@
 {
-  "appPackage": "com.flowup.example",
-  "deviceModel": "Samsung Galaxy S3 - 4-1-1 - API 16 - 720x1280",
-  "installationUUID": "1e54751e.28be.404a.88c0.5004140323d8",
-  "screenDensity": "xhdpi",
-  "screenSize": "720X1280",
-  "numberOfCores": 1,
-  "network": {
-    "appVersionName": "1.0",
-    "androidOSVersion": "API16",
-    "timestamp": 1475859122801,
-    "batterySaverOn": false,
-    "bytesDownloaded": 1024,
-    "bytesUploaded": 512
-  },
-  "ui": {
-    "screen": "MainActivity",
-    "appVersionName": "1.0",
-    "androidOSVersion": "API16",
-    "timestamp": 1475859112835,
-    "batterySaverOn": false,
-    "frameTime": {
-      "count": 587,
-      "max": 1.33E+8,
-      "mean": 16264845.857388481,
-      "median": 1.6E+7,
-      "min": 1.6E+7,
-      "p10": 1.6E+7,
-      "p15": 1.6E+7,
-      "p20": 1.6E+7,
-      "p25": 1.6E+7,
-      "p30": 1.6E+7,
-      "p40": 1.6E+7,
-      "p5": 1.6E+7,
-      "p50": 1.6E+7,
-      "p60": 1.6E+7,
-      "p70": 1.6E+7,
-      "p75": 1.6E+7,
-      "p80": 1.6E+7,
-      "p85": 1.6E+7,
-      "p90": 1.6E+7,
-      "p95": 1.6E+7,
-      "p98": 1.6E+7,
-      "p99": 1.6E+7,
-      "standardDev": 5065541.347271319
+  "appPackage": "com-nero-elrubius",
+  "deviceModel": "Nexus-5",
+  "screenDensity": "xxhdpi",
+  "screenSize": "800x600",
+  "installationUUID": "23452345",
+  "numberOfCores": 2,
+  "network": [
+    {
+      "timestamp": 123456,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "bytesUploaded": 300,
+      "bytesDownloaded": 1024
     },
-    "framesPerSecond": {
-      "count": 587,
-      "max": 62.0,
-      "mean": 61.838628262697654,
-      "median": 62.0,
-      "min": 7.0,
-      "p10": 62.0,
-      "p15": 62.0,
-      "p20": 62.0,
-      "p25": 62.0,
-      "p30": 62.0,
-      "p40": 62.0,
-      "p5": 62.0,
-      "p50": 62.0,
-      "p60": 62.0,
-      "p70": 62.0,
-      "p75": 62.0,
-      "p80": 62.0,
-      "p85": 62.0,
-      "p90": 62.0,
-      "p95": 62.0,
-      "p98": 62.0,
-      "p99": 62.0,
-      "standardDev": 2.873908948701021
+    {
+      "timestamp": 123457,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "bytesUploaded": 300,
+      "bytesDownloaded": 1024
     }
-  }
+  ],
+  "ui": [
+    {
+      "timestamp": 123458,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "screenName": "MainActivity",
+      "frameTime": 16,
+      "fps": {
+        "avg": 60,
+        "p90": 60
+      }
+    },
+    {
+      "timestamp": 123458,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "screenName": "DetailActivity",
+      "frameTime": 32,
+      "fps": {
+        "avg": 60,
+        "p90": 60
+      }
+    },
+    {
+      "timestamp": 200000,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "screenName": "MainActivity",
+      "frameTime": 16,
+      "fps": {
+        "avg": 60,
+        "p90": 60
+      }
+    }
+  ],
+  "cpu": [
+    {
+      "timestamp": 300000,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "consumption": 50
+    },
+    {
+      "timestamp": 300010,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "consumption": 50
+    }
+  ],
+  "gpu": [
+    {
+      "timestamp": 300000,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "consumption": 50
+    },
+    {
+      "timestamp": 300010,
+      "versionName": "1-0-0",
+      "androidOSVersion": "API-14",
+      "baterySaverOn": true,
+      "consumption": 50
+    }
+  ]
 }
