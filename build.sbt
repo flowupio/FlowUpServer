@@ -8,7 +8,8 @@ scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq( javaJdbc ,  cache , javaWs,
   "com.novocode" % "junit-interface" % "0.11" % "test",
-  "org.mockito" % "mockito-all" % "1.10.19" % "test"
+  "org.mockito" % "mockito-all" % "1.10.19" % "test",
+  "org.hamcrest" % "hamcrest-junit" % "2.0.0.0" % "test"
 )
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
