@@ -1,9 +1,9 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import usecases.InsertDataPoints;
 
@@ -14,10 +14,10 @@ public class ReportController extends Controller {
     @Inject
     InsertDataPoints insertDataPoints;
 
-    @BodyParser.Of(BodyParser.Json.class)
+    @BodyParser.Of(ReportRequestBodyParser.class)
     public CompletionStage<Result> index() {
-        JsonNode json = request().body().asJson();
-        ReportRequest reportRequest = Json.fromJson(json, ReportRequest.class);
+        Http.RequestBody body = request().body();
+        ReportRequest reportRequest = body.as(ReportRequest.class);
 
         return insertDataPoints.execute().thenApply(response -> {
                     ReportResponse reportResponse = new ReportResponse();

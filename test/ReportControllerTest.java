@@ -12,8 +12,9 @@ import usecases.MetricsDatasource;
 
 import java.util.concurrent.CompletableFuture;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
@@ -57,6 +58,19 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
         assertEquals(CREATED, result.status());
         assertEqualsString("{\"message\":\"Metrics Inserted\"}", result);
+    }
+
+    @Test
+    public void testWrongAPIFormat() {
+        RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("WrongAPIFormat.json"))
+                .header("Content-Type", "application/json");
+        when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
+
+        Result result = route(requestBuilder);
+
+        assertEquals(BAD_REQUEST, result.status());
+        assertThat(contentAsString(result), containsString("Unable to read class"));
     }
 
 //    @Test
