@@ -2,7 +2,7 @@ package datasources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sun.deploy.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import play.Logger;
 import play.libs.Json;
 import usecases.BasicValue;
