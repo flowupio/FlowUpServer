@@ -12,48 +12,48 @@ class ReportRequest {
     private final String screenDensity;
     private final String screenSize;
     private final String installationUUID;
-    private final double numberOfCores;
-    private final List<Network> network = new ArrayList<Network>();
-    private final List<Ui> ui = new ArrayList<Ui>();
-    private final List<Cpu> cpu = new ArrayList<Cpu>();
-    private final List<Gpu> gpu = new ArrayList<Gpu>();
+    private final int numberOfCores;
+    private final List<Network> network = new ArrayList<>();
+    private final List<Ui> ui = new ArrayList<>();
+    private final List<Cpu> cpu = new ArrayList<>();
+    private final List<Gpu> gpu = new ArrayList<>();
 
     @Data
-    static class Network {
+    static class Network implements DatapointTags {
         private final long timestamp;
         private final String versionName;
         private final String androidOSVersion;
-        private final boolean baterySaverOn;
+        private final boolean batterySaverOn;
         private final double bytesUploaded;
         private final double bytesDownloaded;
     }
 
     @Data
-    static class Ui {
+    static class Ui implements DatapointTags {
         private final long timestamp;
         private final String versionName;
         private final String androidOSVersion;
-        private final boolean baterySaverOn;
+        private final boolean batterySaverOn;
         private final String screenName;
         private final StatisticalValue frameTime;
         private final StatisticalValue framesPerSecond;
     }
 
     @Data
-    static class Cpu {
+    static class Cpu implements DatapointTags {
         private final long timestamp;
         private final String versionName;
         private final String androidOSVersion;
-        private final boolean baterySaverOn;
+        private final boolean batterySaverOn;
         private final double consumption;
     }
 
     @Data
-    static class Gpu {
+    static class Gpu implements DatapointTags {
         private final long timestamp;
         private final String versionName;
         private final String androidOSVersion;
-        private final boolean baterySaverOn;
+        private final boolean batterySaverOn;
         private final double consumption;
     }
 

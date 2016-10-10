@@ -1,20 +1,21 @@
+import com.fasterxml.jackson.databind.JsonNode;
+import datasources.ElasticsearchClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.libs.ws.WSResponse;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.WithApplication;
-import usecases.MetricsDatasource;
 
 import java.util.concurrent.CompletableFuture;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
@@ -24,12 +25,12 @@ import static play.test.Helpers.*;
 public class ReportControllerTest extends WithApplication implements WithResources {
 
     @Mock
-    private MetricsDatasource metricsDatasource;
+    private ElasticsearchClient elasticsearchClient;
 
     @Override
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()
-                .overrides(bind(MetricsDatasource.class).toInstance(metricsDatasource))
+                .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
                 .build();
     }
 
@@ -38,7 +39,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         RequestBuilder requestBuilder = fakeRequest("POST", "/report")
             .bodyText(getFile("reportRequest.json"))
             .header("Content-Type", "application/json");
-        when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
+        when(elasticsearchClient.postBulk(anyString())).thenReturn(CompletableFuture.completedFuture(mock(JsonNode.class)));
 
         Result result = route(requestBuilder);
 
@@ -52,7 +53,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("EmptyReportRequest.json"))
                 .header("Content-Type", "application/json");
-        when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
+        when(elasticsearchClient.postBulk(anyString())).thenReturn(CompletableFuture.completedFuture(mock(JsonNode.class)));
 
         Result result = route(requestBuilder);
 
@@ -65,7 +66,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("WrongAPIFormat.json"))
                 .header("Content-Type", "application/json");
-        when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
+        when(elasticsearchClient.postBulk(anyString())).thenReturn(CompletableFuture.completedFuture(mock(JsonNode.class)));
 
         Result result = route(requestBuilder);
 
@@ -78,7 +79,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 //        RequestBuilder requestBuilder = fakeRequest("POST", "/report")
 //                .bodyText(getFile("MalformedReportRequest.json"))
 //                .header("Content-Type", "application/json");
-//        when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
+//        when(metricsDatasource.writeDataPoints()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
 //
 //        Result result = route(requestBuilder);
 //

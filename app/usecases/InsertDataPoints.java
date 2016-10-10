@@ -1,8 +1,9 @@
 package usecases;
 
-import play.libs.ws.WSResponse;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 
@@ -15,7 +16,7 @@ public class InsertDataPoints {
         this.metricsDatasource = metricsDatasource;
     }
 
-    public CompletionStage<WSResponse> execute() {
-        return metricsDatasource.writeFakeCounter();
+    public CompletionStage<JsonNode> execute(List<DataPoint> dataPoints) {
+        return metricsDatasource.writeDataPoints(dataPoints);
     }
 }
