@@ -2,31 +2,25 @@ package datasources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import play.Configuration;
 import play.Logger;
 import play.libs.Json;
-import play.libs.ws.WSClient;
-import play.libs.ws.WSResponse;
 import usecases.MetricsDatasource;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.time.Instant;
 import java.util.concurrent.CompletionStage;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
 
-    private final WSClient ws;
-    private final Configuration elasticsearchConf;
+    private final ElasticsearchClient elasticsearchClient;
 
     @Inject
-    public ElasticSearchDatasource(WSClient ws, @Named("elasticsearch") Configuration elasticsearchConf) {
-        this.ws = ws;
-        this.elasticsearchConf = elasticsearchConf;
+    public ElasticSearchDatasource(ElasticsearchClient elasticsearchClient) {
+        this.elasticsearchClient = elasticsearchClient;
     }
 
     @Override
-    public CompletionStage<WSResponse> writeFakeCounter() {
+    public CompletionStage<JsonNode> writeFakeCounter() {
         ObjectNode actionAndMetadataJson = Json.newObject();
         actionAndMetadataJson.putObject("index")
                 .put("_index", "statsd-test_counter")
@@ -40,16 +34,6 @@ public class ElasticSearchDatasource implements MetricsDatasource {
 
         Logger.debug(content);
 
-        return ws.url(getElasticUrl()).setContentType("application/x-www-form-urlencoded")
-                .post(content);
-    }
-
-    private String getElasticUrl() {
-        String scheme = elasticsearchConf.getString("scheme");
-        String host = elasticsearchConf.getString("host");
-        String port = elasticsearchConf.getString("port");
-        String bulkEndpoint = elasticsearchConf.getString("bulk_endpoint");
-
-        return scheme + "://" + host + ":" + port + bulkEndpoint;
+        return elasticsearchClient.postBulk(content);
     }
 }
