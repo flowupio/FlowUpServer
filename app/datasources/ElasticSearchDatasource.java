@@ -2,12 +2,16 @@ package datasources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.deploy.util.StringUtils;
 import play.Logger;
 import play.libs.Json;
+import usecases.BasicValue;
+import usecases.DataPoint;
 import usecases.MetricsDatasource;
 
 import javax.inject.Inject;
-import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
@@ -20,20 +24,41 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     @Override
-    public CompletionStage<JsonNode> writeFakeCounter() {
+    public CompletionStage<JsonNode> writeDataPoints(List<DataPoint> dataPoints) {
         ObjectNode actionAndMetadataJson = Json.newObject();
+
+        List<String> content = new ArrayList<>();
+
         actionAndMetadataJson.putObject("index")
-                .put("_index", "statsd-test_counter")
+                .put("_index", "statsd-network_data")
                 .put("_type", "counter");
 
-        JsonNode OptionalSourceJson = Json.newObject()
-                .put("val", 123)
-                .put("@timestamp", Instant.now().toEpochMilli());
+        dataPoints.forEach(datapoint -> {
 
-        String content = actionAndMetadataJson + "\n" + OptionalSourceJson + "\n";
+            ObjectNode sourceJson = Json.newObject()
+                    .put("@timestamp", datapoint.getTimestamp().getTime());
 
-        Logger.debug(content);
+            datapoint.getMeasurements().forEach(measurement -> {
+                if (measurement._2 instanceof BasicValue) {
+                    BasicValue basicValue = (BasicValue) measurement._2;
+                    sourceJson.put(measurement._1, basicValue.getValue());
+                }
+            });
 
-        return elasticsearchClient.postBulk(content);
+            datapoint.getTags().forEach(tag -> {
+                sourceJson.put(tag._1, tag._2);
+            });
+
+            content.add(actionAndMetadataJson.toString());
+            content.add(sourceJson.toString());
+
+        });
+
+
+        String bulkContent = StringUtils.join(content, "\n");
+
+        Logger.debug(bulkContent);
+
+        return elasticsearchClient.postBulk(bulkContent);
     }
 }

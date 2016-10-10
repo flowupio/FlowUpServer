@@ -79,7 +79,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 //        RequestBuilder requestBuilder = fakeRequest("POST", "/report")
 //                .bodyText(getFile("MalformedReportRequest.json"))
 //                .header("Content-Type", "application/json");
-//        when(metricsDatasource.writeFakeCounter()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
+//        when(metricsDatasource.writeDataPoints()).thenReturn(CompletableFuture.completedFuture(mock(WSResponse.class)));
 //
 //        Result result = route(requestBuilder);
 //

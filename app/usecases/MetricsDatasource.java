@@ -1,9 +1,10 @@
 package usecases;
 
-import play.libs.ws.WSResponse;
+import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public interface MetricsDatasource {
-    CompletionStage<WSResponse> writeFakeCounter();
+    CompletionStage<JsonNode> writeDataPoints(List<DataPoint> dataPoints);
 }
