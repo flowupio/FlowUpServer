@@ -3,9 +3,11 @@ package datasources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
-import play.Logger;
 import play.libs.Json;
-import usecases.*;
+import usecases.BasicValue;
+import usecases.Metric;
+import usecases.MetricsDatasource;
+import usecases.StatisticalValue;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -78,9 +80,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
             });
         });
 
-        String bulkContent = StringUtils.join(content, "\n");
-
-        Logger.debug(bulkContent);
+        String bulkContent = StringUtils.join(content, "\n") + "\n";
 
         return elasticsearchClient.postBulk(bulkContent);
     }

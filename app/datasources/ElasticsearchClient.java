@@ -2,6 +2,7 @@ package datasources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import play.Configuration;
+import play.Logger;
 import play.libs.ws.WSClient;
 
 import javax.inject.Inject;
@@ -26,11 +27,15 @@ public class ElasticsearchClient {
     }
 
     public CompletionStage<JsonNode> postBulk(String content) {
+        Logger.debug(content);
+
         String bulkEndpoint = elasticsearchConf.getString("bulk_endpoint");
 
         return ws.url(baseUrl + bulkEndpoint).setContentType("application/x-www-form-urlencoded").post(content).thenApply(
-                response ->
-                        response.asJson()
+                response -> {
+                    Logger.debug(response.getBody());
+                    return response.asJson();
+                }
         );
     }
 
