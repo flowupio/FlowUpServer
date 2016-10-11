@@ -1,69 +1,29 @@
 {
   "appPackage": "com.flowup.example",
-  "deviceModel": "Android SDK built for x86",
+  "deviceModel": "Nexus 5X",
   "network": [
     {
-      "bytesDownloaded": 0,
-      "bytesUploaded": 0,
+      "bytesDownloaded": 510,
+      "bytesUploaded": 12735,
       "appVersionName": "1.0",
       "batterySaverOn": false,
-      "androidOSVersion": "API22",
-      "timestamp": 1476087716924
-    },
-    {
-      "bytesDownloaded": 0,
-      "bytesUploaded": 0,
-      "appVersionName": "1.0",
-      "batterySaverOn": false,
-      "androidOSVersion": "API22",
-      "timestamp": 1476087716924
+      "androidOSVersion": "API24",
+      "timestamp": 1476120748395
     }
   ],
-  "numberOfCores": 2,
+  "numberOfCores": 6,
   "screenDensity": "xhdpi",
   "screenSize": "1080X1794",
   "ui": [
     {
-      "framesPerSecond": {
-        "count": 582,
-        "max": 62.0,
-        "mean": 61.7741766052368,
-        "median": 62.0,
-        "min": 7.0,
-        "p10": 62.0,
-        "p15": 62.0,
-        "p20": 62.0,
-        "p25": 62.0,
-        "p30": 62.0,
-        "p40": 62.0,
-        "p5": 62.0,
-        "p50": 62.0,
-        "p60": 62.0,
-        "p70": 62.0,
-        "p75": 62.0,
-        "p80": 62.0,
-        "p85": 62.0,
-        "p90": 62.0,
-        "p95": 62.0,
-        "p98": 62.0,
-        "p99": 62.0,
-        "standardDev": 3.296598294616368
-      },
-      "screen": "MainActivity",
-      "appVersionName": "1.0",
-      "batterySaverOn": false,
-      "androidOSVersion": "API22",
-      "timestamp": 1476087707042
-    },
-    {
       "frameTime": {
-        "count": 582,
-        "max": 1.33E+8,
-        "mean": 16349280.017144082,
+        "count": 1028,
+        "max": 3.0E+7,
+        "mean": 15966341.351233102,
         "median": 1.6E+7,
-        "min": 1.6E+7,
-        "p10": 1.6E+7,
-        "p15": 1.6E+7,
+        "min": 9000000.0,
+        "p10": 1.3E+7,
+        "p15": 1.4E+7,
         "p20": 1.6E+7,
         "p25": 1.6E+7,
         "p30": 1.6E+7,
@@ -74,21 +34,21 @@
         "p70": 1.6E+7,
         "p75": 1.6E+7,
         "p80": 1.6E+7,
-        "p85": 1.6E+7,
-        "p90": 1.6E+7,
-        "p95": 1.6E+7,
-        "p98": 1.6E+7,
-        "p99": 1.6E+7,
-        "standardDev": 5773380.555017518
+        "p85": 1.7E+7,
+        "p90": 1.9E+7,
+        "p95": 2.1E+7,
+        "p98": 2.2E+7,
+        "p99": 2.3E+7,
+        "standardDev": 2490708.6910710586
       },
       "framesPerSecond": {
-        "count": 582,
-        "max": 62.0,
-        "mean": 61.7741766052368,
+        "count": 1028,
+        "max": 111.0,
+        "mean": 63.303938581028895,
         "median": 62.0,
-        "min": 7.0,
-        "p10": 62.0,
-        "p15": 62.0,
+        "min": 31.0,
+        "p10": 52.0,
+        "p15": 55.0,
         "p20": 62.0,
         "p25": 62.0,
         "p30": 62.0,
@@ -99,19 +59,19 @@
         "p70": 62.0,
         "p75": 62.0,
         "p80": 62.0,
-        "p85": 62.0,
-        "p90": 62.0,
-        "p95": 62.0,
-        "p98": 62.0,
-        "p99": 62.0,
-        "standardDev": 3.296598294616368
+        "p85": 66.0,
+        "p90": 76.0,
+        "p95": 90.0,
+        "p98": 100.0,
+        "p99": 100.0,
+        "standardDev": 11.295012713159121
       },
       "screen": "MainActivity",
       "appVersionName": "1.0",
       "batterySaverOn": false,
-      "androidOSVersion": "API22",
-      "timestamp": 1476087707046
+      "androidOSVersion": "API24",
+      "timestamp": 1476120721351
     }
   ],
-  "installationUUID": "ca849ae2-5604-4381-92e1-c94655be6e71"
+  "installationUUID": "d338dba7-6175-4c40-b632-d07bc93f14a8"
 }
