@@ -91,7 +91,7 @@ class DataPointMapper {
             List<F.Tuple<String, String>> tags = new ArrayList<>();
             addReportLevelTags(tags, reportRequest);
             addDatapointLevelTags(tags, ui);
-            tags.add(new F.Tuple<>(SCREEN_NAME, ui.getScreenName()));
+            tags.add(new F.Tuple<>(SCREEN_NAME, ui.getScreen()));
 
             dataPoints.add(new DataPoint(new Date(ui.getTimestamp()), measurements, tags));
         });
@@ -120,7 +120,7 @@ class DataPointMapper {
     }
 
     private void addDatapointLevelTags(List<F.Tuple<String, String>> tags, DatapointTags datapointTags) {
-        tags.add(new F.Tuple<>(VERSION_NAME, datapointTags.getVersionName()));
+        tags.add(new F.Tuple<>(VERSION_NAME, datapointTags.getAppVersionName()));
         tags.add(new F.Tuple<>(ANDROID_OS_VERSION, datapointTags.getAndroidOSVersion()));
         tags.add(new F.Tuple<>(BATTERY_SAVER_ON, Boolean.toString(datapointTags.isBatterySaverOn())));
     }

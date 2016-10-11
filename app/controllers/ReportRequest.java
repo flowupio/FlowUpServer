@@ -22,7 +22,7 @@ class ReportRequest {
     @Data
     static class Network implements DatapointTags {
         private final long timestamp;
-        private final String versionName;
+        private final String appVersionName;
         private final String androidOSVersion;
         private final boolean batterySaverOn;
         private final double bytesUploaded;
@@ -32,10 +32,10 @@ class ReportRequest {
     @Data
     static class Ui implements DatapointTags {
         private final long timestamp;
-        private final String versionName;
+        private final String appVersionName;
         private final String androidOSVersion;
         private final boolean batterySaverOn;
-        private final String screenName;
+        private final String screen;
         private final StatisticalValue frameTime;
         private final StatisticalValue framesPerSecond;
     }
@@ -43,7 +43,7 @@ class ReportRequest {
     @Data
     static class Cpu implements DatapointTags, ProcessingUnit {
         private final long timestamp;
-        private final String versionName;
+        private final String appVersionName;
         private final String androidOSVersion;
         private final boolean batterySaverOn;
         private final double consumption;
@@ -52,7 +52,7 @@ class ReportRequest {
     @Data
     static class Gpu implements DatapointTags, ProcessingUnit {
         private final long timestamp;
-        private final String versionName;
+        private final String appVersionName;
         private final String androidOSVersion;
         private final boolean batterySaverOn;
         private final double consumption;

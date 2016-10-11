@@ -1,7 +1,7 @@
 package controllers;
 
 interface DatapointTags {
-    String getVersionName();
+    String getAppVersionName();
 
     String getAndroidOSVersion();
 
