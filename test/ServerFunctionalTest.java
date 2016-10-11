@@ -1,4 +1,11 @@
+import com.fasterxml.jackson.databind.JsonNode;
+import datasources.ElasticsearchClient;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import play.Application;
+import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
@@ -7,14 +14,32 @@ import play.test.WithServer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.REQUEST_ENTITY_TOO_LARGE;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ServerFunctionalTest extends WithServer implements WithResources {
+
+    @Mock
+    private ElasticsearchClient elasticsearchClient;
+
+    @Override
+    protected Application provideApplication() {
+        when(elasticsearchClient.postBulk(anyString())).thenReturn(CompletableFuture.completedFuture(mock(JsonNode.class)));
+
+        return new GuiceApplicationBuilder()
+                .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+                .build();
+    }
 
     @Test
     public void testRequestTooLarge() throws Exception {
