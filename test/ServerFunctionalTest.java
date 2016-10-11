@@ -1,7 +1,10 @@
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import datasources.ElasticsearchClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
@@ -16,12 +19,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.CREATED;
@@ -32,6 +37,9 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Mock
     private ElasticsearchClient elasticsearchClient;
+
+    @Captor
+    private ArgumentCaptor<List<JsonNode>> argument;
 
     @Override
     protected Application provideApplication() {
@@ -54,6 +62,7 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
                     .setHeader("Content-Encoding", "gzip")
                     .post(new ByteArrayInputStream(gzip(getFile("TooLargeRequest.json"))));
             WSResponse response = stage.toCompletableFuture().get();
+
             assertEquals(REQUEST_ENTITY_TOO_LARGE, response.getStatus());
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -69,6 +78,9 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
                     .setHeader("Content-Encoding", "gzip")
                     .post(new ByteArrayInputStream(gzip(getFile("9andAhalfMBRequest.json"))));
             WSResponse response = stage.toCompletableFuture().get();
+
+            verify(elasticsearchClient).postBulk(argument.capture());
+            assertEquals(15664, argument.getValue().size());
             assertEquals(CREATED, response.getStatus());
         } catch (InterruptedException e) {
             e.printStackTrace();
