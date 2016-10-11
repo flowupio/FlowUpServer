@@ -13,6 +13,9 @@ before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
   - find $HOME/.sbt -name "*.lock" -delete
 
+env:
+- LOG_APP_LEVEL=INFO
+
 before_deploy:
 - sbt dist
 
