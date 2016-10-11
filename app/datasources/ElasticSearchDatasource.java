@@ -82,8 +82,8 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     private InsertResult processResponse(JsonNode jsonNode) {
         List<InsertResult.MetricResult> items = new ArrayList<>();
         jsonNode.get("items").forEach(item -> {
-            String name = item.get("_index").asText().replace(STATSD, "");
-            items.add(new InsertResult.MetricResult(name, item.get("successful").asLong()));
+            String name = item.get("create").get("_index").asText().replace(STATSD, "");
+            items.add(new InsertResult.MetricResult(name, item.get("create").get("successful").asLong()));
         });
 
         return new InsertResult(jsonNode.get("errors").asBoolean(), items);
