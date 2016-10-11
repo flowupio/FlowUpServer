@@ -1,4 +1,4 @@
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import datasources.ElasticsearchClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -6,17 +6,18 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.libs.Json;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.WithApplication;
 
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 import static play.test.Helpers.*;
@@ -29,6 +30,11 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Override
     protected Application provideApplication() {
+        ObjectNode postBulkResult = Json.newObject()
+                .put("errors", false)
+                .putPOJO("items", new ArrayList());
+        when(elasticsearchClient.postBulk(anyList())).thenReturn(CompletableFuture.completedFuture(postBulkResult));
+
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
                 .build();
@@ -39,12 +45,11 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         RequestBuilder requestBuilder = fakeRequest("POST", "/report")
             .bodyText(getFile("reportRequest.json"))
             .header("Content-Type", "application/json");
-        when(elasticsearchClient.postBulk(anyString())).thenReturn(CompletableFuture.completedFuture(mock(JsonNode.class)));
 
         Result result = route(requestBuilder);
 
         assertEquals(CREATED, result.status());
-        assertEqualsString("{\"message\":\"Metrics Inserted\"}", result);
+        assertEqualsString("{\"message\":\"Metrics Inserted\",\"result\":{\"hasErrors\":false,\"items\":[]}}", result);
     }
 
 
@@ -53,12 +58,11 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("EmptyReportRequest.json"))
                 .header("Content-Type", "application/json");
-        when(elasticsearchClient.postBulk(anyString())).thenReturn(CompletableFuture.completedFuture(mock(JsonNode.class)));
 
         Result result = route(requestBuilder);
 
         assertEquals(CREATED, result.status());
-        assertEqualsString("{\"message\":\"Metrics Inserted\"}", result);
+        assertEqualsString("{\"message\":\"Metrics Inserted\",\"result\":{\"hasErrors\":false,\"items\":[]}}", result);
     }
 
     @Test
@@ -66,7 +70,6 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("WrongAPIFormat.json"))
                 .header("Content-Type", "application/json");
-        when(elasticsearchClient.postBulk(anyString())).thenReturn(CompletableFuture.completedFuture(mock(JsonNode.class)));
 
         Result result = route(requestBuilder);
 

@@ -1,7 +1,5 @@
 package usecases;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -16,7 +14,7 @@ public class InsertDataPoints {
         this.metricsDatasource = metricsDatasource;
     }
 
-    public CompletionStage<JsonNode> execute(List<Metric> metrics) {
+    public CompletionStage<InsertResult> execute(List<Metric> metrics) {
         return metricsDatasource.writeDataPoints(metrics);
     }
 }

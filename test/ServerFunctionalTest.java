@@ -1,4 +1,4 @@
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import datasources.ElasticsearchClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.libs.Json;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
@@ -14,13 +15,13 @@ import play.test.WithServer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.CREATED;
@@ -34,7 +35,10 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Override
     protected Application provideApplication() {
-        when(elasticsearchClient.postBulk(anyString())).thenReturn(CompletableFuture.completedFuture(mock(JsonNode.class)));
+        ObjectNode postBulkResult = Json.newObject()
+                .put("errors", false)
+                .putPOJO("items", new ArrayList());
+        when(elasticsearchClient.postBulk(anyList())).thenReturn(CompletableFuture.completedFuture(postBulkResult));
 
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
