@@ -38,7 +38,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     @Override
     protected Application provideApplication() {
         ArrayNode items = Json.newArray();
-        items.add(Json.newObject().put("_index", "statsd-network_data").put("successful", 1));
+        items.add(Json.newObject().set("create", Json.newObject().put("_index", "statsd-network_data").put("successful", 1)));
         JsonNode postBulkResult = Json.newObject()
                 .put("errors", false)
                 .set("items", items);
