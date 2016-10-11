@@ -23,7 +23,7 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
             CompletionStage<WSResponse> stage = ws.url(url)
                     .setContentType("application/json")
                     .setHeader("Content-Encoding", "gzip")
-                    .post(new ByteArrayInputStream(gzip(getFile("aBunchOfData.json"))));
+                    .post(new ByteArrayInputStream(gzip(getFile("TooLargeRequest.json"))));
             WSResponse response = stage.toCompletableFuture().get();
             assertEquals(REQUEST_ENTITY_TOO_LARGE, response.getStatus());
         } catch (InterruptedException e) {
@@ -38,7 +38,7 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
             CompletionStage<WSResponse> stage = ws.url(url)
                     .setContentType("application/json")
                     .setHeader("Content-Encoding", "gzip")
-                    .post(new ByteArrayInputStream(gzip(getFile("9andAhalfMB.json"))));
+                    .post(new ByteArrayInputStream(gzip(getFile("9andAhalfMBRequest.json"))));
             WSResponse response = stage.toCompletableFuture().get();
             assertEquals(CREATED, response.getStatus());
         } catch (InterruptedException e) {
