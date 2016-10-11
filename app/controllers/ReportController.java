@@ -35,9 +35,8 @@ public class ReportController extends Controller {
         metrics.add(new Metric("cpu_data", dataPointMapper.mapCpu(reportRequest)));
         metrics.add(new Metric("gpu_data", dataPointMapper.mapGpu(reportRequest)));
 
-        return insertDataPoints.execute(metrics).thenApply(response -> {
-                    ReportResponse reportResponse = new ReportResponse();
-                    reportResponse.message = "Metrics Inserted";
+        return insertDataPoints.execute(metrics).thenApply(result -> {
+                    ReportResponse reportResponse = new ReportResponse("Metrics Inserted", result);
                     return created(Json.toJson(reportResponse));
                 }
         );

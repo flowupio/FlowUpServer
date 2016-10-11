@@ -2,12 +2,8 @@ package datasources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang3.StringUtils;
 import play.libs.Json;
-import usecases.BasicValue;
-import usecases.Metric;
-import usecases.MetricsDatasource;
-import usecases.StatisticalValue;
+import usecases.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -16,6 +12,7 @@ import java.util.concurrent.CompletionStage;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
 
+    private static final String STATSD = "statsd-";
     private final ElasticsearchClient elasticsearchClient;
 
     @Inject
@@ -24,12 +21,12 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     @Override
-    public CompletionStage<JsonNode> writeDataPoints(List<Metric> metrics) {
-        List<String> content = new ArrayList<>();
+    public CompletionStage<InsertResult> writeDataPoints(List<Metric> metrics) {
+        List<JsonNode> content = new ArrayList<>();
         metrics.forEach(metric -> {
             ObjectNode actionAndMetadataJson = Json.newObject();
             actionAndMetadataJson.putObject("index")
-                    .put("_index", "statsd-" + metric.getName())
+                    .put("_index", STATSD + metric.getName())
                     .put("_type", "counter");
 
             metric.getDataPoints().forEach(datapoint -> {
@@ -74,14 +71,21 @@ public class ElasticSearchDatasource implements MetricsDatasource {
                     sourceJson.put(tag._1, tag._2);
                 });
 
-                content.add(actionAndMetadataJson.toString());
-                content.add(sourceJson.toString());
-
+                content.add(actionAndMetadataJson);
+                content.add(sourceJson);
             });
         });
 
-        String bulkContent = StringUtils.join(content, "\n") + "\n";
+        return elasticsearchClient.postBulk(content).thenApply(this::processResponse);
+    }
 
-        return elasticsearchClient.postBulk(bulkContent);
+    private InsertResult processResponse(JsonNode jsonNode) {
+        List<InsertResult.MetricResult> items = new ArrayList<>();
+        jsonNode.get("items").forEach(item -> {
+            String name = item.get("_index").asText().replace(STATSD, "");
+            items.add(new InsertResult.MetricResult(name, item.get("successful").asLong()));
+        });
+
+        return new InsertResult(jsonNode.get("errors").asBoolean(), items);
     }
 }

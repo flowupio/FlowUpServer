@@ -1,5 +1,10 @@
 package controllers;
 
+import lombok.Data;
+import usecases.InsertResult;
+
+@Data
 class ReportResponse {
-    public String message;
+    private final String message;
+    private final InsertResult result;
 }
