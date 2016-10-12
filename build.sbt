@@ -2,7 +2,7 @@ name := "flowupserver"
 
 version := "1.0"
 
-lazy val `flowupserver` = (project in file(".")).enablePlugins(PlayJava)
+lazy val `flowupserver` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 scalaVersion := "2.11.7"
 
@@ -13,7 +13,11 @@ libraryDependencies ++= Seq( javaJdbc ,  cache , javaWs,
   "org.hamcrest" % "hamcrest-junit" % "2.0.0.0" % "test"
 )
 
-unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
+
+libraryDependencies += "org.webjars" %% "webjars-play" % "2.5.0"
+libraryDependencies += "org.webjars" % "bootstrap" % "3.3.4"
+
+unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
