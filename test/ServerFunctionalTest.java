@@ -14,6 +14,7 @@ import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.test.WithServer;
+import utils.WithResources;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

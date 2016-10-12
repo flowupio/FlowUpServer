@@ -13,6 +13,7 @@ import play.libs.Json;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import play.test.WithApplication;
+import utils.WithResources;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
