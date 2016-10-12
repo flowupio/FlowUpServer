@@ -26,7 +26,7 @@ public class ElasticSearchDatasourceTest implements WithResources {
 
     @Test
     public void parsingElasticSearchClientResponse() throws Exception {
-        JsonNode postBulkResult = Json.parse(getFile("es_bulk_response.json"));
+        JsonNode postBulkResult = Json.parse(getFile("elasticsearch/es_bulk_response.json"));
         ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
         when(elasticsearchClient.postBulk(anyListOf(JsonNode.class)))
                 .thenReturn(CompletableFuture.completedFuture(postBulkResult));

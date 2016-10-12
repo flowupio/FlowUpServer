@@ -1,5 +1,4 @@
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import datasources.ElasticsearchClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,12 +37,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Override
     protected Application provideApplication() {
-        ArrayNode items = Json.newArray();
-        items.add(Json.newObject().set("create", Json.newObject().put("_index", "statsd-network_data").put("successful", 1)));
-        JsonNode postBulkResult = Json.newObject()
-                .put("errors", false)
-                .set("items", items);
-
+        JsonNode postBulkResult = Json.parse(getFile("elasticsearch/es_simple_bulk_response.json"));
         when(elasticsearchClient.postBulk(anyListOf(JsonNode.class))).thenReturn(CompletableFuture.completedFuture(postBulkResult));
 
         return new GuiceApplicationBuilder()
