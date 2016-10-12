@@ -1,3 +1,5 @@
+package utils;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.IOUtils;
 import play.libs.Json;
@@ -8,7 +10,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.contentAsString;
 
-interface WithResources {
+public interface WithResources {
 
     default void assertEqualsString(String expect, Result result) {
         assertEquals(expect, contentAsString(result));
