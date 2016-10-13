@@ -53,7 +53,6 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
         when(elasticsearchClient.postBulk(anyList())).thenReturn(CompletableFuture.completedFuture(postBulkResult));
 
         return new GuiceApplicationBuilder()
-                .configure((Map) Helpers.inMemoryDatabase("flowupdb", ImmutableMap.of("MODE", "MYSQL")))
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
                 .build();
     }
