@@ -13,6 +13,7 @@ import play.libs.Json;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
+import play.test.Helpers;
 import play.test.WithServer;
 import utils.WithResources;
 
@@ -21,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.zip.GZIPOutputStream;
@@ -50,6 +52,7 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
         when(elasticsearchClient.postBulk(anyList())).thenReturn(CompletableFuture.completedFuture(postBulkResult));
 
         return new GuiceApplicationBuilder()
+                .configure((Map) Helpers.inMemoryDatabase())
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
                 .build();
     }
