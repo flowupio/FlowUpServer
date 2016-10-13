@@ -2,7 +2,6 @@ package controllers;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableMap;
 import datasources.ElasticsearchClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,12 +14,10 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
 import play.test.WithApplication;
 import utils.WithResources;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,9 +29,7 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
-import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
-import static play.test.Helpers.route;
+import static play.test.Helpers.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReportControllerTest extends WithApplication implements WithResources {
@@ -51,7 +46,6 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         when(elasticsearchClient.postBulk(anyListOf(JsonNode.class))).thenReturn(CompletableFuture.completedFuture(postBulkResult));
 
         return new GuiceApplicationBuilder()
-                .configure((Map) Helpers.inMemoryDatabase("flowupdb", ImmutableMap.of("MODE", "MYSQL")))
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
                 .build();
     }

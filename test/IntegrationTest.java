@@ -1,11 +1,7 @@
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.test.Helpers;
 import play.test.WithBrowser;
-
-import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
@@ -16,7 +12,6 @@ public class IntegrationTest extends WithBrowser {
     protected Application provideApplication() {
 
         return new GuiceApplicationBuilder()
-                .configure((Map) Helpers.inMemoryDatabase("flowupdb", ImmutableMap.of("MODE", "MYSQL")))
                 .build();
     }
 
