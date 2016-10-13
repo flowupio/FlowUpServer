@@ -3,18 +3,18 @@
 
 # --- !Ups
 
-create table users (
+create table user (
   id                            uuid not null,
   email                         varchar(255),
   name                          varchar(255),
   active                        boolean,
   email_validated               boolean,
-  constraint uq_users_email unique (email),
-  constraint pk_users primary key (id)
+  constraint uq_user_email unique (email),
+  constraint pk_user primary key (id)
 );
 
 
 # --- !Downs
 
-drop table if exists users;
+drop table if exists user;
 
