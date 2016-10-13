@@ -1,3 +1,4 @@
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -15,7 +16,7 @@ public class IntegrationTest extends WithBrowser {
     protected Application provideApplication() {
 
         return new GuiceApplicationBuilder()
-                .configure((Map) Helpers.inMemoryDatabase())
+                .configure((Map) Helpers.inMemoryDatabase("flowupdb", ImmutableMap.of("MODE", "MYSQL")))
                 .build();
     }
 
