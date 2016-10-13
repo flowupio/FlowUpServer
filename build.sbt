@@ -13,6 +13,8 @@ libraryDependencies ++= Seq( javaJdbc ,  cache , javaWs,
   "org.hamcrest" % "hamcrest-junit" % "2.0.0.0" % "test"
 )
 
+libraryDependencies += "com.feth" % "play-authenticate_2.11" % "0.7.1"
+
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
