@@ -16,9 +16,7 @@ before_cache:
 services:
   - mysql
 env:
-- LOG_APP_LEVEL=INFO
-- MYSQL_USER=travis
-- MYSQL_PASSWORD=""
+- LOG_APP_LEVEL=INFO MYSQL_USER=travis MYSQL_PASSWORD=""
 
 before_install:
   - mysql -e "create database IF NOT EXISTS flowupdb;" -uroot
