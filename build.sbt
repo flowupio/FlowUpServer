@@ -19,6 +19,7 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 topLevelDirectory := None
 
-mappings in Universal in packageBin += file("Dockerfile") -> "Dockerfile"
+mappings in Universal in packageBin += file("aws-config/Dockerfile") -> "Dockerfile"
+mappings in Universal in packageBin += file("aws-config/Dockerrun.aws.json") -> "Dockerrun.aws.json"
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
