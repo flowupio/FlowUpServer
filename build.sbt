@@ -2,7 +2,7 @@ name := "flowupserver"
 
 version := "1.0"
 
-lazy val `flowupserver` = (project in file(".")).enablePlugins(PlayJava)
+lazy val `flowupserver` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 scalaVersion := "2.11.7"
 
@@ -14,6 +14,9 @@ libraryDependencies ++= Seq( javaJdbc ,  cache , javaWs,
 )
 
 libraryDependencies += "com.feth" % "play-authenticate_2.11" % "0.7.1"
+libraryDependencies += "org.webjars" %% "webjars-play" % "2.5.0"
+libraryDependencies += "org.webjars" % "bootstrap" % "3.3.4"
+libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.40"
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
 
@@ -21,6 +24,7 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 topLevelDirectory := None
 
-mappings in Universal in packageBin += file("Dockerfile") -> "Dockerfile"
+mappings in Universal in packageBin += file("aws-config/Dockerfile") -> "Dockerfile"
+mappings in Universal in packageBin += file("aws-config/Dockerrun.aws.json") -> "Dockerrun.aws.json"
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")

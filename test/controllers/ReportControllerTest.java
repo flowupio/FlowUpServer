@@ -1,3 +1,6 @@
+package controllers;
+
+
 import com.fasterxml.jackson.databind.JsonNode;
 import datasources.ElasticsearchClient;
 import org.junit.Test;
@@ -9,12 +12,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
-import play.mvc.Http.RequestBuilder;
+import play.mvc.Http;
 import play.mvc.Result;
+import play.test.Helpers;
 import play.test.WithApplication;
 import utils.WithResources;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,7 +29,11 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
-import static play.test.Helpers.*;
+import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.CREATED;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.route;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReportControllerTest extends WithApplication implements WithResources {
@@ -41,15 +50,16 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         when(elasticsearchClient.postBulk(anyListOf(JsonNode.class))).thenReturn(CompletableFuture.completedFuture(postBulkResult));
 
         return new GuiceApplicationBuilder()
+                .configure((Map) Helpers.inMemoryDatabase())
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
                 .build();
     }
 
     @Test
     public void testReportAPI() {
-        RequestBuilder requestBuilder = fakeRequest("POST", "/report")
-            .bodyText(getFile("reportRequest.json"))
-            .header("Content-Type", "application/json");
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("Content-Type", "application/json");
 
         Result result = route(requestBuilder);
 
@@ -62,7 +72,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testEmptyReport() {
-        RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("EmptyReportRequest.json"))
                 .header("Content-Type", "application/json");
 
@@ -76,7 +86,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testWrongAPIFormat() {
-        RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("WrongAPIFormat.json"))
                 .header("Content-Type", "application/json");
 

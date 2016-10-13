@@ -4,8 +4,8 @@ import com.feth.play.module.pa.PlayAuthenticate;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.login;
-
 import javax.inject.Inject;
+import views.html.index;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -13,14 +13,16 @@ import javax.inject.Inject;
  */
 public class HomeController extends Controller {
 
-    public static final String FLASH_MESSAGE_KEY = "message";
-    public static final String FLASH_ERROR_KEY = "error";
+    static final String FLASH_MESSAGE_KEY = "message";
+    static final String FLASH_ERROR_KEY = "error";
+    private final PlayAuthenticate auth;
 
     @Inject
-    PlayAuthenticate auth;
-
+    public HomeController(final PlayAuthenticate auth) {
+        this.auth = auth;
+    }
     public Result index() {
-        return ok("Welcome to FlowUp");
+        return ok(index.render("Welcome to FlowUp"));
     }
 
     public Result login() {
@@ -32,6 +34,5 @@ public class HomeController extends Controller {
         flash(FLASH_ERROR_KEY,
                 "You need to accept the OAuth connection in order to use this website!");
         return redirect(routes.HomeController.login());
-
     }
 }
