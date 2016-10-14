@@ -18,6 +18,8 @@ class ReportRequest {
     private final List<Ui> ui = new ArrayList<>();
     private final List<Cpu> cpu = new ArrayList<>();
     private final List<Gpu> gpu = new ArrayList<>();
+    private final List<Memory> memory = new ArrayList<>();
+    private final List<Disk> disk = new ArrayList<>();
 
     @Data
     static class Network implements DatapointTags {
@@ -57,4 +59,26 @@ class ReportRequest {
         private final boolean batterySaverOn;
         private final double consumption;
     }
+
+
+    @Data
+    public static class Disk implements DatapointTags {
+        private final long timestamp;
+        private final String appVersionName;
+        private final String androidOSVersion;
+        private final boolean batterySaverOn;
+        private final long internalStorageWrittenBytes;
+        private final long sharedPreferencesWrittenBytes;
+    }
+
+    @Data
+    public static class Memory implements DatapointTags {
+        private final long timestamp;
+        private final String appVersionName;
+        private final String androidOSVersion;
+        private final boolean batterySaverOn;
+        private final double consumption;
+        private final long bytesAllocated;
+    }
+
 }
