@@ -10,7 +10,6 @@ public class IntegrationTest extends WithBrowser {
 
     @Override
     protected Application provideApplication() {
-
         return new GuiceApplicationBuilder()
                 .build();
     }
