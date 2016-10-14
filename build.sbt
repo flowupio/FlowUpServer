@@ -13,7 +13,6 @@ libraryDependencies ++= Seq( javaJdbc ,  cache , javaWs,
   "org.hamcrest" % "hamcrest-junit" % "2.0.0.0" % "test"
 )
 
-libraryDependencies += "com.feth" % "play-authenticate_2.11" % "0.7.1"
 libraryDependencies += "org.webjars" %% "webjars-play" % "2.5.0"
 libraryDependencies += "org.webjars" % "bootstrap" % "3.3.4"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.40"
