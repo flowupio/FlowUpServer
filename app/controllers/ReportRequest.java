@@ -40,6 +40,13 @@ class ReportRequest {
         private final String screen;
         private final StatisticalValue frameTime;
         private final StatisticalValue framesPerSecond;
+        private final StatisticalValue onActivityCreated;
+        private final StatisticalValue onActivityStarted;
+        private final StatisticalValue onActivityResumed;
+        private final StatisticalValue activityVisible;
+        private final StatisticalValue onActivityPaused;
+        private final StatisticalValue onActivityStopped;
+        private final StatisticalValue onActivityDestroyed;
     }
 
     @Data
