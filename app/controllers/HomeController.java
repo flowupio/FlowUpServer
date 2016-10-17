@@ -3,9 +3,10 @@ package controllers;
 import com.feth.play.module.pa.PlayAuthenticate;
 import play.mvc.Controller;
 import play.mvc.Result;
-import views.html.login;
-import javax.inject.Inject;
 import views.html.index;
+import views.html.login;
+
+import javax.inject.Inject;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -18,7 +19,7 @@ public class HomeController extends Controller {
     private final PlayAuthenticate auth;
 
     @Inject
-    public HomeController(final PlayAuthenticate auth) {
+    public HomeController(PlayAuthenticate auth) {
         this.auth = auth;
     }
     public Result index() {
