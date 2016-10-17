@@ -1,10 +1,16 @@
 package models;
 
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Model;
+import com.feth.play.module.pa.user.AuthUser;
+import com.feth.play.module.pa.user.AuthUserIdentity;
+import com.feth.play.module.pa.user.EmailIdentity;
+import com.feth.play.module.pa.user.NameIdentity;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 public class User extends Model {
@@ -24,8 +30,7 @@ public class User extends Model {
     @OneToMany(cascade = CascadeType.ALL)
     public List<LinkedAccount> linkedAccounts;
 
-    public static final Finder<Long, User> find = new Finder<Long, User>(
-            Long.class, User.class);
+    public static final Finder<Long, User> find = new Finder<>(User.class);
 
     public static boolean existsByAuthUserIdentity(
             final AuthUserIdentity identity) {

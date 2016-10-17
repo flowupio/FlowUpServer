@@ -1,11 +1,12 @@
 package controllers;
 
 import com.feth.play.module.pa.PlayAuthenticate;
-import com.feth.play.module.pa.service.UserService;
 import models.User;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
+import service.UserService;
+import views.html.commandcenter;
 
 import javax.inject.Inject;
 
@@ -24,6 +25,6 @@ public class CommandCenterController extends Controller {
 
     public Result index() {
         final User localUser = this.userService.getLocalUser(this.auth.getUser(session()));
-        return ok(comandcenter.render(this.auth, localUser));
+        return ok(commandcenter.render(this.auth, localUser));
     }
 }

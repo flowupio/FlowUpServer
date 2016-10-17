@@ -3,11 +3,13 @@ package models;
 import com.avaje.ebean.Model;
 import com.feth.play.module.pa.user.AuthUser;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.util.UUID;
 
-class LinkedAccount extends Model {
+@Entity
+public class LinkedAccount extends Model {
     @Id
     public UUID id;
 
