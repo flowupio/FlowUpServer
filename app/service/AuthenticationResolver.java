@@ -8,11 +8,8 @@ import play.mvc.Call;
 
 import javax.inject.Singleton;
 
-/**
- * Concrete Resolver implementation.
- */
 @Singleton
-public class FlowUpResolver extends Resolver {
+public class AuthenticationResolver extends Resolver {
     @Override
     public Call login() {
         return routes.HomeController.login();

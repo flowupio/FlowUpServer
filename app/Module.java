@@ -6,9 +6,8 @@ import com.google.inject.name.Names;
 import datasources.ElasticSearchDatasource;
 import play.Configuration;
 import play.Environment;
-import service.FlowUpResolver;
+import service.AuthenticationResolver;
 import service.FlowUpUserService;
-import service.UserService;
 import usecases.MetricsDatasource;
 
 public class Module extends AbstractModule {
@@ -35,10 +34,10 @@ public class Module extends AbstractModule {
                 .asEagerSingleton();
 
 
-        bind(Resolver.class).to(FlowUpResolver.class);
+        // play-authenticate dependencies
+        bind(Resolver.class).to(AuthenticationResolver.class);
         bind(GithubAuthProvider.class).asEagerSingleton();
         bind(GoogleAuthProvider.class).asEagerSingleton();
-        bind(UserService.class).asEagerSingleton();
         bind(FlowUpUserService.class).asEagerSingleton();
     }
 }

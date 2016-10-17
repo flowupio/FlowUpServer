@@ -5,7 +5,6 @@ import models.User;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
-import service.UserService;
 import views.html.commandcenter;
 
 import javax.inject.Inject;
