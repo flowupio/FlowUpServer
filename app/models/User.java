@@ -30,7 +30,7 @@ public class User extends Model {
     @OneToMany(cascade = CascadeType.ALL)
     public List<LinkedAccount> linkedAccounts;
 
-    public static final Finder<Long, User> find = new Finder<>(User.class);
+    public static final Finder<UUID, User> find = new Finder<>(User.class);
 
     public static boolean existsByAuthUserIdentity(
             final AuthUserIdentity identity) {

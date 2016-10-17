@@ -3,8 +3,6 @@
 # ~~~~
 
 # User Website
-
-# Home page
 GET     /                           controllers.HomeController.index
 GET     /command-center             controllers.CommandCenterController.index
 

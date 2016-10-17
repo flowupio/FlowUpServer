@@ -2,14 +2,10 @@
 
 @import com.feth.play.module.pa.views.html._
 
-@main("I can haz secrets!") {
+@main("Command Center") {
 
-    <h1>Sshhh...don't tell anyone!</h1>
     <p>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/9bZkp7q19f0" frameborder="0" allowfullscreen></iframe>
-    </p>
-    <p>
-        Your name is @localUser.name and your email address is @localUser.email
+        Your name is @localUser and your email address is @localUser.email
         <i>
         @if(!localUser.emailValidated) {
             (unverified)

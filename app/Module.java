@@ -36,6 +36,7 @@ public class Module extends AbstractModule {
 
         // play-authenticate dependencies
         bind(Resolver.class).to(AuthenticationResolver.class);
+        // Following class depend on PlayAuthenticate auth, and they self register to it.
         bind(GithubAuthProvider.class).asEagerSingleton();
         bind(GoogleAuthProvider.class).asEagerSingleton();
         bind(FlowUpUserService.class).asEagerSingleton();
