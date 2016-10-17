@@ -1,4 +1,3 @@
-import be.objectify.deadbolt.java.cache.HandlerCache;
 import com.feth.play.module.pa.Resolver;
 import com.feth.play.module.pa.providers.oauth2.github.GithubAuthProvider;
 import com.feth.play.module.pa.providers.oauth2.google.GoogleAuthProvider;
@@ -7,7 +6,6 @@ import com.google.inject.name.Names;
 import datasources.ElasticSearchDatasource;
 import play.Configuration;
 import play.Environment;
-import security.FlowUpHandlerCache;
 import service.FlowUpResolver;
 import service.FlowUpUserService;
 import service.UserService;
@@ -38,7 +36,6 @@ public class Module extends AbstractModule {
 
 
         bind(Resolver.class).to(FlowUpResolver.class);
-        bind(HandlerCache.class).to(FlowUpHandlerCache.class);
         bind(GithubAuthProvider.class).asEagerSingleton();
         bind(GoogleAuthProvider.class).asEagerSingleton();
         bind(UserService.class).asEagerSingleton();
