@@ -34,7 +34,8 @@ public class ReportController extends Controller {
         metrics.add(new Metric("ui_data", dataPointMapper.mapUi(reportRequest)));
         metrics.add(new Metric("cpu_data", dataPointMapper.mapCpu(reportRequest)));
         metrics.add(new Metric("gpu_data", dataPointMapper.mapGpu(reportRequest)));
-
+        metrics.add(new Metric("memory_data", dataPointMapper.mapMemory(reportRequest)));
+        metrics.add(new Metric("disk_data", dataPointMapper.mapDisk(reportRequest)));
         return insertDataPoints.execute(metrics).thenApply(result -> {
                     ReportResponse reportResponse = new ReportResponse("Metrics Inserted", result);
                     return created(Json.toJson(reportResponse));
@@ -60,6 +61,9 @@ class DataPointMapper {
     static final String FRAMES_PER_SECOND = "FramesPerSecond";
     static final String FRAME_TIME = "FrameTime";
     static final String CONSUMPTION = "Consumption";
+    static final String INTERNAL_STORAGE_WRITTEN_BYTES = "InternalStorageWrittenBytes";
+    static final String SHARED_PREFERENCES_WRITTEN_BYTES = "SharedPreferencesWrittenBytes";
+    static final String BYTES_ALLOCATED = "BytesAllocated";
 
     List<DataPoint> mapNetwork(ReportRequest reportRequest) {
         List<DataPoint> dataPoints = new ArrayList<>();
@@ -71,7 +75,7 @@ class DataPointMapper {
 
             List<F.Tuple<String, String>> tags = new ArrayList<>();
             addReportLevelTags(tags, reportRequest);
-            addDatapointLevelTags(tags, network);
+            addDataPointLevelTags(tags, network);
 
             dataPoints.add(new DataPoint(new Date(network.getTimestamp()), measurements, tags));
         });
@@ -89,7 +93,7 @@ class DataPointMapper {
 
             List<F.Tuple<String, String>> tags = new ArrayList<>();
             addReportLevelTags(tags, reportRequest);
-            addDatapointLevelTags(tags, ui);
+            addDataPointLevelTags(tags, ui);
             tags.add(new F.Tuple<>(SCREEN_NAME, ui.getScreen()));
 
             dataPoints.add(new DataPoint(new Date(ui.getTimestamp()), measurements, tags));
@@ -118,7 +122,27 @@ class DataPointMapper {
         return dataPoints;
     }
 
-    private void addDatapointLevelTags(List<F.Tuple<String, String>> tags, DatapointTags datapointTags) {
+    List<DataPoint> mapMemory(ReportRequest reportRequest) {
+        List<DataPoint> dataPoints = new ArrayList<>();
+
+        reportRequest.getMemory().forEach((memory) -> {
+            mapMemory(reportRequest, dataPoints, memory);
+        });
+
+        return dataPoints;
+    }
+
+    List<DataPoint> mapDisk(ReportRequest reportRequest) {
+        List<DataPoint> dataPoints = new ArrayList<>();
+
+        reportRequest.getDisk().forEach((disk) -> {
+            mapDisk(reportRequest, dataPoints, disk);
+        });
+
+        return dataPoints;
+    }
+
+    private void addDataPointLevelTags(List<F.Tuple<String, String>> tags, DatapointTags datapointTags) {
         tags.add(new F.Tuple<>(VERSION_NAME, datapointTags.getAppVersionName()));
         tags.add(new F.Tuple<>(ANDROID_OS_VERSION, datapointTags.getAndroidOSVersion()));
         tags.add(new F.Tuple<>(BATTERY_SAVER_ON, Boolean.toString(datapointTags.isBatterySaverOn())));
@@ -139,8 +163,30 @@ class DataPointMapper {
 
         List<F.Tuple<String, String>> tags = new ArrayList<>();
         addReportLevelTags(tags, reportRequest);
-        addDatapointLevelTags(tags, processingUnit);
+        addDataPointLevelTags(tags, processingUnit);
 
         dataPoints.add(new DataPoint(new Date(processingUnit.getTimestamp()), measurements, tags));
+    }
+
+    private void mapMemory(ReportRequest reportRequest, List<DataPoint> dataPoints, ReportRequest.Memory memory) {
+        List<F.Tuple<String, Value>> measurements = new ArrayList<>();
+        measurements.add(new F.Tuple<>(CONSUMPTION, Value.toBasicValue(memory.getConsumption())));
+        measurements.add(new F.Tuple<>(BYTES_ALLOCATED, Value.toBasicValue(memory.getBytesAllocated())));
+        List<F.Tuple<String, String>> tags = new ArrayList<>();
+        addReportLevelTags(tags, reportRequest);
+        addDataPointLevelTags(tags, memory);
+
+        dataPoints.add(new DataPoint(new Date(memory.getTimestamp()), measurements, tags));
+    }
+
+    private void mapDisk(ReportRequest reportRequest, List<DataPoint> dataPoints, ReportRequest.Disk disk) {
+        List<F.Tuple<String, Value>> measurements = new ArrayList<>();
+        measurements.add(new F.Tuple<>(INTERNAL_STORAGE_WRITTEN_BYTES, Value.toBasicValue(disk.getInternalStorageWrittenBytes())));
+        measurements.add(new F.Tuple<>(SHARED_PREFERENCES_WRITTEN_BYTES, Value.toBasicValue(disk.getSharedPreferencesWrittenBytes())));
+        List<F.Tuple<String, String>> tags = new ArrayList<>();
+        addReportLevelTags(tags, reportRequest);
+        addDataPointLevelTags(tags, disk);
+
+        dataPoints.add(new DataPoint(new Date(disk.getTimestamp()), measurements, tags));
     }
 }
