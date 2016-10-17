@@ -5,9 +5,11 @@
 @main("Play! Authenticate simple OAuth sample") {
 
     Login/Signup:
+    <div id="logins">
     @forProviders(playAuth) { p =>
         <a href="@p.getUrl()">@p.getKey()</a>
     }
+    </div>
 
     <br/><br/>
     <a href="@routes.CommandCenterController.index">Secrets everywhere...</a>
