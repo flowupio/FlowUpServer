@@ -26,6 +26,10 @@ public class HomeController extends Controller {
         return ok(index.render("Welcome to FlowUp"));
     }
 
+    public Result health() {
+        return ok();
+    }
+
     public Result login() {
         return ok(login.render(this.auth));
     }
