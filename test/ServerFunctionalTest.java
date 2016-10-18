@@ -1,6 +1,8 @@
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableMap;
 import datasources.ElasticsearchClient;
+import models.ApiKey;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -13,6 +15,7 @@ import play.libs.Json;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
+import play.test.Helpers;
 import play.test.WithServer;
 import utils.WithResources;
 
@@ -21,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.zip.GZIPOutputStream;
@@ -42,6 +46,8 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
     @Captor
     private ArgumentCaptor<List<JsonNode>> argument;
 
+    public static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
+
     @Override
     protected Application provideApplication() {
         ObjectNode postBulkResult = Json.newObject()
@@ -51,16 +57,22 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+                .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
+                        "MODE", "MYSQL"
+                )))
                 .build();
     }
 
     @Test
     public void testRequestTooLarge() throws Exception {
+        ApiKey.create(API_KEY_VALUE);
+
         String url = "http://localhost:" + this.testServer.port() + "/report";
         try (WSClient ws = WS.newClient(this.testServer.port())) {
             CompletionStage<WSResponse> stage = ws.url(url)
                     .setContentType("application/json")
                     .setHeader("Content-Encoding", "gzip")
+                    .setHeader("X-Api-Key", API_KEY_VALUE)
                     .post(new ByteArrayInputStream(gzip(getFile("TooLargeRequest.json"))));
             WSResponse response = stage.toCompletableFuture().get();
 
@@ -72,11 +84,14 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Test
     public void testGzipRequest() throws Exception {
+        ApiKey.create(API_KEY_VALUE);
+
         String url = "http://localhost:" + this.testServer.port() + "/report";
         try (WSClient ws = WS.newClient(this.testServer.port())) {
             CompletionStage<WSResponse> stage = ws.url(url)
                     .setContentType("application/json")
                     .setHeader("Content-Encoding", "gzip")
+                    .setHeader("X-Api-Key", API_KEY_VALUE)
                     .post(new ByteArrayInputStream(gzip(getFile("9andAhalfMBRequest.json"))));
             WSResponse response = stage.toCompletableFuture().get();
 

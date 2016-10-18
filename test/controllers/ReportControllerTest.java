@@ -2,7 +2,9 @@ package controllers;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableMap;
 import datasources.ElasticsearchClient;
+import models.ApiKey;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,10 +17,12 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.test.Helpers;
 import play.test.WithApplication;
 import utils.WithResources;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,6 +40,8 @@ import static play.test.Helpers.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ReportControllerTest extends WithApplication implements WithResources {
 
+    private static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
+
     @Mock
     private ElasticsearchClient elasticsearchClient;
 
@@ -49,13 +55,18 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+                .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
+                        "MODE", "MYSQL"
+                )))
                 .build();
     }
 
     @Test
     public void testReportAPI() {
+        ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
                 .header("Content-Type", "application/json");
 
         Result result = route(requestBuilder);
@@ -69,8 +80,10 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testEmptyReport() {
+        ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("EmptyReportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
                 .header("Content-Type", "application/json");
 
         Result result = route(requestBuilder);
@@ -83,8 +96,10 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testWrongAPIFormat() {
+        ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("WrongAPIFormat.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
                 .header("Content-Type", "application/json");
 
         Result result = route(requestBuilder);

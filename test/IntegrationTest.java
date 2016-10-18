@@ -1,10 +1,13 @@
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.test.Helpers;
 import play.test.WithBrowser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -16,6 +19,9 @@ public class IntegrationTest extends WithBrowser {
     @Override
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()
+                .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
+                        "MODE", "MYSQL"
+                )))
                 .build();
     }
 
