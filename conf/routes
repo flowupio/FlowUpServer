@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# Load Balancer check
+GET     /health                     controllers.HomeController.health
+
 # User Website
 GET     /                           controllers.HomeController.index
 GET     /command-center             controllers.CommandCenterController.index
