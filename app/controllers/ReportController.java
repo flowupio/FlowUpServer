@@ -64,6 +64,13 @@ class DataPointMapper {
     static final String INTERNAL_STORAGE_WRITTEN_BYTES = "InternalStorageWrittenBytes";
     static final String SHARED_PREFERENCES_WRITTEN_BYTES = "SharedPreferencesWrittenBytes";
     static final String BYTES_ALLOCATED = "BytesAllocated";
+    static final String ON_ACTIVITY_CREATED_TIME = "OnActivityCreatedTime";
+    static final String ON_ACTIVITY_STARTED_TIME = "OnActivityStartedTime";
+    static final String ON_ACTIVITY_RESUMED_TIME = "OnActivityResumedTime";
+    static final String ACTIVITY_VISIBLE_TIME = "ActivityTime";
+    static final String ON_ACTIVITY_PAUSED_TIME = "OnActivityPausedTime";
+    static final String ON_ACTIVITY_STOPPED_TIME = "OnActivityStoppedTime";
+    static final String ON_ACTIVITY_DESTROYED_TIME = "OnActivityDestroyedTime";
 
     List<DataPoint> mapNetwork(ReportRequest reportRequest) {
         List<DataPoint> dataPoints = new ArrayList<>();
@@ -90,7 +97,13 @@ class DataPointMapper {
             List<F.Tuple<String, Value>> measurements = new ArrayList<>();
             measurements.add(new F.Tuple<>(FRAME_TIME, ui.getFrameTime()));
             measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, ui.getFramesPerSecond()));
-
+            measurements.add(new F.Tuple<>(ON_ACTIVITY_CREATED_TIME, ui.getOnActivityCreatedTime()));
+            measurements.add(new F.Tuple<>(ON_ACTIVITY_STARTED_TIME, ui.getOnActivityStartedTime()));
+            measurements.add(new F.Tuple<>(ON_ACTIVITY_RESUMED_TIME, ui.getOnActivityResumedTime()));
+            measurements.add(new F.Tuple<>(ACTIVITY_VISIBLE_TIME, ui.getActivityVisibleTime()));
+            measurements.add(new F.Tuple<>(ON_ACTIVITY_PAUSED_TIME, ui.getOnActivityPausedTime()));
+            measurements.add(new F.Tuple<>(ON_ACTIVITY_STOPPED_TIME, ui.getOnActivityStoppedTime()));
+            measurements.add(new F.Tuple<>(ON_ACTIVITY_DESTROYED_TIME, ui.getOnActivityDestroyedTime()));
             List<F.Tuple<String, String>> tags = new ArrayList<>();
             addReportLevelTags(tags, reportRequest);
             addDataPointLevelTags(tags, ui);
