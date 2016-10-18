@@ -23,10 +23,4 @@ public class Organization {
     public List<User> members;
 
     public static Model.Finder<UUID, Organization> find = new Model.Finder<>(Organization.class);
-
-    public static void create(String value) {
-        ApiKey apiKey = new ApiKey();
-        apiKey.value = value;
-        apiKey.save();
-    }
 }

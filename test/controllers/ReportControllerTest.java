@@ -40,21 +40,10 @@ import static play.mvc.Http.Status.CREATED;
 import static play.test.Helpers.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReportControllerTest extends WithApplication implements WithResources, WithDatabase {
+public class ReportControllerTest extends WithApplication implements WithResources {
 
     private static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
-
-    private Database database;
-    @Override
-    public Database getDatabase() {
-        return database;
-    }
-
-    @Override
-    public void setDatabase(Database database) {
-        this.database = database;
-    }
-
+    
     @Mock
     private ElasticsearchClient elasticsearchClient;
 

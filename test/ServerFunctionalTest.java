@@ -10,7 +10,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
-import play.db.Database;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.libs.ws.WS;
@@ -18,7 +17,6 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.test.Helpers;
 import play.test.WithServer;
-import utils.WithDatabase;
 import utils.WithResources;
 
 import java.io.ByteArrayInputStream;
@@ -40,25 +38,13 @@ import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.REQUEST_ENTITY_TOO_LARGE;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ServerFunctionalTest extends WithServer implements WithResources, WithDatabase {
+public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Mock
     private ElasticsearchClient elasticsearchClient;
 
     @Captor
     private ArgumentCaptor<List<JsonNode>> argument;
-
-    private Database database;
-
-    @Override
-    public Database getDatabase() {
-        return database;
-    }
-
-    @Override
-    public void setDatabase(Database database) {
-        this.database = database;
-    }
 
     public static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
 
