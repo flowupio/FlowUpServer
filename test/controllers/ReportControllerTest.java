@@ -13,14 +13,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
-import play.db.Database;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
-import utils.WithDatabase;
 import utils.WithResources;
 
 import java.util.List;
@@ -43,7 +41,7 @@ import static play.test.Helpers.*;
 public class ReportControllerTest extends WithApplication implements WithResources {
 
     private static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
-    
+
     @Mock
     private ElasticsearchClient elasticsearchClient;
 
@@ -60,7 +58,6 @@ public class ReportControllerTest extends WithApplication implements WithResourc
                 .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
                         "MODE", "MYSQL"
                 )))
-                .overrides(bind(Database.class).toInstance(getDatabase()))
                 .build();
     }
 
