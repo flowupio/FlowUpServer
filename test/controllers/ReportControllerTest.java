@@ -1,10 +1,14 @@
 package controllers;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import datasources.ElasticsearchClient;
 import models.ApiKey;
+import org.elasticsearch.action.ActionWriteResponse;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -46,12 +49,11 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     private ElasticsearchClient elasticsearchClient;
 
     @Captor
-    private ArgumentCaptor<List<JsonNode>> argument;
+    private ArgumentCaptor<List<IndexRequest>> argument;
 
     @Override
     protected Application provideApplication() {
-        JsonNode postBulkResult = Json.parse(getFile("elasticsearch/es_simple_bulk_response.json"));
-        when(elasticsearchClient.postBulk(anyListOf(JsonNode.class))).thenReturn(CompletableFuture.completedFuture(postBulkResult));
+        setupElasticsearchClient();
 
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
@@ -59,6 +61,16 @@ public class ReportControllerTest extends WithApplication implements WithResourc
                         "MODE", "MYSQL"
                 )))
                 .build();
+    }
+
+    private void setupElasticsearchClient() {
+        ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
+        networkDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
+        BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse)};
+        BulkResponse bulkResponse = new BulkResponse(responses, 67);
+
+        when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
+                .thenReturn(CompletableFuture.completedFuture(bulkResponse));
     }
 
     @Test
@@ -72,11 +84,10 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         Result result = route(requestBuilder);
 
         verify(elasticsearchClient).postBulk(argument.capture());
-        assertEquals(10, argument.getValue().size());
+        assertEquals(5, argument.getValue().size());
         assertEquals(CREATED, result.status());
         assertEqualsString("{\"message\":\"Metrics Inserted\",\"result\":{\"hasErrors\":false,\"items\":[{\"name\":\"network_data\",\"successful\":1}]}}", result);
     }
-
 
     @Test
     public void testEmptyReport() {

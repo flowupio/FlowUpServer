@@ -1,14 +1,20 @@
 package datasources;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import play.libs.Json;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import play.Logger;
+import play.libs.F;
 import usecases.*;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
 
@@ -22,64 +28,69 @@ public class ElasticSearchDatasource implements MetricsDatasource {
 
     @Override
     public CompletionStage<InsertResult> writeDataPoints(List<Metric> metrics) {
-        List<JsonNode> content = new ArrayList<>();
+        List<IndexRequest> indexRequestList = new ArrayList<>();
         metrics.forEach(metric -> {
-            ObjectNode actionAndMetadataJson = Json.newObject();
-            actionAndMetadataJson.putObject("index")
-                    .put("_index", STATSD + metric.getName())
-                    .put("_type", "counter");
 
             metric.getDataPoints().forEach(datapoint -> {
+                IndexRequest indexRequest = new IndexRequest(STATSD + metric.getName(), "counter");
 
-                ObjectNode sourceJson = Json.newObject()
-                        .put("@timestamp", datapoint.getTimestamp().getTime());
+                try {
+                    XContentBuilder builder = jsonBuilder().startObject()
+                            .field("@timestamp", datapoint.getTimestamp().getTime());
 
-                datapoint.getMeasurements().stream().filter(measurement -> measurement._2 != null).forEach(measurement -> {
-                    if (measurement._2 instanceof BasicValue) {
-                        BasicValue basicValue = (BasicValue) measurement._2;
-                        sourceJson.put(measurement._1, basicValue.getValue());
-                    } else if (measurement._2 instanceof StatisticalValue) {
-                        StatisticalValue basicValue = (StatisticalValue) measurement._2;
-                        JsonNode statisticalValueJson = Json.newObject()
-                                .put("count", basicValue.getCount())
-                                .put("min", basicValue.getMin())
-                                .put("max", basicValue.getMax())
-                                .put("mean", basicValue.getMean())
-                                .put("median", basicValue.getMedian())
-                                .put("standardDev", basicValue.getStandardDev())
-                                .put("p1", basicValue.getP1())
-                                .put("p2", basicValue.getP2())
-                                .put("p5", basicValue.getP5())
-                                .put("p10", basicValue.getP10())
-                                .put("p80", basicValue.getP80())
-                                .put("p95", basicValue.getP95())
-                                .put("p98", basicValue.getP98())
-                                .put("p99", basicValue.getP99());
 
-                        sourceJson.put(measurement._1, statisticalValueJson);
+                    for (F.Tuple<String, Value> measurement : datapoint.getMeasurements()) {
+                        if (measurement._2 != null) {
+                            if (measurement._2 instanceof BasicValue) {
+                                BasicValue basicValue = (BasicValue) measurement._2;
+                                builder.field(measurement._1, basicValue.getValue());
+                            } else if (measurement._2 instanceof StatisticalValue) {
+                                StatisticalValue basicValue = (StatisticalValue) measurement._2;
+                                builder.startObject(measurement._1)
+                                        .field("count", basicValue.getCount())
+                                        .field("min", basicValue.getMin())
+                                        .field("max", basicValue.getMax())
+                                        .field("mean", basicValue.getMean())
+                                        .field("median", basicValue.getMedian())
+                                        .field("standardDev", basicValue.getStandardDev())
+                                        .field("p1", basicValue.getP1())
+                                        .field("p2", basicValue.getP2())
+                                        .field("p5", basicValue.getP5())
+                                        .field("p10", basicValue.getP10())
+                                        .field("p80", basicValue.getP80())
+                                        .field("p95", basicValue.getP95())
+                                        .field("p98", basicValue.getP98())
+                                        .field("p99", basicValue.getP99());
+                                builder.endObject();
+                            }
+                        }
                     }
-                });
 
-                datapoint.getTags().forEach(tag -> {
-                    sourceJson.put(tag._1, tag._2);
-                });
+                    for (F.Tuple<String, String> tag : datapoint.getTags()) {
+                        builder.field(tag._1, tag._2);
+                    }
 
-                content.add(actionAndMetadataJson);
-                content.add(sourceJson);
+                    builder.endObject();
+                    indexRequest.source(builder);
+                    indexRequestList.add(indexRequest);
+                } catch (IOException e) {
+                    Logger.debug(e.getMessage());
+                }
+
             });
         });
 
-        return elasticsearchClient.postBulk(content).thenApply(this::processResponse);
+        return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processResponse);
     }
 
-    private InsertResult processResponse(JsonNode jsonNode) {
+    private InsertResult processResponse(BulkResponse bulkResponse) {
         List<InsertResult.MetricResult> items = new ArrayList<>();
-        jsonNode.get("items").forEach(item -> {
-            JsonNode createNode = item.get("create");
-            String name = createNode.get("_index").asText().replace(STATSD, "");
-            items.add(new InsertResult.MetricResult(name, createNode.get("_shards").get("successful").asLong()));
-        });
+        for (BulkItemResponse item : bulkResponse.getItems()) {
+            String name = item.getIndex().replace(STATSD, "");
+            int successful = item.getResponse().getShardInfo().getSuccessful();
+            items.add(new InsertResult.MetricResult(name, successful));
+        }
 
-        return new InsertResult(jsonNode.get("errors").asBoolean(), items);
+        return new InsertResult(bulkResponse.hasFailures(), items);
     }
 }
