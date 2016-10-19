@@ -8,7 +8,6 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import play.Configuration;
 import play.Logger;
-import play.libs.ws.WSClient;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -23,7 +22,7 @@ public class ElasticsearchClient {
     private final TransportClient client;
 
     @Inject
-    public ElasticsearchClient(WSClient ws, @Named("elasticsearch") Configuration elasticsearchConf) throws UnknownHostException {
+    public ElasticsearchClient(@Named("elasticsearch") Configuration elasticsearchConf) throws UnknownHostException {
         String scheme = elasticsearchConf.getString("scheme");
         String host = elasticsearchConf.getString("host");
         String port = elasticsearchConf.getString("port");
