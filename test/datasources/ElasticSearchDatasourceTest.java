@@ -1,11 +1,15 @@
 package datasources;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import org.elasticsearch.action.ActionWriteResponse;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import play.libs.Json;
 import usecases.InsertResult;
 import utils.WithResources;
 
@@ -26,10 +30,7 @@ public class ElasticSearchDatasourceTest implements WithResources {
 
     @Test
     public void parsingElasticSearchClientResponse() throws Exception {
-        JsonNode postBulkResult = Json.parse(getFile("elasticsearch/es_bulk_response.json"));
-        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
-        when(elasticsearchClient.postBulk(anyListOf(JsonNode.class)))
-                .thenReturn(CompletableFuture.completedFuture(postBulkResult));
+        ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnTwoItems();
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(new ArrayList<>());
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
@@ -38,6 +39,21 @@ public class ElasticSearchDatasourceTest implements WithResources {
         items.add(new InsertResult.MetricResult("network_data", 1));
         items.add(new InsertResult.MetricResult("ui_data", 1));
         assertEquals(new InsertResult(false, items), insertResult);
+    }
+
+    @NotNull
+    private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnTwoItems() {
+        ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
+        networkDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
+        ActionWriteResponse uiDataResponse = new IndexResponse("statsd-ui_data", "counter", "AVe4CB8-xL5tw_jvDTey", 1, true);
+        uiDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
+        BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse), new BulkItemResponse(0, "index", uiDataResponse)};
+        BulkResponse bulkResponse = new BulkResponse(responses, 67);
+
+        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
+                .thenReturn(CompletableFuture.completedFuture(bulkResponse));
+        return elasticSearchDatasource;
     }
 
 }
