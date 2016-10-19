@@ -2,13 +2,8 @@ package controllers;
 
 
 import com.google.common.collect.ImmutableMap;
-import datasources.ElasticsearchClient;
+import datasources.*;
 import models.ApiKey;
-import org.elasticsearch.action.ActionWriteResponse;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
