@@ -50,7 +50,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
                                     .put("p2", basicValue.getP2())
                                     .put("p5", basicValue.getP5())
                                     .put("p10", basicValue.getP10())
-                                    .put("p80", basicValue.getP80())
+                                    .put("p90", basicValue.getP90())
                                     .put("p95", basicValue.getP95())
                                     .put("p98", basicValue.getP98())
                                     .put("p99", basicValue.getP99());
