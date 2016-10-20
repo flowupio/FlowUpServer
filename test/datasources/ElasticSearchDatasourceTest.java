@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.libs.Json;
 import usecases.InsertResult;
+import usecases.Report;
 import utils.WithResources;
 
 import java.util.ArrayList;
@@ -29,14 +30,21 @@ public class ElasticSearchDatasourceTest implements WithResources {
     @Test
     public void parsingElasticSearchClientResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnTwoItems();
+        Report report = givenAnEmptyReport();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(new ArrayList<>());
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
         items.add(new InsertResult.MetricResult("network_data", 1));
         items.add(new InsertResult.MetricResult("ui_data", 1));
         assertEquals(new InsertResult(false, items), insertResult);
+    }
+
+    @NotNull
+    private Report givenAnEmptyReport() {
+        String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
+        return new Report(organizationIdentifier, "io.flowup.app", new ArrayList<>());
     }
 
     @Test
@@ -52,8 +60,9 @@ public class ElasticSearchDatasourceTest implements WithResources {
     @Test
     public void parsingElasticSearchClientSimpleResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnOneItem();
+        Report report = givenAnEmptyReport();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(new ArrayList<>());
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();

@@ -100,7 +100,8 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
             WSResponse response = stage.toCompletableFuture().get();
 
             verify(elasticsearchClient).postBulk(argument.capture());
-            assertEquals(7832, argument.getValue().size());
+            // We are storing every data twice legacy and new index
+            assertEquals(7832 * 2, argument.getValue().size());
             assertEquals(CREATED, response.getStatus());
         } catch (InterruptedException e) {
             e.printStackTrace();
