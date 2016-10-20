@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class InsertResult {
-    private final boolean hasErrors;
+    private final boolean isError;
     private final List<MetricResult> items;
 
     @Data
