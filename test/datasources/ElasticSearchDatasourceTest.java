@@ -1,10 +1,12 @@
 package datasources;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import play.libs.Json;
 import usecases.InsertResult;
 import utils.WithResources;
 
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.when;
@@ -36,6 +39,28 @@ public class ElasticSearchDatasourceTest implements WithResources {
         assertEquals(new InsertResult(false, items), insertResult);
     }
 
+    @Test
+    public void validateJsonBulkResponse() {
+        try {
+            JsonNode postBulkResult = Json.parse(getFile("elasticsearch/es_bulk_response.json"));
+            Json.fromJson(postBulkResult, BulkResponse.class);
+        } catch (RuntimeException exception) {
+            fail(exception.getMessage());
+        }
+    }
+
+    @Test
+    public void parsingElasticSearchClientSimpleResponse() throws Exception {
+        ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnOneItem();
+
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(new ArrayList<>());
+        InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
+
+        List<InsertResult.MetricResult> items = new ArrayList<>();
+        items.add(new InsertResult.MetricResult("network_data", 1));
+        assertEquals(new InsertResult(false, items), insertResult);
+    }
+
     @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnTwoItems() {
         ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
@@ -44,6 +69,17 @@ public class ElasticSearchDatasourceTest implements WithResources {
         uiDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
         BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse), new BulkItemResponse(0, "index", uiDataResponse)};
         BulkResponse bulkResponse = new BulkResponse(responses, 67);
+
+        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
+                .thenReturn(CompletableFuture.completedFuture(bulkResponse));
+        return elasticSearchDatasource;
+    }
+
+    @NotNull
+    private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnOneItem() {
+        JsonNode postBulkResult = Json.parse(getFile("elasticsearch/es_simple_bulk_response.json"));
+        BulkResponse bulkResponse = Json.fromJson(postBulkResult, BulkResponse.class);
 
         ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
         when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))

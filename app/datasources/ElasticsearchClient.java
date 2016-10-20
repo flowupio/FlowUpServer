@@ -1,8 +1,6 @@
 package datasources;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import play.Configuration;
 import play.Logger;
@@ -48,4 +46,3 @@ public class ElasticsearchClient {
         );
     }
 }
-
