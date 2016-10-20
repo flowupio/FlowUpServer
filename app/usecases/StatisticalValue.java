@@ -14,7 +14,7 @@ public class StatisticalValue implements Value {
     private final double p2;
     private final double p5;
     private final double p10;
-    private final double p80;
+    private final double p90;
     private final double p95;
     private final double p98;
     private final double p99;
