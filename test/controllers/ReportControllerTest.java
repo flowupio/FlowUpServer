@@ -79,7 +79,8 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         Result result = route(requestBuilder);
 
         verify(elasticsearchClient).postBulk(argument.capture());
-        assertEquals(5, argument.getValue().size());
+        // We are storing every data twice legacy and new index
+        assertEquals(5 * 2, argument.getValue().size());
         assertEquals(CREATED, result.status());
         assertEqualsString("{\"message\":\"Metrics Inserted\",\"result\":{\"hasErrors\":false,\"items\":[{\"name\":\"network_data\",\"successful\":1}]}}", result);
     }

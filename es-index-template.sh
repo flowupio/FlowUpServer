@@ -24,6 +24,10 @@ curl -XPUT "${ES_HOST:-localhost}:${ES_PORT:-9200}/_template/statsd-template" -d
                     "type": "string",
                     "index": "not_analyzed"
                 },
+                "VersionName": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
                 "BatterySaverOn": {
                     "type": "string",
                     "index": "not_analyzed"
