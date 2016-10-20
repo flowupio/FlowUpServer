@@ -1,20 +1,14 @@
 package datasources;
 
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import play.Logger;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.F;
+import play.libs.Json;
 import usecases.*;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
 
@@ -34,49 +28,43 @@ public class ElasticSearchDatasource implements MetricsDatasource {
             metric.getDataPoints().forEach(datapoint -> {
                 IndexRequest indexRequest = new IndexRequest(STATSD + metric.getName(), "counter");
 
-                try {
-                    XContentBuilder builder = jsonBuilder().startObject()
-                            .field("@timestamp", datapoint.getTimestamp().getTime());
+                ObjectNode source = Json.newObject()
+                        .put("@timestamp", datapoint.getTimestamp().getTime());
 
 
-                    for (F.Tuple<String, Value> measurement : datapoint.getMeasurements()) {
-                        if (measurement._2 != null) {
-                            if (measurement._2 instanceof BasicValue) {
-                                BasicValue basicValue = (BasicValue) measurement._2;
-                                builder.field(measurement._1, basicValue.getValue());
-                            } else if (measurement._2 instanceof StatisticalValue) {
-                                StatisticalValue basicValue = (StatisticalValue) measurement._2;
-                                builder.startObject(measurement._1)
-                                        .field("count", basicValue.getCount())
-                                        .field("min", basicValue.getMin())
-                                        .field("max", basicValue.getMax())
-                                        .field("mean", basicValue.getMean())
-                                        .field("median", basicValue.getMedian())
-                                        .field("standardDev", basicValue.getStandardDev())
-                                        .field("p1", basicValue.getP1())
-                                        .field("p2", basicValue.getP2())
-                                        .field("p5", basicValue.getP5())
-                                        .field("p10", basicValue.getP10())
-                                        .field("p80", basicValue.getP80())
-                                        .field("p95", basicValue.getP95())
-                                        .field("p98", basicValue.getP98())
-                                        .field("p99", basicValue.getP99());
-                                builder.endObject();
-                            }
+                for (F.Tuple<String, Value> measurement : datapoint.getMeasurements()) {
+                    if (measurement._2 != null) {
+                        if (measurement._2 instanceof BasicValue) {
+                            BasicValue basicValue = (BasicValue) measurement._2;
+                            source.put(measurement._1, basicValue.getValue());
+                        } else if (measurement._2 instanceof StatisticalValue) {
+                            StatisticalValue basicValue = (StatisticalValue) measurement._2;
+                            ObjectNode statisticalValue = Json.newObject()
+                                    .put("count", basicValue.getCount())
+                                    .put("min", basicValue.getMin())
+                                    .put("max", basicValue.getMax())
+                                    .put("mean", basicValue.getMean())
+                                    .put("median", basicValue.getMedian())
+                                    .put("standardDev", basicValue.getStandardDev())
+                                    .put("p1", basicValue.getP1())
+                                    .put("p2", basicValue.getP2())
+                                    .put("p5", basicValue.getP5())
+                                    .put("p10", basicValue.getP10())
+                                    .put("p90", basicValue.getP90())
+                                    .put("p95", basicValue.getP95())
+                                    .put("p98", basicValue.getP98())
+                                    .put("p99", basicValue.getP99());
+                            source.set(measurement._1, statisticalValue);
                         }
                     }
-
-                    for (F.Tuple<String, String> tag : datapoint.getTags()) {
-                        builder.field(tag._1, tag._2);
-                    }
-
-                    builder.endObject();
-                    indexRequest.source(builder);
-                    indexRequestList.add(indexRequest);
-                } catch (IOException e) {
-                    Logger.debug(e.getMessage());
                 }
 
+                for (F.Tuple<String, String> tag : datapoint.getTags()) {
+                    source.put(tag._1, tag._2);
+                }
+
+                indexRequest.setSource(source);
+                indexRequestList.add(indexRequest);
             });
         });
 

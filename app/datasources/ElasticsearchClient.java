@@ -1,46 +1,48 @@
 package datasources;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import play.Configuration;
 import play.Logger;
+import play.libs.Json;
+import play.libs.ws.WSClient;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 
 public class ElasticsearchClient {
 
-    private final TransportClient client;
+    private final WSClient ws;
+    private final Configuration elasticsearchConf;
+    private final String baseUrl;
 
     @Inject
-    public ElasticsearchClient(@Named("elasticsearch") Configuration elasticsearchConf) throws UnknownHostException {
+    public ElasticsearchClient(WSClient ws, @Named("elasticsearch") Configuration elasticsearchConf) {
+        this.ws = ws;
+        this.elasticsearchConf = elasticsearchConf;
+
         String scheme = elasticsearchConf.getString("scheme");
         String host = elasticsearchConf.getString("host");
         String port = elasticsearchConf.getString("port");
-
-        this.client = TransportClient.builder().build()
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), Integer.parseInt(port)));
+        this.baseUrl = scheme + "://" + host + ":" + port;
     }
 
     public CompletionStage<BulkResponse> postBulk(List<IndexRequest> indexRequestList) {
-        Logger.debug(StringUtils.join(indexRequestList, "\n"));
+        Stream<JsonNode> jsonNodes = indexRequestList.stream().map(Json::toJson);
+        String content = StringUtils.join(jsonNodes, "\n") + "\n";
 
-        BulkRequestBuilder bulkRequest = client.prepareBulk();
-        indexRequestList.forEach(bulkRequest::add);
+        Logger.debug(content);
 
-        return CompletableFuture.supplyAsync(bulkRequest::get)
-                .thenApply(response -> {
-                    Logger.debug(StringUtils.join(response.getItems(), "\n"));
-                    return response;
-        });
+        String bulkEndpoint = elasticsearchConf.getString("bulk_endpoint");
+
+        return ws.url(baseUrl + bulkEndpoint).setContentType("application/x-www-form-urlencoded").post(content).thenApply(
+                response -> {
+                    Logger.debug(response.getBody());
+                    return Json.fromJson(response.asJson(), BulkResponse.class);
+                }
+        );
     }
 }
