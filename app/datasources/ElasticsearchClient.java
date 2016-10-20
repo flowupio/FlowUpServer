@@ -9,9 +9,9 @@ import play.libs.ws.WSClient;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Stream;
 
 public class ElasticsearchClient {
 
@@ -31,7 +31,12 @@ public class ElasticsearchClient {
     }
 
     public CompletionStage<BulkResponse> postBulk(List<IndexRequest> indexRequestList) {
-        Stream<JsonNode> jsonNodes = indexRequestList.stream().map(Json::toJson);
+        List<JsonNode> jsonNodes = new ArrayList<>();
+        for (IndexRequest indexRequest : indexRequestList) {
+            jsonNodes.add(Json.toJson(indexRequest.getAction()));
+            jsonNodes.add(indexRequest.getSource());
+        }
+
         String content = StringUtils.join(jsonNodes, "\n") + "\n";
 
         Logger.debug(content);
