@@ -22,7 +22,7 @@ public class IndexResponse extends ActionWriteResponse {
     @JsonCreator
     public IndexResponse(@JsonProperty("_index") String index, @JsonProperty("_type") String type,
                          @JsonProperty("_id") String id, @JsonProperty("_version") long version,
-                         @JsonProperty("_shards") IndexResponse.ShardInfo shardInfo, @JsonProperty("status") String status) {
+                         @JsonProperty("_shards") ActionWriteResponse.ShardInfo shardInfo, @JsonProperty("status") String status) {
         super(index);
         this.type = type;
         this.id = id;
