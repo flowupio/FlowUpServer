@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 public class ElasticsearchClient {
 
@@ -31,7 +31,7 @@ public class ElasticsearchClient {
     }
 
     public CompletionStage<BulkResponse> postBulk(List<IndexRequest> indexRequestList) {
-        Stream<JsonNode> jsonNodes = indexRequestList.stream().map(Json::toJson);
+        List<JsonNode> jsonNodes = indexRequestList.stream().map(Json::toJson).collect(Collectors.toList());
         String content = StringUtils.join(jsonNodes, "\n") + "\n";
 
         Logger.debug(content);
