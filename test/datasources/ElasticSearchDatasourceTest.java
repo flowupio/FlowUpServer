@@ -70,6 +70,17 @@ public class ElasticSearchDatasourceTest implements WithResources {
         assertEquals(new InsertResult(false, items), insertResult);
     }
 
+    @Test
+    public void parsingElasticSearchClientErrorResponse() throws Exception {
+        ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnError();
+
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(new ArrayList<>());
+        InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
+
+        List<InsertResult.MetricResult> items = new ArrayList<>();
+        assertEquals(new InsertResult(true, items), insertResult);
+    }
+
     @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnTwoItems() {
         ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
@@ -96,4 +107,15 @@ public class ElasticSearchDatasourceTest implements WithResources {
         return elasticSearchDatasource;
     }
 
+
+    @NotNull
+    private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnError() {
+        JsonNode postBulkResult = Json.parse(getFile("elasticsearch/es_bulk_error.json"));
+        BulkResponse bulkResponse = Json.fromJson(postBulkResult, BulkResponse.class);
+
+        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
+                .thenReturn(CompletableFuture.completedFuture(bulkResponse));
+        return elasticSearchDatasource;
+    }
 }

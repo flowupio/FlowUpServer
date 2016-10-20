@@ -104,6 +104,6 @@ public class ElasticSearchDatasource implements MetricsDatasource {
             items.add(new InsertResult.MetricResult(name, successful));
         }
 
-        return new InsertResult(bulkResponse.hasFailures(), items);
+        return new InsertResult(bulkResponse.isError(), items);
     }
 }

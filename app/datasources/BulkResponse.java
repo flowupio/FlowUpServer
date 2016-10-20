@@ -4,8 +4,17 @@ import lombok.Data;
 
 @Data
 public class BulkResponse {
-    private final BulkItemResponse[] items;
-    private final long tookInMillis;
+    private BulkItemResponse[] items = {};
+    private long tookInMillis;
+    private BulkError error;
+
+    public BulkResponse() {
+    }
+
+    public BulkResponse(BulkItemResponse[] items, long tookInMillis) {
+        this.items = items;
+        this.tookInMillis = tookInMillis;
+    }
 
     boolean hasFailures() {
         for (BulkItemResponse response : items) {
@@ -14,5 +23,9 @@ public class BulkResponse {
             }
         }
         return false;
+    }
+
+    boolean isError() {
+        return error != null;
     }
 }
