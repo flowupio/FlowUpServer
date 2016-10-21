@@ -71,8 +71,20 @@ public class ElasticSearchDatasourceTest implements WithResources {
     }
 
     @Test
-    public void parsingElasticSearchClientErrorResponse() throws Exception {
+    public void parsingElasticSearchClientError() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnError();
+        Report report = givenAnEmptyReport();
+
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
+        InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
+
+        List<InsertResult.MetricResult> items = new ArrayList<>();
+        assertEquals(new InsertResult(true, false, items), insertResult);
+    }
+
+    @Test
+    public void parsingElasticSearchClientErrorParseException() throws Exception {
+        ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnErrorParseException();
         Report report = givenAnEmptyReport();
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
@@ -119,6 +131,11 @@ public class ElasticSearchDatasourceTest implements WithResources {
     @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnError() {
         return loadElasticSearchDatasourceFromFile("elasticsearch/es_bulk_error.json");
+    }
+
+    @NotNull
+    private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnErrorParseException() {
+        return loadElasticSearchDatasourceFromFile("elasticsearch/es_bulk_error_parse_exception.json");
     }
 
     @NotNull
