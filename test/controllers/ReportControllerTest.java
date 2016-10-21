@@ -48,8 +48,6 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Override
     protected Application provideApplication() {
-        setupElasticsearchClient();
-
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
                 .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
@@ -58,7 +56,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
                 .build();
     }
 
-    private void setupElasticsearchClient() {
+    private void setupSuccessfullElasticsearchClient() {
         ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
         networkDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
         BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse)};
@@ -68,8 +66,33 @@ public class ReportControllerTest extends WithApplication implements WithResourc
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
     }
 
+    private void setupElasticsearchClientWithError() {
+        BulkResponse bulkResponse = new BulkResponse();
+        BulkError error = new BulkError();
+        error.setType("illegal_argument_exception");
+        error.setReason("Malformed action/metadata line [1], expected a simple value for field [index] but found [START_OBJECT]");
+        bulkResponse.setError(error);
+
+        when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
+                .thenReturn(CompletableFuture.completedFuture(bulkResponse));
+    }
+
+    private void setupElasticsearchClientWithFailures() {
+        ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, null, 429);
+        BulkError error = new BulkError();
+        error.setType("es_rejected_execution_exception");
+        error.setReason("rejected execution of org.elasticsearch.transport.TransportService$4@525ba0d5 on EsThreadPoolExecutor[bulk, queue capacity = 50, org.elasticsearch.common.util.concurrent.EsThreadPoolExecutor@65d320c9[Running, pool size = 1, active threads = 1, queued tasks = 50, completed tasks = 18719]]");
+        networkDataResponse.setError(error);
+        BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse)};
+        BulkResponse bulkResponse = new BulkResponse(responses, 67);
+
+        when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
+                .thenReturn(CompletableFuture.completedFuture(bulkResponse));
+    }
+
     @Test
     public void testReportAPI() {
+        setupSuccessfullElasticsearchClient();
         ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("reportRequest.json"))
@@ -86,7 +109,40 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     }
 
     @Test
+    public void testReportAPIWithElasticSearchError() {
+        setupElasticsearchClientWithError();
+        ApiKey.create(API_KEY_VALUE);
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json");
+
+        Result result = route(requestBuilder);
+
+        verify(elasticsearchClient).postBulk(argument.capture());
+        assertEquals(5, argument.getValue().size());
+        assertEquals(INTERNAL_SERVER_ERROR, result.status());
+    }
+
+    @Test
+    public void testReportAPIWithElasticSearchFailures() {
+        setupElasticsearchClientWithFailures();
+        ApiKey.create(API_KEY_VALUE);
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json");
+
+        Result result = route(requestBuilder);
+
+        verify(elasticsearchClient).postBulk(argument.capture());
+        assertEquals(5, argument.getValue().size());
+        assertEquals(SERVICE_UNAVAILABLE, result.status());
+    }
+
+    @Test
     public void testEmptyReport() {
+        setupSuccessfullElasticsearchClient();
         ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("EmptyReportRequest.json"))
@@ -104,6 +160,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testWrongAPIFormat() {
+        setupSuccessfullElasticsearchClient();
         ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("WrongAPIFormat.json"))
@@ -119,6 +176,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     @Test
     @Ignore
     public void testMalformedReportReport() {
+        setupSuccessfullElasticsearchClient();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("MalformedReportRequest.json"))
                 .header("Content-Type", "application/json");
