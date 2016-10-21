@@ -79,10 +79,9 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         Result result = route(requestBuilder);
 
         verify(elasticsearchClient).postBulk(argument.capture());
-        // We are storing every data twice legacy and new index
         assertEquals(5, argument.getValue().size());
         assertEquals(CREATED, result.status());
-        String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"items\":[{\"name\":\"network_data\",\"successful\":1}],\"error\":false}}";
+        String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"hasFailures\":false,\"items\":[{\"name\":\"network_data\",\"successful\":1}],\"error\":false}}";
         assertEqualsString(expect, result);
     }
 
@@ -99,7 +98,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
         verify(elasticsearchClient).postBulk(argument.capture());
         assertEquals(0, argument.getValue().size());
         assertEquals(CREATED, result.status());
-        String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"items\":[{\"name\":\"network_data\",\"successful\":1}],\"error\":false}}";
+        String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"hasFailures\":false,\"items\":[{\"name\":\"network_data\",\"successful\":1}],\"error\":false}}";
         assertEqualsString(expect, result);
     }
 

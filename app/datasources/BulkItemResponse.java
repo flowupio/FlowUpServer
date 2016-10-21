@@ -8,7 +8,6 @@ import lombok.Data;
 public class BulkItemResponse {
     private final ActionWriteResponse response;
     private int index;
-    private String error;
     private String opType;
 
 
@@ -24,7 +23,7 @@ public class BulkItemResponse {
     }
 
     boolean isFailed() {
-        return error != null && !error.isEmpty();
+        return response.getError() != null;
     }
 
     public String getIndex() {

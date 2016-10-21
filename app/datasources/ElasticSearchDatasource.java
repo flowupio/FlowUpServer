@@ -85,10 +85,16 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         List<InsertResult.MetricResult> items = new ArrayList<>();
         for (BulkItemResponse item : bulkResponse.getItems()) {
             String name = item.getIndex().replace(STATSD, "");
-            int successful = item.getResponse().getShardInfo().getSuccessful();
+            ActionWriteResponse.ShardInfo shardInfo = item.getResponse().getShardInfo();
+            int successful;
+            if (shardInfo != null) {
+                successful = shardInfo.getSuccessful();
+            } else  {
+                successful = 0;
+            }
             items.add(new InsertResult.MetricResult(name, successful));
         }
 
-        return new InsertResult(bulkResponse.isError(), items);
+        return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
     }
 }
