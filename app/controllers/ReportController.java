@@ -75,7 +75,8 @@ class DataPointMapper {
     static final String SCREEN_NAME = "ScreenName";
     static final String FRAMES_PER_SECOND = "FramesPerSecond";
     static final String FRAME_TIME = "FrameTime";
-    static final String CONSUMPTION = "Consumption";
+    static final String CPU_CONSUMPTION = "CpuConsumption";
+    static final String MEMORY_CONSUMPTION = "MemoryConsumption";
     static final String INTERNAL_STORAGE_WRITTEN_BYTES = "InternalStorageWrittenBytes";
     static final String SHARED_PREFERENCES_WRITTEN_BYTES = "SharedPreferencesWrittenBytes";
     static final String BYTES_ALLOCATED = "BytesAllocated";
@@ -187,7 +188,7 @@ class DataPointMapper {
 
     private void mapProcessingUnit(ReportRequest reportRequest, List<DataPoint> dataPoints, ProcessingUnit processingUnit) {
         List<F.Tuple<String, Value>> measurements = new ArrayList<>();
-        measurements.add(new F.Tuple<>(CONSUMPTION, Value.toBasicValue(processingUnit.getConsumption())));
+        measurements.add(new F.Tuple<>(CPU_CONSUMPTION, Value.toBasicValue(processingUnit.getConsumption())));
 
         List<F.Tuple<String, String>> tags = new ArrayList<>();
         addReportLevelTags(tags, reportRequest);
@@ -198,7 +199,7 @@ class DataPointMapper {
 
     private void mapMemory(ReportRequest reportRequest, List<DataPoint> dataPoints, ReportRequest.Memory memory) {
         List<F.Tuple<String, Value>> measurements = new ArrayList<>();
-        measurements.add(new F.Tuple<>(CONSUMPTION, Value.toBasicValue(memory.getConsumption())));
+        measurements.add(new F.Tuple<>(MEMORY_CONSUMPTION, Value.toBasicValue(memory.getConsumption())));
         measurements.add(new F.Tuple<>(BYTES_ALLOCATED, Value.toBasicValue(memory.getBytesAllocated())));
         List<F.Tuple<String, String>> tags = new ArrayList<>();
         addReportLevelTags(tags, reportRequest);
