@@ -73,8 +73,9 @@ public class ElasticSearchDatasourceTest implements WithResources {
     @Test
     public void parsingElasticSearchClientErrorResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnError();
+        Report report = givenAnEmptyReport();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(new ArrayList<>());
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();

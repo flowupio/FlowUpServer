@@ -24,24 +24,9 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     @Override
     public CompletionStage<InsertResult> writeDataPoints(Report report) {
         List<IndexRequest> indexRequestList = new ArrayList<>();
-        populateLegacyIndexRequest(report.getMetrics(), indexRequestList);
         populateIndexRequest(report, indexRequestList);
 
         return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processResponse);
-    }
-
-    private void populateLegacyIndexRequest(List<Metric> metrics, List<IndexRequest> indexRequestList) {
-        metrics.forEach(metric -> {
-
-            metric.getDataPoints().forEach(datapoint -> {
-                IndexRequest indexRequest = new IndexRequest(STATSD + metric.getName(), "counter");
-
-                ObjectNode source = mapSource(datapoint);
-
-                indexRequest.setSource(source);
-                indexRequestList.add(indexRequest);
-            });
-        });
     }
 
     private ObjectNode mapSource(DataPoint datapoint) {
