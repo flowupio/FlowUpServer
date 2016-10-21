@@ -1,5 +1,7 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import play.Logger;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -24,6 +26,7 @@ public class ReportController extends Controller {
     @BodyParser.Of(ReportRequestBodyParser.class)
     public CompletionStage<Result> index() {
         Http.RequestBody body = request().body();
+        Logger.debug(body.asText());
         ReportRequest reportRequest = body.as(ReportRequest.class);
 
         // Hardcoded for now, when organization management is ready we will use the UUID of the Org.
@@ -42,7 +45,15 @@ public class ReportController extends Controller {
 
         return insertDataPoints.execute(report).thenApply(result -> {
                     ReportResponse reportResponse = new ReportResponse("Metrics Inserted", result);
-                    return created(Json.toJson(reportResponse));
+                    JsonNode content = Json.toJson(reportResponse);
+
+                    if (result.isError()) {
+                        return internalServerError(content);
+                    } else if (result.isHasFailures()) {
+                        return status(SERVICE_UNAVAILABLE, content);
+                    } else {
+                        return created(content);
+                    }
                 }
         );
     }

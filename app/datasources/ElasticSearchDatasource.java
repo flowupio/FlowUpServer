@@ -24,24 +24,9 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     @Override
     public CompletionStage<InsertResult> writeDataPoints(Report report) {
         List<IndexRequest> indexRequestList = new ArrayList<>();
-        populateLegacyIndexRequest(report.getMetrics(), indexRequestList);
         populateIndexRequest(report, indexRequestList);
 
         return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processResponse);
-    }
-
-    private void populateLegacyIndexRequest(List<Metric> metrics, List<IndexRequest> indexRequestList) {
-        metrics.forEach(metric -> {
-
-            metric.getDataPoints().forEach(datapoint -> {
-                IndexRequest indexRequest = new IndexRequest(STATSD + metric.getName(), "counter");
-
-                ObjectNode source = mapSource(datapoint);
-
-                indexRequest.setSource(source);
-                indexRequestList.add(indexRequest);
-            });
-        });
     }
 
     private ObjectNode mapSource(DataPoint datapoint) {
@@ -100,10 +85,16 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         List<InsertResult.MetricResult> items = new ArrayList<>();
         for (BulkItemResponse item : bulkResponse.getItems()) {
             String name = item.getIndex().replace(STATSD, "");
-            int successful = item.getResponse().getShardInfo().getSuccessful();
+            ActionWriteResponse.ShardInfo shardInfo = item.getResponse().getShardInfo();
+            int successful;
+            if (shardInfo != null) {
+                successful = shardInfo.getSuccessful();
+            } else  {
+                successful = 0;
+            }
             items.add(new InsertResult.MetricResult(name, successful));
         }
 
-        return new InsertResult(bulkResponse.isError(), items);
+        return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
     }
 }

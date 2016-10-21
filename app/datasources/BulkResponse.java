@@ -7,6 +7,7 @@ public class BulkResponse {
     private BulkItemResponse[] items = {};
     private long tookInMillis;
     private BulkError error;
+    private boolean errors;
 
     public BulkResponse() {
     }
