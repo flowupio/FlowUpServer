@@ -1,15 +1,14 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import play.Logger;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import usecases.DataPoint;
-import usecases.InsertDataPoints;
-import usecases.Metric;
-import usecases.Value;
+import usecases.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -27,7 +26,12 @@ public class ReportController extends Controller {
     @BodyParser.Of(ReportRequestBodyParser.class)
     public CompletionStage<Result> index() {
         Http.RequestBody body = request().body();
+        Logger.debug(body.asText());
         ReportRequest reportRequest = body.as(ReportRequest.class);
+
+        // Hardcoded for now, when organization management is ready we will use the UUID of the Org.
+        // Ticket https://github.com/Karumi/FlowUpServer/issues/64
+        String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
 
         List<Metric> metrics = new ArrayList<>();
         metrics.add(new Metric("network_data", dataPointMapper.mapNetwork(reportRequest)));
@@ -36,9 +40,20 @@ public class ReportController extends Controller {
         metrics.add(new Metric("gpu_data", dataPointMapper.mapGpu(reportRequest)));
         metrics.add(new Metric("memory_data", dataPointMapper.mapMemory(reportRequest)));
         metrics.add(new Metric("disk_data", dataPointMapper.mapDisk(reportRequest)));
-        return insertDataPoints.execute(metrics).thenApply(result -> {
+
+        Report report = new Report(organizationIdentifier, reportRequest.getAppPackage(), metrics);
+
+        return insertDataPoints.execute(report).thenApply(result -> {
                     ReportResponse reportResponse = new ReportResponse("Metrics Inserted", result);
-                    return created(Json.toJson(reportResponse));
+                    JsonNode content = Json.toJson(reportResponse);
+
+                    if (result.isError()) {
+                        return internalServerError(content);
+                    } else if (result.isHasFailures()) {
+                        return status(SERVICE_UNAVAILABLE, content);
+                    } else {
+                        return created(content);
+                    }
                 }
         );
     }

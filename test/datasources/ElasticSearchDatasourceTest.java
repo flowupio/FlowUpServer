@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.libs.Json;
 import usecases.InsertResult;
+import usecases.Report;
 import utils.WithResources;
 
 import java.util.ArrayList;
@@ -29,14 +30,21 @@ public class ElasticSearchDatasourceTest implements WithResources {
     @Test
     public void parsingElasticSearchClientResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnTwoItems();
+        Report report = givenAnEmptyReport();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(new ArrayList<>());
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
         items.add(new InsertResult.MetricResult("network_data", 1));
         items.add(new InsertResult.MetricResult("ui_data", 1));
-        assertEquals(new InsertResult(false, items), insertResult);
+        assertEquals(new InsertResult(false, false, items), insertResult);
+    }
+
+    @NotNull
+    private Report givenAnEmptyReport() {
+        String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
+        return new Report(organizationIdentifier, "io.flowup.app", new ArrayList<>());
     }
 
     @Test
@@ -52,13 +60,51 @@ public class ElasticSearchDatasourceTest implements WithResources {
     @Test
     public void parsingElasticSearchClientSimpleResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnOneItem();
+        Report report = givenAnEmptyReport();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(new ArrayList<>());
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
         items.add(new InsertResult.MetricResult("network_data", 1));
-        assertEquals(new InsertResult(false, items), insertResult);
+        assertEquals(new InsertResult(false, false, items), insertResult);
+    }
+
+    @Test
+    public void parsingElasticSearchClientError() throws Exception {
+        ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnError();
+        Report report = givenAnEmptyReport();
+
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
+        InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
+
+        List<InsertResult.MetricResult> items = new ArrayList<>();
+        assertEquals(new InsertResult(true, false, items), insertResult);
+    }
+
+    @Test
+    public void parsingElasticSearchClientErrorParseException() throws Exception {
+        ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnErrorParseException();
+        Report report = givenAnEmptyReport();
+
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
+        InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
+
+        List<InsertResult.MetricResult> items = new ArrayList<>();
+        assertEquals(new InsertResult(true, false, items), insertResult);
+    }
+
+    @Test
+    public void parsingElasticSearchClientFailuresResponse() throws Exception {
+        ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnFailure();
+        Report report = givenAnEmptyReport();
+
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
+        InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
+
+        List<InsertResult.MetricResult> items = new ArrayList<>();
+        items.add(new InsertResult.MetricResult("network_data", 0));
+        assertEquals(new InsertResult(false, true, items), insertResult);
     }
 
     @NotNull
@@ -78,7 +124,29 @@ public class ElasticSearchDatasourceTest implements WithResources {
 
     @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnOneItem() {
-        JsonNode postBulkResult = Json.parse(getFile("elasticsearch/es_simple_bulk_response.json"));
+        return loadElasticSearchDatasourceFromFile("elasticsearch/es_simple_bulk_response.json");
+    }
+
+
+    @NotNull
+    private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnError() {
+        return loadElasticSearchDatasourceFromFile("elasticsearch/es_bulk_error.json");
+    }
+
+    @NotNull
+    private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnErrorParseException() {
+        return loadElasticSearchDatasourceFromFile("elasticsearch/es_bulk_error_parse_exception.json");
+    }
+
+    @NotNull
+    private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnFailure() {
+        String fileName = "elasticsearch/es_bulk_failures.json";
+        return loadElasticSearchDatasourceFromFile(fileName);
+    }
+
+    @NotNull
+    private ElasticSearchDatasource loadElasticSearchDatasourceFromFile(String fileName) {
+        JsonNode postBulkResult = Json.parse(getFile(fileName));
         BulkResponse bulkResponse = Json.fromJson(postBulkResult, BulkResponse.class);
 
         ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
@@ -86,5 +154,4 @@ public class ElasticSearchDatasourceTest implements WithResources {
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
         return elasticSearchDatasource;
     }
-
 }

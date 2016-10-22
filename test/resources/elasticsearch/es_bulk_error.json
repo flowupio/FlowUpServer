@@ -1,0 +1,1 @@
+{"error":{"root_cause":[{"type":"illegal_argument_exception","reason":"Malformed action/metadata line [1], expected a simple value for field [index] but found [START_OBJECT]"}],"type":"illegal_argument_exception","reason":"Malformed action/metadata line [1], expected a simple value for field [index] but found [START_OBJECT]"},"status":400}
