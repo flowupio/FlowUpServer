@@ -9,6 +9,18 @@ GET     /health                     controllers.HomeController.health
 GET     /                           controllers.HomeController.index
 GET     /command-center             controllers.CommandCenterController.index
 
+# Admin Website
+GET     /admin/                       controllers.admin.UserController.index()
+GET     /admin/users                  controllers.admin.UserController.list(p:Int ?= 0, s ?= "name", o ?= "asc", f ?= "")
+GET     /admin/users/new              controllers.admin.UserController.create()
+POST    /admin/users                  controllers.admin.UserController.save()
+# Edit existing computer
+GET     /admin/users/:id              controllers.admin.UserController.edit(id)
+POST    /admin/users/:id              controllers.admin.UserController.update(id)
+# Delete a computer
+POST    /admin/users/:id/delete       controllers.admin.UserController.delete(id)
+
+
 # Authentication
 GET     /login                      controllers.HomeController.login
 GET     /logout                     com.feth.play.module.pa.controllers.Authenticate.logout

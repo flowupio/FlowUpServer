@@ -15,6 +15,7 @@ libraryDependencies ++= Seq( javaJdbc ,  cache , javaWs,
 
 libraryDependencies += "org.webjars" %% "webjars-play" % "2.5.0"
 libraryDependencies += "org.webjars" % "bootstrap" % "3.3.4"
+libraryDependencies += "com.adrianhurt" %% "play-bootstrap" % "1.1-P25-B3"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.40"
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
