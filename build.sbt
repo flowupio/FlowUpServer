@@ -28,3 +28,7 @@ mappings in Universal in packageBin += file("aws-config/Dockerfile") -> "Dockerf
 mappings in Universal in packageBin += file("aws-config/Dockerrun.aws.json") -> "Dockerrun.aws.json"
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
+
+includeFilter in (Assets, LessKeys.less) := "*.less"
+
+excludeFilter in (Assets, LessKeys.less) := "_*.less"
