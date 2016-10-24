@@ -4,27 +4,47 @@ import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.service.AbstractUserService;
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
+import datasources.grafana.GrafanaClient;
 import models.User;
+import play.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.concurrent.ExecutionException;
 
 @Singleton
 public class FlowUpUserService extends AbstractUserService {
 
+    private final GrafanaClient grafanaClient;
+
     @Inject
-    public FlowUpUserService(final PlayAuthenticate auth) {
+    public FlowUpUserService(PlayAuthenticate auth, GrafanaClient grafanaClient) {
         super(auth);
+        this.grafanaClient = grafanaClient;
     }
 
     @Override
-    public Object save(final AuthUser authUser) {
+    public Object save(AuthUser authUser) {
         final boolean isLinked = User.existsByAuthUserIdentity(authUser);
         if (!isLinked) {
-            return User.create(authUser).id;
+            User user = User.create(authUser);
+            createGrafanaUser(user);
+            return user.id;
         } else {
+            User user = User.findByAuthUserIdentity(authUser);
+            createGrafanaUser(user);
             // we have this user already, so return null
             return null;
+        }
+    }
+
+    private void createGrafanaUser(User user) {
+        try {
+            grafanaClient.createUser(user).toCompletableFuture().get();
+        } catch (InterruptedException e) {
+            Logger.debug(e.getMessage());
+        } catch (ExecutionException e) {
+            Logger.debug(e.getMessage());
         }
     }
 

@@ -27,5 +27,10 @@ public class Module extends AbstractModule {
         bind(MetricsDatasource.class)
                 .to(ElasticSearchDatasource.class)
                 .asEagerSingleton();
+
+        Configuration grafanaConf = configuration.getConfig("grafana");
+        bind(Configuration.class)
+                .annotatedWith(Names.named("grafana"))
+                .toInstance(grafanaConf);
     }
 }

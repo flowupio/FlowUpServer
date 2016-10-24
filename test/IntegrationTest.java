@@ -36,7 +36,6 @@ public class IntegrationTest extends WithBrowser {
         browser.goTo("/login");
         assertNotNull(browser.$("div#logins a"));
         List<String> logins = new ArrayList<>();
-        logins.add("github");
         logins.add("google");
         assertEquals(logins, (browser.$("div#logins a").getTexts()));
     }

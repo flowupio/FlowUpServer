@@ -78,27 +78,19 @@
 
                 @for(user <- currentPage.getList) {
                     <tr>
-                        <td><a href="@controllers.admin.routes.UserController.edit(user.id.toString)">@user.name</a></td>
+                        <td><a href="@controllers.admin.routes.UserController.edit(user.getId.toString)">@user.getName</a></td>
                         <td>
-                            @if(user.email == null) {
+                            @if(user.getEmail == null) {
                                 <em>-</em>
                             } else {
-                                @user.email
+                                @user.getEmail
                             }
                         </td>
                         <td>
-                            @if(user.active == null) {
-                                <em>-</em>
-                            } else {
-                                @user.active
-                            }
+                            @user.isActive
                         </td>
                         <td>
-                            @if(user.emailValidated == null) {
-                                <em>-</em>
-                            } else {
-                                @user.emailValidated
-                            }
+                            @user.isEmailValidated
                         </td>
                     </tr>
                 }

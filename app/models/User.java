@@ -18,24 +18,26 @@ import java.util.*;
 @Entity
 public class User extends Model {
     @Id
-    public UUID id;
+    private UUID id;
 
     @Constraints.Email
     @Column(unique = true)
-    public String email;
+    private String email;
 
     @Constraints.Required
-    public String name;
+    private String name;
 
-    public boolean active;
+    private boolean active;
 
-    public boolean emailValidated;
+    private boolean emailValidated;
+
+    private String grafanaPassword;
 
     @OneToMany(cascade = CascadeType.ALL)
-    public List<LinkedAccount> linkedAccounts;
+    private List<LinkedAccount> linkedAccounts;
 
     @ManyToMany(mappedBy = "members")
-    public List<Organization> organizations;
+    private List<Organization> organizations;
 
     public static final Finder<UUID, User> find = new Finder<>(User.class);
 
