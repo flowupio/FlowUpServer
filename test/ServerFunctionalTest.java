@@ -1,8 +1,8 @@
 import com.google.common.collect.ImmutableMap;
-import datasources.BulkItemResponse;
-import datasources.BulkResponse;
-import datasources.ElasticsearchClient;
-import datasources.IndexRequest;
+import datasources.elasticsearch.BulkItemResponse;
+import datasources.elasticsearch.BulkResponse;
+import datasources.elasticsearch.ElasticsearchClient;
+import datasources.elasticsearch.IndexRequest;
 import models.ApiKey;
 import org.junit.Test;
 import org.junit.runner.RunWith;
