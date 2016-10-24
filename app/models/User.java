@@ -31,6 +31,8 @@ public class User extends Model {
 
     private boolean emailValidated;
 
+    private String grafanaUserId;
+
     private String grafanaPassword;
 
     @OneToMany(cascade = CascadeType.ALL)

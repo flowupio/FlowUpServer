@@ -1,6 +1,7 @@
 package datasources.grafana;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.Organization;
 import models.User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -55,10 +56,38 @@ public class GrafanaClient {
         return getWsRequestForUserCreation(adminUserEndpoint).post(userRequest).thenApply(response -> {
             Logger.debug(response.getBody());
             if (response.getStatus() == Http.Status.OK) {
+                String id = response.asJson().get("id").toString();
                 User createdUser = User.find.byId(userId);
+                createdUser.setGrafanaUserId(id);
                 createdUser.setGrafanaPassword(grafanaPassword);
                 createdUser.save();
             }
+            return Json.fromJson(response.asJson(), GrafanaResponse.class);
+        });
+    }
+
+    public CompletionStage<GrafanaResponse> addUserToOrganisation(User user, Organization organization) {
+        String adminUserEndpoint = "/api/orgs/:orgId/users".replaceFirst(":orgId", organization.grafanaId);
+
+        ObjectNode userRequest = Json.newObject()
+                .put("loginOrEmail", user.getEmail())
+                .put("role", "Viewer");
+
+        UUID userId = user.getId();
+
+        Logger.debug(userRequest.toString());
+
+        return getWsRequestForUserCreation(adminUserEndpoint).post(userRequest).thenApply(response -> {
+            Logger.debug(response.getBody());
+            return Json.fromJson(response.asJson(), GrafanaResponse.class);
+        });
+    }
+
+    public CompletionStage<GrafanaResponse> deleteUserInDefaultOrganisation(User user) {
+        String adminUserEndpoint = "/api/orgs/:orgId/users/:userId".replaceFirst(":orgId", "1").replaceFirst(":userId", user.getGrafanaUserId());
+
+        return getWsRequestForUserCreation(adminUserEndpoint).delete().thenApply(response -> {
+            Logger.debug(response.getBody());
             return Json.fromJson(response.asJson(), GrafanaResponse.class);
         });
     }
@@ -82,35 +111,4 @@ public class GrafanaClient {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~`!@#$%^&*()-_=+[{]}\\|;:\'\",<.>/?";
         return RandomStringUtils.random(255, 0, 0, false, false, characters.toCharArray(), new SecureRandom());
     }
-
-//    public CompletionStage<BulkResponse> AddUserToOrganisation(User user, Organization organization) {
-//        Logger.debug(content);
-//
-//        String orgUser = "/api/org/users";
-//
-//        return ws.url(baseUrl + bulkEndpoint).setContentType("application/x-www-form-urlencoded").post(content).thenApply(
-//                response -> {
-//                    Logger.debug(response.getBody());
-//                    return Json.fromJson(response.asJson(), BulkResponse.class);
-//                }
-//        );
-//    }
-    /*
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
-
-    http://flowupgrafana.uaxzm2qchi.eu-west-1.elasticbeanstalk.com/api/admin/users
-    {"name":"aasdad","password":"sadad", email:""}
-     */
-
-    /* POST  HTTP/1.1
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
-
-{
-  "role": "Admin",
-  "loginOrEmail": "admin"
-}*/
 }

@@ -5,6 +5,7 @@ import com.feth.play.module.pa.service.AbstractUserService;
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
 import datasources.grafana.GrafanaClient;
+import models.Organization;
 import models.User;
 import play.Logger;
 
@@ -29,10 +30,12 @@ public class FlowUpUserService extends AbstractUserService {
         if (!isLinked) {
             User user = User.create(authUser);
             createGrafanaUser(user);
-            return user.id;
+            addUserToGrafanaOrg(user);
+            return user.getId();
         } else {
             User user = User.findByAuthUserIdentity(authUser);
             createGrafanaUser(user);
+            addUserToGrafanaOrg(user);
             // we have this user already, so return null
             return null;
         }
@@ -48,13 +51,29 @@ public class FlowUpUserService extends AbstractUserService {
         }
     }
 
+    private void addUserToGrafanaOrg(User user) {
+        String[] split = user.getEmail().split("@");
+        if (split.length == 2) {
+            Organization organization = Organization.findByGoogleAccount("@" + split[1]);
+            try {
+                grafanaClient.addUserToOrganisation(user, organization).toCompletableFuture().get();
+                user.refresh();
+                grafanaClient.deleteUserInDefaultOrganisation(user).toCompletableFuture().get();
+            } catch (InterruptedException e) {
+                Logger.debug(e.getMessage());
+            } catch (ExecutionException e) {
+                Logger.debug(e.getMessage());
+            }
+        }
+    }
+
     @Override
     public Object getLocalIdentity(final AuthUserIdentity identity) {
         // For production: Caching might be a good idea here...
         // ...and dont forget to sync the cache when users get deactivated/deleted
         final User u = User.findByAuthUserIdentity(identity);
         if(u != null) {
-            return u.id;
+            return u.getId();
         } else {
             return null;
         }
