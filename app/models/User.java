@@ -3,15 +3,18 @@ package models;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Model;
+import com.avaje.ebean.PagedList;
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
 import com.feth.play.module.pa.user.EmailIdentity;
 import com.feth.play.module.pa.user.NameIdentity;
+import lombok.Data;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import java.util.*;
 
+@Data
 @Entity
 public class User extends Model {
     @Id
@@ -21,6 +24,7 @@ public class User extends Model {
     @Column(unique = true)
     public String email;
 
+    @Constraints.Required
     public String name;
 
     public boolean active;
@@ -34,6 +38,14 @@ public class User extends Model {
     public List<Organization> organizations;
 
     public static final Finder<UUID, User> find = new Finder<>(User.class);
+
+    public static PagedList<User> page(int page, int pageSize, String sortBy, String order, String filter) {
+        return
+                find.where()
+                        .ilike("name", "%" + filter + "%")
+                        .orderBy(sortBy + " " + order)
+                        .findPagedList(page, pageSize);
+    }
 
     public static boolean existsByAuthUserIdentity(
             final AuthUserIdentity identity) {

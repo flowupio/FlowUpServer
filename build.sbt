@@ -15,6 +15,7 @@ libraryDependencies ++= Seq( javaJdbc ,  cache , javaWs,
 
 libraryDependencies += "org.webjars" %% "webjars-play" % "2.5.0"
 libraryDependencies += "org.webjars" % "bootstrap" % "3.3.4"
+libraryDependencies += "com.adrianhurt" %% "play-bootstrap" % "1.1-P25-B3"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.40"
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
@@ -27,3 +28,7 @@ mappings in Universal in packageBin += file("aws-config/Dockerfile") -> "Dockerf
 mappings in Universal in packageBin += file("aws-config/Dockerrun.aws.json") -> "Dockerrun.aws.json"
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
+
+includeFilter in (Assets, LessKeys.less) := "*.less"
+
+excludeFilter in (Assets, LessKeys.less) := "_*.less"

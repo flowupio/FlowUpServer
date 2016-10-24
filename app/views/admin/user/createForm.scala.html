@@ -1,0 +1,27 @@
+@(userForm: Form[User])
+
+@import helper._
+
+@import b3.vertical.fieldConstructor
+
+@views.html.admin.main {
+    
+    <h1>Add a user</h1>
+    
+    @b3.form(controllers.admin.routes.UserController.save()) {
+        
+        <fieldset>
+            @b3.text(userForm("name"), '_label -> "name", '_help -> "")
+            @b3.text(userForm("email"), '_label -> "email", '_help -> "")
+            @b3.checkbox(userForm("active"), '_label -> "active", '_help -> "")
+            @b3.checkbox(userForm("emailValidated"), '_label -> "email validated", '_help -> "")
+        </fieldset>
+        
+        <div class="actions">
+            <input type="submit" value="Create User" class="btn primary"> or
+            <a href="@controllers.admin.routes.UserController.list()" class="btn">Cancel</a>
+        </div>
+        
+    }
+    
+}
