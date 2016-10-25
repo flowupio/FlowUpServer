@@ -1,6 +1,7 @@
 package datasources;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import datasources.elasticsearch.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;

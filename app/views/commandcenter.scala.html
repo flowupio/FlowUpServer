@@ -5,9 +5,9 @@
 @main("Command Center") {
 
     <p>
-        Your name is @localUser and your email address is @localUser.email
+        Your name is @localUser and your email address is @localUser.getEmail
         <i>
-        @if(!localUser.emailValidated) {
+        @if(!localUser.isEmailValidated) {
             (unverified)
         } else {
             (verified)

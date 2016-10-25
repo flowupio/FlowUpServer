@@ -2,7 +2,7 @@ package controllers;
 
 
 import com.google.common.collect.ImmutableMap;
-import datasources.*;
+import datasources.elasticsearch.*;
 import models.ApiKey;
 import org.junit.Ignore;
 import org.junit.Test;

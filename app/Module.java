@@ -1,6 +1,6 @@
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import datasources.ElasticSearchDatasource;
+import datasources.elasticsearch.ElasticSearchDatasource;
 import play.Configuration;
 import play.Environment;
 import usecases.MetricsDatasource;
@@ -27,5 +27,10 @@ public class Module extends AbstractModule {
         bind(MetricsDatasource.class)
                 .to(ElasticSearchDatasource.class)
                 .asEagerSingleton();
+
+        Configuration grafanaConf = configuration.getConfig("grafana");
+        bind(Configuration.class)
+                .annotatedWith(Names.named("grafana"))
+                .toInstance(grafanaConf);
     }
 }

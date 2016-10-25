@@ -1,4 +1,4 @@
-package datasources;
+package datasources.elasticsearch;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.F;

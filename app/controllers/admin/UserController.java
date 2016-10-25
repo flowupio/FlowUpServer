@@ -85,13 +85,13 @@ public class UserController extends Controller {
             User savedUser = User.find.byId(uuid);
             if (savedUser != null) {
                 User newUserData = userForm.get();
-                savedUser.email = newUserData.email;
-                savedUser.name = newUserData.name;
-                savedUser.active = newUserData.active;
-                savedUser.emailValidated = newUserData.emailValidated;
+                savedUser.setEmail(newUserData.getEmail());
+                savedUser.setName(newUserData.getName());
+                savedUser.setActive(newUserData.isActive());
+                savedUser.setEmailValidated(newUserData.isEmailValidated());
 
                 savedUser.update();
-                flash("success", "Computer " + userForm.get().name + " has been updated");
+                flash("success", "Computer " + userForm.get().getName() + " has been updated");
                 txn.commit();
             }
         } finally {
@@ -120,7 +120,7 @@ public class UserController extends Controller {
             return badRequest(views.html.admin.user.createForm.render(userForm));
         }
         userForm.get().save();
-        flash("success", "User " + userForm.get().name + " has been created");
+        flash("success", "User " + userForm.get().getName() + " has been created");
         return GO_HOME;
     }
 

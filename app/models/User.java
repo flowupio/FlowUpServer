@@ -14,28 +14,31 @@ import play.data.validation.Constraints;
 import javax.persistence.*;
 import java.util.*;
 
-@Data
 @Entity
 public class User extends Model {
     @Id
-    public UUID id;
+    private UUID id;
 
     @Constraints.Email
     @Column(unique = true)
-    public String email;
+    private String email;
 
     @Constraints.Required
-    public String name;
+    private String name;
 
-    public boolean active;
+    private boolean active;
 
-    public boolean emailValidated;
+    private boolean emailValidated;
+
+    private String grafanaUserId;
+
+    private String grafanaPassword;
 
     @OneToMany(cascade = CascadeType.ALL)
-    public List<LinkedAccount> linkedAccounts;
+    private List<LinkedAccount> linkedAccounts;
 
     @ManyToMany(mappedBy = "members")
-    public List<Organization> organizations;
+    private List<Organization> organizations;
 
     public static final Finder<UUID, User> find = new Finder<>(User.class);
 
@@ -136,5 +139,77 @@ public class User extends Model {
 
     public LinkedAccount getAccountByProvider(final String providerKey) {
         return LinkedAccount.findByProviderKey(this, providerKey);
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public boolean isEmailValidated() {
+        return emailValidated;
+    }
+
+    public void setEmailValidated(boolean emailValidated) {
+        this.emailValidated = emailValidated;
+    }
+
+    public String getGrafanaUserId() {
+        return grafanaUserId;
+    }
+
+    public void setGrafanaUserId(String grafanaUserId) {
+        this.grafanaUserId = grafanaUserId;
+    }
+
+    public String getGrafanaPassword() {
+        return grafanaPassword;
+    }
+
+    public void setGrafanaPassword(String grafanaPassword) {
+        this.grafanaPassword = grafanaPassword;
+    }
+
+    public List<LinkedAccount> getLinkedAccounts() {
+        return linkedAccounts;
+    }
+
+    public void setLinkedAccounts(List<LinkedAccount> linkedAccounts) {
+        this.linkedAccounts = linkedAccounts;
+    }
+
+    public List<Organization> getOrganizations() {
+        return organizations;
+    }
+
+    public void setOrganizations(List<Organization> organizations) {
+        this.organizations = organizations;
     }
 }

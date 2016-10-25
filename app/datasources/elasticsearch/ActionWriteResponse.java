@@ -1,4 +1,4 @@
-package datasources;
+package datasources.elasticsearch;
 
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
