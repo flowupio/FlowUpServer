@@ -10,6 +10,8 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import usecases.StatisticalValue
 
+import scala.collection.JavaConversions._
+
 object Report {
 
   private val maxNumberOfReportsPerRequest = 251
@@ -115,7 +117,7 @@ object Report {
   }
 
   private def generateReportsBatchOpeningTheAppTwice() = {
-    return generateReportsBatchOpeningTheAppSomeTimes(2)
+    generateReportsBatchOpeningTheAppSomeTimes(2)
   }
 
   private def generateReportsBatchOpeningTheAppSomeTimes(numberOfTimes: Int) = {
