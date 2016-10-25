@@ -29,10 +29,11 @@ class MaxNumberOfReportsSimulation extends Simulation {
     .userAgentHeader("FlowUpAndroidSDK/1.0.0")
 
   setUp(
-    Report.oneReportFull251ReportsCollapsed.inject(atOnceUsers(1)).protocols(httpConf),
-    Report.oneUserUsingTheAppDuringMoreThanOneHour.inject(atOnceUsers(1)).protocols(httpConf)
+    Report.oneUserUsingTheAppDuringLessThanOneHour.inject(atOnceUsers(1)).protocols(httpConf),
+    Report.oneUserUsingTheAppDuringMoreThanOneHour.inject(atOnceUsers(1)).protocols(httpConf),
+    Report.oneUserUsingTheAppForSomeHours(2).inject(atOnceUsers(10)).protocols(httpConf)
   ).assertions(
-    //global.responseTime.max.lessThan(200),//TODO: Enable this to see our tests failing.
+    global.responseTime.max.lessThan(200),
     global.successfulRequests.percent.is(100)
   )
 }
@@ -68,6 +69,13 @@ object Report {
     1000,
     1000)
 
+  def oneUserUsingTheAppForSomeHours(hours: Int) = scenario("One user using the app during " + hours + " hours").repeat(hours) {
+    exec(http("One user using the app during more than one hour")
+      .post("/report")
+      .body(ByteArrayBody(generateGzippedMaxReportRequest()))
+      .check(status.is(201)))
+  }
+
   val oneUserUsingTheAppDuringMoreThanOneHour = scenario("One user using the app during more than one hour").repeat(2) {
     exec(http("One user using the app during more than one hour")
       .post("/report")
@@ -75,8 +83,8 @@ object Report {
       .check(status.is(201)))
   }
 
-  val oneReportFull251ReportsCollapsed = scenario("One report full of data")
-      .exec(http("One report full of data")
+  val oneUserUsingTheAppDuringLessThanOneHour = scenario("One report full of data")
+    .exec(http("One report full of data")
       .post("/report")
       .body(ByteArrayBody(generateGzippedMaxReportRequest()))
       .check(status.is(201)))
