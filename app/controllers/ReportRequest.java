@@ -1,12 +1,15 @@
 package controllers;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import usecases.StatisticalValue;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class ReportRequest {
     private final String appPackage;
     private final String deviceModel;
@@ -14,12 +17,12 @@ public class ReportRequest {
     private final String screenSize;
     private final String installationUUID;
     private final int numberOfCores;
-    private final List<Network> network;
-    private final List<Ui> ui;
-    private final List<Cpu> cpu;
-    private final List<Gpu> gpu;
-    private final List<Memory> memory;
-    private final List<Disk> disk;
+    private final List<Network> network = Collections.EMPTY_LIST;
+    private final List<Ui> ui = Collections.EMPTY_LIST;
+    private final List<Cpu> cpu = Collections.EMPTY_LIST;
+    private final List<Gpu> gpu = Collections.EMPTY_LIST;
+    private final List<Memory> memory = Collections.EMPTY_LIST;
+    private final List<Disk> disk = Collections.EMPTY_LIST;
 
     @Data
     public static class Network implements DatapointTags {
