@@ -43,7 +43,7 @@ public class GrafanaClient {
         this.baseUrl = scheme + "://" + host + ":" + port;
     }
 
-    public  CompletionStage<GrafanaResponse> createUser(final User user) {
+    public CompletionStage<GrafanaResponse> createUser(final User user) {
         String adminUserEndpoint = "/api/admin/users";
 
         String grafanaPassword = PasswordGenerator.generatePassword();
