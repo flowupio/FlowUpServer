@@ -10,6 +10,7 @@ import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
+import play.libs.ws.WSResponse;
 import play.mvc.Http;
 
 import javax.inject.Inject;
@@ -58,14 +59,18 @@ public class GrafanaClient {
         return getWsRequestForAdminUser(adminUserEndpoint).post(userRequest).thenApply(response -> {
             Logger.debug(response.getBody());
             if (response.getStatus() == Http.Status.OK) {
-                String id = response.asJson().get("id").toString();
-                User createdUser = User.find.byId(userId);
-                createdUser.setGrafanaUserId(id);
-                createdUser.setGrafanaPassword(grafanaPassword);
-                createdUser.save();
+                updateUserWithGrafanaInfo(grafanaPassword, userId, response);
             }
             return Json.fromJson(response.asJson(), GrafanaResponse.class);
         });
+    }
+
+    private void updateUserWithGrafanaInfo(String grafanaPassword, UUID userId, WSResponse response) {
+        String id = response.asJson().get("id").toString();
+        User createdUser = User.find.byId(userId);
+        createdUser.setGrafanaUserId(id);
+        createdUser.setGrafanaPassword(grafanaPassword);
+        createdUser.save();
     }
 
     public CompletionStage<GrafanaResponse> addUserToOrganisation(User user, Organization organization) {
