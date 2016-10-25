@@ -20,6 +20,8 @@ import java.util.concurrent.CompletionStage;
 
 public class GrafanaClient {
 
+    private static final String API_ORGS_ORG_ID_USERS = "/api/orgs/:orgId/users";
+    private static final String API_ORGS_ORG_ID_USERS_USER_ID = "/api/orgs/:orgId/users/:userId";
     private final WSClient ws;
     private final String baseUrl;
     private final String apiKey;
@@ -43,7 +45,7 @@ public class GrafanaClient {
     public  CompletionStage<GrafanaResponse> createUser(final User user) {
         String adminUserEndpoint = "/api/admin/users";
 
-        String grafanaPassword = generatePassword();
+        String grafanaPassword = PasswordGenerator.generatePassword();
         ObjectNode userRequest = Json.newObject()
                 .put("name", user.getName())
                 .put("email", user.getEmail())
@@ -53,7 +55,7 @@ public class GrafanaClient {
 
         Logger.debug(userRequest.toString());
 
-        return getWsRequestForUserCreation(adminUserEndpoint).post(userRequest).thenApply(response -> {
+        return getWsRequestForAdminUser(adminUserEndpoint).post(userRequest).thenApply(response -> {
             Logger.debug(response.getBody());
             if (response.getStatus() == Http.Status.OK) {
                 String id = response.asJson().get("id").toString();
@@ -67,7 +69,7 @@ public class GrafanaClient {
     }
 
     public CompletionStage<GrafanaResponse> addUserToOrganisation(User user, Organization organization) {
-        String adminUserEndpoint = "/api/orgs/:orgId/users".replaceFirst(":orgId", organization.grafanaId);
+        String adminUserEndpoint = API_ORGS_ORG_ID_USERS.replaceFirst(":orgId", organization.grafanaId);
 
         ObjectNode userRequest = Json.newObject()
                 .put("loginOrEmail", user.getEmail())
@@ -77,22 +79,22 @@ public class GrafanaClient {
 
         Logger.debug(userRequest.toString());
 
-        return getWsRequestForUserCreation(adminUserEndpoint).post(userRequest).thenApply(response -> {
+        return getWsRequestForAdminUser(adminUserEndpoint).post(userRequest).thenApply(response -> {
             Logger.debug(response.getBody());
             return Json.fromJson(response.asJson(), GrafanaResponse.class);
         });
     }
 
     public CompletionStage<GrafanaResponse> deleteUserInDefaultOrganisation(User user) {
-        String adminUserEndpoint = "/api/orgs/:orgId/users/:userId".replaceFirst(":orgId", "1").replaceFirst(":userId", user.getGrafanaUserId());
+        String adminUserEndpoint = API_ORGS_ORG_ID_USERS_USER_ID.replaceFirst(":orgId", "1").replaceFirst(":userId", user.getGrafanaUserId());
 
-        return getWsRequestForUserCreation(adminUserEndpoint).delete().thenApply(response -> {
+        return getWsRequestForAdminUser(adminUserEndpoint).delete().thenApply(response -> {
             Logger.debug(response.getBody());
             return Json.fromJson(response.asJson(), GrafanaResponse.class);
         });
     }
 
-    private WSRequest getWsRequestForUserCreation(String adminUserEndpoint) {
+    private WSRequest getWsRequestForAdminUser(String adminUserEndpoint) {
         WSRequest wsRequest = ws.url(baseUrl + adminUserEndpoint).setHeader("Accept", "application/json").setContentType("application/json")
                 .setAuth(this.adminUser, this.adminPassword);
         Logger.debug(wsRequest.getHeaders().toString());
@@ -105,9 +107,11 @@ public class GrafanaClient {
         Logger.debug(wsRequest.getHeaders().toString());
         return wsRequest;
     }
+}
 
+class PasswordGenerator {
     @NotNull
-    private String generatePassword() {
+    static String generatePassword() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~`!@#$%^&*()-_=+[{]}\\|;:\'\",<.>/?";
         return RandomStringUtils.random(255, 0, 0, false, false, characters.toCharArray(), new SecureRandom());
     }
