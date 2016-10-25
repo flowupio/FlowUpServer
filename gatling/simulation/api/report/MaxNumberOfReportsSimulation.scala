@@ -14,7 +14,7 @@ class MaxNumberOfReportsSimulation extends Simulation {
   setUp(
     Report.oneUserUsingTheAppIntensivelyDuringLessThanOneHour.inject(atOnceUsers(1)).protocols(httpConf),
     Report.oneUserUsingTheAppIntensivelyDuringMoreThanOneHour.inject(atOnceUsers(1)).protocols(httpConf),
-    Report.oneUserUsingTheAppIntensivelyForSomeHours(2).inject(atOnceUsers(10)).protocols(httpConf).protocols(httpConf),
+    Report.oneUserUsingTheAppIntensivelyForSomeHours(3).inject(atOnceUsers(10)).protocols(httpConf).protocols(httpConf)
   ).assertions(
     global.responseTime.max.lessThan(200),
     global.successfulRequests.percent.is(100)
