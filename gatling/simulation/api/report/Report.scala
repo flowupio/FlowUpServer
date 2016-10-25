@@ -10,8 +10,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import usecases.StatisticalValue
 
-import scala.collection.JavaConversions._
-
 object Report {
 
   private val maxNumberOfReportsPerRequest = 251
@@ -44,10 +42,18 @@ object Report {
     1000,
     1000)
 
-  def oneUserUsingTheAppTwoTimesPerHourForSomeHours(hours: Int) = scenario("One user using the app during " + hours + " hours").repeat(hours) {
+  def oneUserUsingTheAppTwoTimesPerHourForSomeHours(hours: Int) = scenario("One user using the app twice during " + hours + " hours").repeat(hours) {
     exec(http("One user using the app during more than one hour")
       .post("/report")
       .body(ByteArrayBody(generateGzippedReportOpeningTheAppTwiceRequest()))
+      .check(status.is(201)))
+  }
+
+  def oneUserUsingTheAppSomeTimesPerHourForSomeHours(hours: Int, numberOfTimes: Int) = scenario("One user using the app " + numberOfTimes +
+    " during " + hours + " hours").repeat(hours) {
+    exec(http("One user using the app during " + hours + " hours opening the app " + numberOfCores + " times")
+      .post("/report")
+      .body(ByteArrayBody(generateGzippedReportOpeningTheAppSomeTimesRequest(numberOfTimes)))
       .check(status.is(201)))
   }
 
@@ -81,6 +87,11 @@ object Report {
     toGzip(reportRequest)
   }
 
+  private def generateGzippedReportOpeningTheAppSomeTimesRequest(numberOfTimes: Int) = {
+    val reportRequest = generateReportsBatchOpeningTheAppSomeTimes(numberOfTimes)
+    toGzip(reportRequest)
+  }
+
   private def generateGzippedReportOpeningTheAppTwiceRequest() = {
     val reportRequest = generateReportsBatchOpeningTheAppTwice()
     toGzip(reportRequest)
@@ -104,6 +115,10 @@ object Report {
   }
 
   private def generateReportsBatchOpeningTheAppTwice() = {
+    return generateReportsBatchOpeningTheAppSomeTimes(2)
+  }
+
+  private def generateReportsBatchOpeningTheAppSomeTimes(numberOfTimes: Int) = {
     new ReportRequest(
       appPackage,
       deviceModel,
@@ -112,7 +127,7 @@ object Report {
       uuid,
       numberOfCores,
       generateNetworkMetrics(maxNumberOfReportsPerRequest),
-      generateUIMetrics(2, 2),
+      generateUIMetrics(numberOfTimes, 2),
       generateCPUMetrics(maxNumberOfReportsPerRequest),
       List(),
       generateMemoryMetrics(maxNumberOfReportsPerRequest),
