@@ -119,7 +119,7 @@ object Report {
   }
 
   private def generateNetworkMetrics(numberOfMetrics: Int): List[Network] = {
-    (0 until numberOfMetrics).toList.map { _ =>
+    generateSomeData(numberOfMetrics) { _ =>
       new Network(anyTimestamp, anyVersionName, anyOSVersion, anyBatterySaverValue, anyAmountOfBytes, anyAmountOfBytes)
     }
   }
@@ -130,7 +130,7 @@ object Report {
     * can open and close 10 different screens.
     */
   private def generateUIMetrics(numberOfMetrics: Int): List[Ui] = {
-    (0 until numberOfMetrics * 10).toList.map { _ =>
+    generateSomeData(numberOfMetrics * 10) { _ =>
       new Ui(anyTimestamp,
         anyVersionName,
         anyOSVersion,
@@ -149,7 +149,7 @@ object Report {
   }
 
   private def generateCPUMetrics(numberOfMetrics: Int): List[Cpu] = {
-    (0 until numberOfMetrics).toList.map { _ =>
+    generateSomeData(numberOfMetrics) { _ =>
       new Cpu(anyTimestamp,
         anyVersionName,
         anyOSVersion,
@@ -159,7 +159,7 @@ object Report {
   }
 
   private def generateMemoryMetrics(numberOfMetrics: Int): List[Memory] = {
-    (0 until numberOfMetrics).toList.map { _ =>
+    generateSomeData(numberOfMetrics) { _ =>
       new Memory(anyTimestamp,
         anyVersionName,
         anyOSVersion,
@@ -170,7 +170,7 @@ object Report {
   }
 
   private def generateDiskMetrics(numberOfMetrics: Int): List[Disk] = {
-    (0 until numberOfMetrics).toList.map { _ =>
+    generateSomeData(numberOfMetrics) { _ =>
       new Disk(anyTimestamp,
         anyVersionName,
         anyOSVersion,
@@ -178,6 +178,10 @@ object Report {
         maxConsumption,
         anyAmountOfBytes)
     }
+  }
+
+  private def generateSomeData[T](number: Int)(f: Int => T): List[T] = {
+    (0 until number).toList.map(f)
   }
 
   private def toJson(reportRequest: ReportRequest): String = {
