@@ -30,6 +30,10 @@ Test your setup http://asquera.de/blog/2013-07-10/an-elasticsearch-workflow/
 
 `docker run -e MYSQL_ROOT_PASSWORD=my-secret-pw -e MYSQL_DATABASE=flowupdb -e MYSQL_USER=flowupUser -e MYSQL_PASSWORD=flowupPassword -p 127.0.0.1:3306:3306 -d mysql:5.6`
 
+## How to setup grafana locally
+
+`docker run -p 3000:3000 -d grafana/grafana`
+
 ### How to execute the stress tests
 
 `sbt gatling:test`
