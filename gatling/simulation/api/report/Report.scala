@@ -1,4 +1,4 @@
-package api.reports
+package api.report
 
 import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPOutputStream
@@ -10,8 +10,11 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import usecases.StatisticalValue
 
+import scala.collection.JavaConversions._
+
 object Report {
 
+  private val maxNumberOfReportsPerRequest = 251
   private val anyVersionName = "1.0.0"
   private val anyOSVersion = "API24"
   private val anyBatterySaverValue = true
@@ -41,21 +44,28 @@ object Report {
     1000,
     1000)
 
-  def oneUserUsingTheAppForSomeHours(hours: Int) = scenario("One user using the app during " + hours + " hours").repeat(hours) {
+  def oneUserUsingTheAppTwoTimesPerHourForSomeHours(hours: Int) = scenario("One user using the app during " + hours + " hours").repeat(hours) {
+    exec(http("One user using the app during more than one hour")
+      .post("/report")
+      .body(ByteArrayBody(generateGzippedReportOpeningTheAppTwiceRequest()))
+      .check(status.is(201)))
+  }
+
+  def oneUserUsingTheAppIntensivelyForSomeHours(hours: Int) = scenario("One user using the app during " + hours + " hours").repeat(hours) {
     exec(http("One user using the app during more than one hour")
       .post("/report")
       .body(ByteArrayBody(generateGzippedMaxReportRequest()))
       .check(status.is(201)))
   }
 
-  val oneUserUsingTheAppDuringMoreThanOneHour = scenario("One user using the app during more than one hour").repeat(2) {
+  val oneUserUsingTheAppIntensivelyDuringMoreThanOneHour = scenario("One user using the app during more than one hour").repeat(2) {
     exec(http("One user using the app during more than one hour")
       .post("/report")
       .body(ByteArrayBody(generateGzippedMaxReportRequest()))
       .check(status.is(201)))
   }
 
-  val oneUserUsingTheAppDuringLessThanOneHour = scenario("One report full of data")
+  val oneUserUsingTheAppIntensivelyDuringLessThanOneHour = scenario("One report full of data")
     .exec(http("One report full of data")
       .post("/report")
       .body(ByteArrayBody(generateGzippedMaxReportRequest()))
@@ -67,13 +77,16 @@ object Report {
     * with a user moving around 10 different screens in 10 seconds.
     */
   private def generateGzippedMaxReportRequest() = {
-    val reportRequest = generateMaxSizeReport()
-    val json = toJson(reportRequest)
-    toGzip(json)
+    val reportRequest = generateMaxSizeReportsBatch()
+    toGzip(reportRequest)
   }
 
-  private def generateMaxSizeReport(): ReportRequest = {
-    val maxNumberOfReportsPerRequest = 251
+  private def generateGzippedReportOpeningTheAppTwiceRequest() = {
+    val reportRequest = generateReportsBatchOpeningTheAppTwice()
+    toGzip(reportRequest)
+  }
+
+  private def generateMaxSizeReportsBatch(): ReportRequest = {
     new ReportRequest(
       appPackage,
       deviceModel,
@@ -82,7 +95,24 @@ object Report {
       uuid,
       numberOfCores,
       generateNetworkMetrics(maxNumberOfReportsPerRequest),
-      generateUIMetrics(maxNumberOfReportsPerRequest),
+      generateUIMetrics(maxNumberOfReportsPerRequest, 10),
+      generateCPUMetrics(maxNumberOfReportsPerRequest),
+      List(),
+      generateMemoryMetrics(maxNumberOfReportsPerRequest),
+      generateDiskMetrics(maxNumberOfReportsPerRequest)
+    )
+  }
+
+  private def generateReportsBatchOpeningTheAppTwice() = {
+    new ReportRequest(
+      appPackage,
+      deviceModel,
+      screenDensity,
+      screenSize,
+      uuid,
+      numberOfCores,
+      generateNetworkMetrics(maxNumberOfReportsPerRequest),
+      generateUIMetrics(2, 2),
       generateCPUMetrics(maxNumberOfReportsPerRequest),
       List(),
       generateMemoryMetrics(maxNumberOfReportsPerRequest),
@@ -101,8 +131,8 @@ object Report {
     * user opening the screen will generate a new item in the Ui metrics array. For this test we can asume that a user
     * can open and close 10 different screens.
     */
-  private def generateUIMetrics(numberOfMetrics: Int): List[Ui] = {
-    generateSomeData(numberOfMetrics * 10) { _ =>
+  private def generateUIMetrics(numberOfMetrics: Int, numberOfScreens: Int): List[Ui] = {
+    generateSomeData(numberOfMetrics * numberOfScreens) { _ =>
       new Ui(anyTimestamp,
         anyVersionName,
         anyOSVersion,
@@ -156,12 +186,13 @@ object Report {
     (0 until number).toList.map(f)
   }
 
-  private def toJson(reportRequest: ReportRequest): String = {
+  private def toJson(any: Any): String = {
     val mapper = new ObjectMapper()
-    mapper.writeValueAsString(reportRequest)
+    mapper.writeValueAsString(any)
   }
 
-  private def toGzip(str: String): Array[Byte] = {
+  private def toGzip(any: Any): Array[Byte] = {
+    val str = toJson(any)
     if ((str == null) || (str.length == 0)) {
       return null
     }
