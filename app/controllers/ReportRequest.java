@@ -7,22 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-class ReportRequest {
+public class ReportRequest {
     private final String appPackage;
     private final String deviceModel;
     private final String screenDensity;
     private final String screenSize;
     private final String installationUUID;
     private final int numberOfCores;
-    private final List<Network> network = new ArrayList<>();
-    private final List<Ui> ui = new ArrayList<>();
-    private final List<Cpu> cpu = new ArrayList<>();
-    private final List<Gpu> gpu = new ArrayList<>();
-    private final List<Memory> memory = new ArrayList<>();
-    private final List<Disk> disk = new ArrayList<>();
+    private final List<Network> network;
+    private final List<Ui> ui;
+    private final List<Cpu> cpu;
+    private final List<Gpu> gpu;
+    private final List<Memory> memory;
+    private final List<Disk> disk;
 
     @Data
-    static class Network implements DatapointTags {
+    public static class Network implements DatapointTags {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
@@ -32,7 +32,7 @@ class ReportRequest {
     }
 
     @Data
-    static class Ui implements DatapointTags {
+    public static class Ui implements DatapointTags {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
@@ -50,7 +50,7 @@ class ReportRequest {
     }
 
     @Data
-    static class Cpu implements DatapointTags, ProcessingUnit {
+    public static class Cpu implements DatapointTags, ProcessingUnit {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
@@ -59,7 +59,7 @@ class ReportRequest {
     }
 
     @Data
-    static class Gpu implements DatapointTags, ProcessingUnit {
+    public static class Gpu implements DatapointTags, ProcessingUnit {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
