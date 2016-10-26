@@ -25,6 +25,8 @@ libraryDependencies ++= Seq(javaJdbc, cache, javaWs,
   "mysql" % "mysql-connector-java" % "5.1.40"
 )
 
+topLevelDirectory := None
+
 unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/test")
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"

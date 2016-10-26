@@ -12,7 +12,6 @@ import usecases.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -89,13 +88,9 @@ class DataPointMapper {
     static final String ON_ACTIVITY_DESTROYED_TIME = "OnActivityDestroyedTime";
 
     List<DataPoint> mapNetwork(ReportRequest reportRequest) {
-        List<ReportRequest.Network> networkMetrics = reportRequest.getNetwork();
-        if (networkMetrics == null || networkMetrics.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
         List<DataPoint> dataPoints = new ArrayList<>();
-        networkMetrics.forEach((network) -> {
+
+        reportRequest.getNetwork().forEach((network) -> {
             List<F.Tuple<String, Value>> measurements = new ArrayList<>();
             measurements.add(new F.Tuple<>(BYTES_UPLOADED, Value.toBasicValue(network.getBytesUploaded())));
             measurements.add(new F.Tuple<>(BYTES_DOWNLOADED, Value.toBasicValue(network.getBytesDownloaded())));
@@ -111,12 +106,9 @@ class DataPointMapper {
     }
 
     List<DataPoint> mapUi(ReportRequest reportRequest) {
-        List<ReportRequest.Ui> uiMetrics = reportRequest.getUi();
-        if(uiMetrics == null || uiMetrics.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
         List<DataPoint> dataPoints = new ArrayList<>();
-        uiMetrics.forEach((ui) -> {
+
+        reportRequest.getUi().forEach((ui) -> {
             List<F.Tuple<String, Value>> measurements = new ArrayList<>();
             measurements.add(new F.Tuple<>(FRAME_TIME, ui.getFrameTime()));
             measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, ui.getFramesPerSecond()));
@@ -139,13 +131,9 @@ class DataPointMapper {
     }
 
     List<DataPoint> mapCpu(ReportRequest reportRequest) {
-        List<ReportRequest.Cpu> cpuMetrics = reportRequest.getCpu();
-        if (cpuMetrics == null || cpuMetrics.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
         List<DataPoint> dataPoints = new ArrayList<>();
-        cpuMetrics.forEach((cpu) -> {
+
+        reportRequest.getCpu().forEach((cpu) -> {
             mapProcessingUnit(reportRequest, dataPoints, cpu);
         });
 
@@ -153,13 +141,9 @@ class DataPointMapper {
     }
 
     List<DataPoint> mapGpu(ReportRequest reportRequest) {
-        List<ReportRequest.Gpu> gpuMetrics = reportRequest.getGpu();
-        if (gpuMetrics == null || gpuMetrics.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
         List<DataPoint> dataPoints = new ArrayList<>();
-        gpuMetrics.forEach((gpu) -> {
+
+        reportRequest.getGpu().forEach((gpu) -> {
             mapProcessingUnit(reportRequest, dataPoints, gpu);
         });
 
@@ -167,13 +151,9 @@ class DataPointMapper {
     }
 
     List<DataPoint> mapMemory(ReportRequest reportRequest) {
-        List<ReportRequest.Memory> memoryMetrics = reportRequest.getMemory();
-        if (memoryMetrics == null || memoryMetrics.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
         List<DataPoint> dataPoints = new ArrayList<>();
-        memoryMetrics.forEach((memory) -> {
+
+        reportRequest.getMemory().forEach((memory) -> {
             mapMemory(reportRequest, dataPoints, memory);
         });
 
@@ -181,13 +161,9 @@ class DataPointMapper {
     }
 
     List<DataPoint> mapDisk(ReportRequest reportRequest) {
-        List<ReportRequest.Disk> diskMetrics = reportRequest.getDisk();
-        if(diskMetrics == null || diskMetrics.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
         List<DataPoint> dataPoints = new ArrayList<>();
-        diskMetrics.forEach((disk) -> {
+
+        reportRequest.getDisk().forEach((disk) -> {
             mapDisk(reportRequest, dataPoints, disk);
         });
 

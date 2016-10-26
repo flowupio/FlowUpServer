@@ -1,12 +1,15 @@
 package controllers;
 
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 import usecases.StatisticalValue;
 
+import java.util.Collections;
 import java.util.List;
 
 @Data
 public class ReportRequest {
+
     private final String appPackage;
     private final String deviceModel;
     private final String screenDensity;
@@ -19,6 +22,40 @@ public class ReportRequest {
     private final List<Gpu> gpu;
     private final List<Memory> memory;
     private final List<Disk> disk;
+
+    @NotNull
+    public List<Network> getNetwork() {
+        return emptyIfNull(network);
+    }
+
+    @NotNull
+    public List<Ui> getUi() {
+        return emptyIfNull(ui);
+    }
+
+    @NotNull
+    public List<Gpu> getGpu() {
+        return emptyIfNull(gpu);
+    }
+
+    @NotNull
+    public List<Cpu> getCpu() {
+        return emptyIfNull(cpu);
+    }
+
+    @NotNull
+    public List<Memory> getMemory() {
+        return emptyIfNull(memory);
+    }
+
+    @NotNull
+    public List<Disk> getDisk() {
+        return emptyIfNull(disk);
+    }
+
+    private <T> List<T> emptyIfNull(List<T> list) {
+        return list != null ? list : Collections.emptyList();
+    }
 
     @Data
     public static class Network implements DatapointTags {

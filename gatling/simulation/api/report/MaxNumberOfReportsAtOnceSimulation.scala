@@ -9,12 +9,12 @@ import api.report.flowupapi._
   * one single request. As we collect data every 10 seconds that means 251 reports is equivalent to 2510 seconds
   * monitored and this is almost an hour.
   */
-class MaxNumberOfReportsSimulation extends Simulation {
+class MaxNumberOfReportsAtOnceSimulation extends Simulation {
 
   setUp(
     Report.oneUserUsingTheAppIntensivelyDuringLessThanOneHour.inject(atOnceUsers(1)).protocols(httpConf),
     Report.oneUserUsingTheAppIntensivelyDuringMoreThanOneHour.inject(atOnceUsers(1)).protocols(httpConf),
-    Report.oneUserUsingTheAppIntensivelyForSomeHours(3).inject(atOnceUsers(10)).protocols(httpConf).protocols(httpConf)
+    Report.oneUserUsingTheAppIntensivelyForSomeHours(3).inject(atOnceUsers(10)).protocols(httpConf)
   ).assertions(
     global.responseTime.max.lessThan(200),
     global.successfulRequests.percent.is(100)

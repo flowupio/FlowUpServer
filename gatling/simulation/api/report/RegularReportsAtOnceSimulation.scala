@@ -8,7 +8,7 @@ import io.gatling.core.Predef._
   * connection is available. The report data sent to our server contains data associated to one user using the app
   * during some hours and opening two different screens during this time.
   */
-class RegularReportsSimulation extends Simulation {
+class RegularReportsAtOnceSimulation extends Simulation {
 
   setUp(
     Report.oneUserUsingTheAppTwoTimesPerHourForSomeHours(1).inject(atOnceUsers(1)).protocols(httpConf),
