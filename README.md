@@ -33,3 +33,7 @@ Test your setup http://asquera.de/blog/2013-07-10/an-elasticsearch-workflow/
 ## How to setup grafana locally
 
 `docker run -p 3000:3000 -d grafana/grafana`
+
+### How to execute the stress tests
+
+`sbt gatling:test`
