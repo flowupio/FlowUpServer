@@ -2,8 +2,7 @@ package controllers;
 
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
-import datasources.database.ApiDatasource;
-import models.ApiKey;
+import datasources.database.ApiKeyDatasource;
 import play.cache.CacheApi;
 import play.libs.F;
 import play.libs.streams.Accumulator;
@@ -63,13 +62,13 @@ class ReportRequestBodyParser implements BodyParser<ReportRequest> {
 class HeaderParsers {
 
     private CacheApi cache;
-    private ApiDatasource apiDatasource;
+    private ApiKeyDatasource apiKeyDatasource;
     static String X_API_KEY = "X-Api-Key";
 
     @Inject
-    HeaderParsers(CacheApi cache, ApiDatasource apiDatasource) {
+    HeaderParsers(CacheApi cache, ApiKeyDatasource apiKeyDatasource) {
         this.cache = cache;
-        this.apiDatasource = apiDatasource;
+        this.apiKeyDatasource = apiKeyDatasource;
     }
 
     private boolean apiKeyIsValid(Http.RequestHeader request) {
@@ -79,7 +78,7 @@ class HeaderParsers {
             if (validApiKey != null) {
                 return validApiKey;
             } else {
-                boolean valuePresentInDB = apiDatasource.isValuePresentInDB(apiKey);
+                boolean valuePresentInDB = apiKeyDatasource.isValuePresentInDB(apiKey);
                 cache.set("apiKey.isValid." + apiKey, valuePresentInDB);
                 return valuePresentInDB;
             }

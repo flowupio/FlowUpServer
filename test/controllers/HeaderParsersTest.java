@@ -1,25 +1,14 @@
 package controllers;
 
-import com.google.common.collect.ImmutableMap;
-import datasources.database.ApiDatasource;
-import datasources.elasticsearch.ElasticsearchClient;
-import models.ApiKey;
+import datasources.database.ApiKeyDatasource;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
-import play.Application;
 import play.cache.CacheApi;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
-import play.test.Helpers;
-import play.test.WithApplication;
 
-import java.util.Map;
-
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static play.inject.Bindings.bind;
 
 public class HeaderParsersTest {
 
@@ -28,16 +17,22 @@ public class HeaderParsersTest {
     
     @Test
     public void whenHeaderParsersIsCalledTwiceWithTheSameAPIKeyItShouldItTheCache() {
-        ApiDatasource apiDatasource = mock(ApiDatasource.class);
-        when(apiDatasource.isValuePresentInDB(eq(API_KEY_VALUE))).thenReturn(true);
+        ApiKeyDatasource apiKeyDatasource = givenApiKeyDatasource();
         CacheApi cacheApi = givenCacheApiForApiKey();
-        HeaderParsers headerParsers = new HeaderParsers(cacheApi, apiDatasource);
+        HeaderParsers headerParsers = new HeaderParsers(cacheApi, apiKeyDatasource);
         Http.RequestHeader requestHeader = giventRequestHeaderWithValidApiKey();
 
         headerParsers.apply(requestHeader);
         headerParsers.apply(requestHeader);
 
-        verify(apiDatasource, times(1)).isValuePresentInDB(eq(API_KEY_VALUE));
+        verify(apiKeyDatasource, times(1)).isValuePresentInDB(eq(API_KEY_VALUE));
+    }
+
+    @NotNull
+    private ApiKeyDatasource givenApiKeyDatasource() {
+        ApiKeyDatasource apiKeyDatasource = mock(ApiKeyDatasource.class);
+        when(apiKeyDatasource.isValuePresentInDB(eq(API_KEY_VALUE))).thenReturn(true);
+        return apiKeyDatasource;
     }
 
     @NotNull
