@@ -1,27 +1,40 @@
 package controllers;
 
 import com.feth.play.module.pa.PlayAuthenticate;
+import datasources.grafana.GrafanaProxy;
 import models.User;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
 import views.html.commandcenter;
 
 import javax.inject.Inject;
+import java.util.concurrent.CompletionStage;
 
 @Security.Authenticated(Secured.class)
 public class CommandCenterController extends Controller {
 
     private final PlayAuthenticate auth;
+    private final GrafanaProxy grafanaProxy;
 
 
     @Inject
-    public CommandCenterController(final PlayAuthenticate auth) {
+    public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy) {
         this.auth = auth;
+        this.grafanaProxy = grafanaProxy;
     }
 
     public Result index() {
         final User localUser =  User.findByAuthUserIdentity(this.auth.getUser(session()));
         return ok(commandcenter.render(this.auth, localUser));
+    }
+
+    public CompletionStage<Result> grafana() {
+        final User localUser =  User.findByAuthUserIdentity(this.auth.getUser(session()));
+
+        return grafanaProxy.retreiveSessionCookies(localUser).thenApply(cookies -> {
+            return redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()]));
+        });
     }
 }
