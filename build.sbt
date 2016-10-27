@@ -34,6 +34,8 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 mappings in Universal in packageBin += file("aws-config/Dockerfile") -> "Dockerfile"
 mappings in Universal in packageBin += file("aws-config/Dockerrun.aws.json") -> "Dockerrun.aws.json"
+mappings in Universal in packageBin += file("aws-config/newrelic.jar") -> "newrelic.jar"
+mappings in Universal in packageBin += file("aws-config/newrelic.yml") -> "newrelic.yml"
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
 
