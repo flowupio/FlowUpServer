@@ -35,6 +35,6 @@ public class IntegrationTest extends WithBrowser {
     public void testLogin() {
         browser.goTo("/login");
         assertNotNull(browser.$("div#login a"));
-        assertEquals("Sign in with Google", (browser.$("div#login a").getText()));
+        assertEquals("Sign in with Google", (browser.$("div#login a img").getAttribute("alt")));
     }
 }
