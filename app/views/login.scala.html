@@ -2,15 +2,21 @@
 
 @import com.feth.play.module.pa.views.html._
 
-@main("Play! Authenticate simple OAuth sample") {
-
-    Login/Signup:
-    <div id="logins">
-    @forProviders(playAuth) { p =>
-        <a href="@p.getUrl()">@p.getKey()</a>
-    }
+@main("Login") {
+    <div class="row">
+        <div class="col-xs-4"></div>
+        <div class="col-xs-4">
+            <h1 class="form-signin-heading">Login/Signup:</h1>
+            <div id="login">
+            @providerAvailable("google") { available: Boolean =>
+                @if(available) {
+                    <a href="@com.feth.play.module.pa.controllers.routes.Authenticate.authenticate("google")" class="btn" role="button">
+                        <img alt="Sign in with Google" class="img-responsive" src="@routes.Assets.versioned("images/google_signin_button/2x/btn_google_signin_dark_normal_web@2x.png")">
+                    </a>
+                }
+            }
+            </div>
+        </div>
+        <div class="col-xs-4"></div>
     </div>
-
-    <br/><br/>
-    <a href="@routes.CommandCenterController.index">Secrets everywhere...</a>
 }

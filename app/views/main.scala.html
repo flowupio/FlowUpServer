@@ -1,23 +1,26 @@
 @*
- * This template is called from the `index` template. This template
- * handles the rendering of the page header and body tags. It takes
- * two arguments, a `String` for the title of the page and an `Html`
- * object to insert into the body of the page.
- *@
+* This template is called from the `index` template. This template
+* handles the rendering of the page header and body tags. It takes
+* two arguments, a `String` for the title of the page and an `Html`
+* object to insert into the body of the page.
+*@
 @(title: String)(content: Html)
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+
+        <link href="@routes.Assets.versioned("bootstrap-dashboard/toolkit-light.min.css")" rel="stylesheet">
     </head>
     <body>
-        @* And here's where we render the `Html` object containing
-        * the page content. *@
-        @content
+        <div class="container">
+            @content
+        </div>
         <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
-        <script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")"></script>
+        <script src="@routes.Assets.versioned("bootstrap-dashboard/toolkit.min.js")"></script>
     </body>
 </html>
