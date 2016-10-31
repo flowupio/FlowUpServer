@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-public class Organization {
+public class Organization extends Model {
     @Id
     public UUID id;
 

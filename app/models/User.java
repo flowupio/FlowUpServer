@@ -1,5 +1,8 @@
 package models;
 
+import be.objectify.deadbolt.java.models.Permission;
+import be.objectify.deadbolt.java.models.Role;
+import be.objectify.deadbolt.java.models.Subject;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Model;
@@ -15,7 +18,7 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class User extends Model {
+public class User extends Model implements Subject {
     @Id
     private UUID id;
 
@@ -39,6 +42,12 @@ public class User extends Model {
 
     @ManyToMany(mappedBy = "members")
     private List<Organization> organizations;
+
+    @ManyToMany
+    private List<SecurityRole> roles;
+
+    @ManyToMany
+    private List<UserPermission> permissions;
 
     public static final Finder<UUID, User> find = new Finder<>(User.class);
 
@@ -141,6 +150,21 @@ public class User extends Model {
         return LinkedAccount.findByProviderKey(this, providerKey);
     }
 
+    @Override
+    public List<? extends Role> getRoles() {
+        return this.roles;
+    }
+
+    @Override
+    public List<? extends Permission> getPermissions() {
+        return this.permissions;
+    }
+
+    @Override
+    public String getIdentifier() {
+        return this.id.toString();
+    }
+
     public UUID getId() {
         return id;
     }
@@ -211,5 +235,13 @@ public class User extends Model {
 
     public void setOrganizations(List<Organization> organizations) {
         this.organizations = organizations;
+    }
+
+    public void setPermissions(List<UserPermission> permissions) {
+        this.permissions = permissions;
+    }
+
+    public void setRoles(List<SecurityRole> roles) {
+        this.roles = roles;
     }
 }
