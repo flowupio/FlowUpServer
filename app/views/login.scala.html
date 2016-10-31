@@ -7,6 +7,7 @@
         <div class="col-xs-4"></div>
         <div class="col-xs-4">
             <h1 class="form-signin-heading">Login/Signup:</h1>
+            <div id="login">
             @providerAvailable("google") { available: Boolean =>
                 @if(available) {
                     <a href="@com.feth.play.module.pa.controllers.routes.Authenticate.authenticate("google")" class="btn" role="button">
@@ -14,6 +15,7 @@
                     </a>
                 }
             }
+            </div>
         </div>
         <div class="col-xs-4"></div>
     </div>
