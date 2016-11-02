@@ -7,12 +7,10 @@ import com.feth.play.module.pa.PlayAuthenticate;
 import com.google.inject.Inject;
 
 public class FlowUpHandlerCache implements HandlerCache {
-    private final PlayAuthenticate auth;
     private DeadboltHandler defaultHandler;
 
     @Inject
     public FlowUpHandlerCache(final PlayAuthenticate auth, final ExecutionContextProvider execContextProvider) {
-        this.auth = auth;
         this.defaultHandler = new FlowUpDeadboltHandler(auth, execContextProvider);
     }
 

@@ -162,7 +162,7 @@ public class User extends Model implements Subject {
 
     @Override
     public String getIdentifier() {
-        return this.id.toString();
+        return id == null ? null : this.id.toString();
     }
 
     public UUID getId() {

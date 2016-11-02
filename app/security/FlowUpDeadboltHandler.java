@@ -25,22 +25,14 @@ public class FlowUpDeadboltHandler extends AbstractDeadboltHandler {
     @Override
     public CompletionStage<Optional<? extends Subject>> getSubject(final Http.Context context) {
         final AuthUserIdentity u = this.auth.getUser(context);
-        // Caching might be a good idea here
         return CompletableFuture.completedFuture(Optional.ofNullable((Subject) User.findByAuthUserIdentity(u)));
     }
 
     @Override
     public CompletionStage<Optional<Result>> beforeAuthCheck(final Http.Context context) {
         if (this.auth.isLoggedIn(context.session())) {
-            // user is logged in
             return CompletableFuture.completedFuture(Optional.empty());
         } else {
-            // user is not logged in
-
-            // call this if you want to redirect your visitor to the page that
-            // was requested before sending him to the login page
-            // if you don't call this, the user will get redirected to the page
-            // defined by your resolver
             final String originalUrl = this.auth.storeOriginalUrl(context);
 
             context.flash().put("error",
