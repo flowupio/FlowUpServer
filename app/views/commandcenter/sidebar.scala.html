@@ -4,7 +4,7 @@
             <button class="nav-toggler nav-toggler-sm sidebar-toggler" type="button" data-toggle="collapse" data-target="#nav-toggleable-sm">
                 <span class="sr-only">Toggle nav</span>
             </button>
-            <a class="sidebar-brand img-responsive" href="../index.html">
+            <a class="sidebar-brand img-responsive" href="@controllers.routes.CommandCenterController.index()">
                 <img class="icon sidebar-brand-icon" src="@routes.Assets.versioned("images/logo.png")">
             </a>
         </div>
@@ -13,15 +13,15 @@
             <ul class="nav nav-pills nav-stacked">
                 <li class="nav-header">Command Center</li>
                 <li >
-                    <a href="../index.html">Overview</a>
+                    <a href="#">Overview</a>
                 </li>
                 <li >
-                    <a href="../order-history/index.html">Dashboard</a>
+                    <a href="@controllers.routes.CommandCenterController.grafana()">Dashboard</a>
                 </li>
 
                 <li class="nav-header">More</li>
                 <li >
-                    <a href="../docs/index.html">
+                    <a href="#">
                                 Organization
                     </a>
                 </li>

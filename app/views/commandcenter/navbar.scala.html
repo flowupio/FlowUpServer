@@ -1,3 +1,5 @@
+@(user: models.User = null)
+
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="collapse navbar-collapse">
@@ -5,7 +7,7 @@
                 <li>
                     <a href="#">
                         <span class="icon icon-user"></span>
-                        Luis Herrero
+                        @user.getName()
                     </a>
                 </li>
             </ul>

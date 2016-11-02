@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String, user: models.User = null)(content: Html)
 <!DOCTYPE html>
 <html>
     <head>
@@ -12,7 +12,7 @@
         <link href="@routes.Assets.versioned("stylesheets/main.css")" rel="stylesheet">
     </head>
     <body>
-        @commandcenter.navbar()
+        @commandcenter.navbar(user)
 
         <div class="container">
         @content
