@@ -1,0 +1,99 @@
+@(playAuth: com.feth.play.module.pa.PlayAuthenticate, localUser: models.User = null)
+
+@import com.feth.play.module.pa.views.html._
+
+@views.html.commandcenter.main("Command Center") {
+
+    <div class="row">
+        <div class="col-sm-3 sidebar">
+            <nav class="sidebar-nav">
+                <div class="sidebar-header">
+                    <button class="nav-toggler nav-toggler-sm sidebar-toggler" type="button" data-toggle="collapse" data-target="#nav-toggleable-sm">
+                        <span class="sr-only">Toggle nav</span>
+                    </button>
+                    <a class="sidebar-brand img-responsive" href="../index.html">
+                        <img class="icon sidebar-brand-icon" src="@routes.Assets.versioned("images/logo.png")">
+                    </a>
+                </div>
+
+                <div class="collapse nav-toggleable-sm" id="nav-toggleable-sm">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li class="nav-header">Command Center</li>
+                        <li >
+                            <a href="../index.html">Overview</a>
+                        </li>
+                        <li >
+                            <a href="../order-history/index.html">Dashboard</a>
+                        </li>
+
+                        <li class="nav-header">More</li>
+                        <li >
+                            <a href="../docs/index.html">
+                                Organization
+                            </a>
+                        </li>
+                    </ul>
+                    <hr class="visible-xs m-t">
+                </div>
+            </nav>
+        </div>
+        <div class="col-sm-12 col-sm-offset-2">
+            <div class="row">
+                <div class="col-sm-13">
+                    <nav class="navbar navbar-default">
+                            <div class="collapse navbar-collapse">
+                                <ul class="nav navbar-nav navbar-right">
+                                    <li>
+                                        <a href="#">
+                                            <span class="icon icon-user"></span>
+                                            Luis Herrero</a>
+                                    </li>
+                                </ul>
+                            </div><!-- /.navbar-collapse -->
+                    </nav>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 col-md-10 content main">
+                    <div class="dashhead">
+                        <div class="dashhead-titles">
+                            <h6 class="dashhead-subtitle">Dashboards</h6>
+                            <h2 class="dashhead-title">Overview</h2>
+                        </div>
+
+                        <hr class="m-t">
+
+                        <div class="row text-center m-t-lg">
+                            <div class="col-sm-9 m-b-md">
+                                <p>
+                                    Your name is @localUser and your email address is @localUser.getEmail
+                                    <i>
+                                    @if(!localUser.isEmailValidated) {
+                                        (unverified)
+                                    } else {
+                                        (verified)
+                                    }</i>!
+
+                                    <br/>
+                                    @currentAuth(playAuth) { auth =>
+                                        Logged in with provider '@auth.getProvider()' and the user ID '@auth.getId()'<br/>
+                                        Your session expires
+                                        @if(auth.expires() == -1) {
+                                            never
+                                        } else {
+                                            at @auth.expires() (UNIX timestamp)
+                                    }
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+}
