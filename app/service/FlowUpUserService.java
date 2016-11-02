@@ -30,7 +30,6 @@ public class FlowUpUserService extends AbstractUserService {
         if (!isLinked) {
             User user = User.create(authUser);
             createGrafanaUser(user);
-            addUserToGrafanaOrg(user);
             return user.getId();
         } else {
             User user = User.findByAuthUserIdentity(authUser);
