@@ -37,7 +37,7 @@ create index ix_user_user_permission_user on user_user_permission (user_id);
 alter table user_user_permission add constraint fk_user_user_permission_user_permission foreign key (user_permission_id) references user_permission (id) on delete restrict on update restrict;
 create index ix_user_user_permission_user_permission on user_user_permission (user_permission_id);
 
-
+# --- !Downs
 
 alter table user_security_role drop foreign key fk_user_security_role_user;
 drop index ix_user_security_role_user on user_security_role;
@@ -50,8 +50,6 @@ drop index ix_user_user_permission_user on user_user_permission;
 
 alter table user_user_permission drop foreign key fk_user_user_permission_user_permission;
 drop index ix_user_user_permission_user_permission on user_user_permission;
-
-# --- !Downs
 
 drop table if exists security_role;
 
