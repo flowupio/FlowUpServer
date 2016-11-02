@@ -13,26 +13,67 @@ import java.util.UUID;
 @Entity
 public class Organization extends Model {
     @Id
-    public UUID id;
+    private UUID id;
 
-    public String name;
+    private String name;
 
     @OneToOne
-    public ApiKey apiKey;
+    private ApiKey apiKey;
 
     @ManyToMany
-    public List<User> members;
+    private List<User> members;
 
-    public String grafanaId;
+    private String grafanaId;
+
+    private String googleAccount;
 
     public static Model.Finder<UUID, Organization> find = new Model.Finder<>(Organization.class);
 
-    public static Organization findByGoogleAccount(String googleAccount) {
-        return getGoogleAccountUserFind(googleAccount).findUnique();
+    public UUID getId() {
+        return id;
     }
 
-    private static ExpressionList<Organization> getGoogleAccountUserFind(String googleAccount) {
-        return find.where().eq("google_account", googleAccount);
+    public void setId(UUID id) {
+        this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ApiKey getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(ApiKey apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    public List<User> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<User> members) {
+        this.members = members;
+    }
+
+    public String getGrafanaId() {
+        return grafanaId;
+    }
+
+    public void setGrafanaId(String grafanaId) {
+        this.grafanaId = grafanaId;
+    }
+
+    public String getGoogleAccount() {
+        return googleAccount;
+    }
+
+    public void setGoogleAccount(String gooogleAccount) {
+        this.googleAccount = gooogleAccount;
+    }
 }
