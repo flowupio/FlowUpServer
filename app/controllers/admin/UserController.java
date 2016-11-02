@@ -1,18 +1,24 @@
 package controllers.admin;
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Transaction;
+import controllers.Secured;
 import models.User;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Results;
+import play.mvc.Security;
 
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 import java.util.UUID;
 
+@Security.Authenticated(Secured.class)
+@Restrict(@Group("admin"))
 public class UserController extends Controller {
 
     private FormFactory formFactory;
