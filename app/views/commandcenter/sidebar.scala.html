@@ -1,0 +1,32 @@
+<div class="col-sm-3 sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-header">
+            <button class="nav-toggler nav-toggler-sm sidebar-toggler" type="button" data-toggle="collapse" data-target="#nav-toggleable-sm">
+                <span class="sr-only">Toggle nav</span>
+            </button>
+            <a class="sidebar-brand img-responsive" href="@controllers.routes.CommandCenterController.index()">
+                <img class="icon sidebar-brand-icon" src="@routes.Assets.versioned("images/logo.png")">
+            </a>
+        </div>
+
+        <div class="collapse nav-toggleable-sm" id="nav-toggleable-sm">
+            <ul class="nav nav-pills nav-stacked">
+                <li class="nav-header">Command Center</li>
+                <li >
+                    <a href="#">Overview</a>
+                </li>
+                <li >
+                    <a href="@controllers.routes.CommandCenterController.grafana()">Dashboard</a>
+                </li>
+
+                <li class="nav-header">More</li>
+                <li >
+                    <a href="#">
+                                Organization
+                    </a>
+                </li>
+            </ul>
+            <hr class="visible-xs m-t">
+        </div>
+    </nav>
+</div>

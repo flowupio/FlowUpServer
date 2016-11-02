@@ -7,7 +7,8 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
-import views.html.commandcenter;
+import views.html.commandcenter.home;
+
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
@@ -27,7 +28,7 @@ public class CommandCenterController extends Controller {
 
     public Result index() {
         final User localUser =  User.findByAuthUserIdentity(this.auth.getUser(session()));
-        return ok(commandcenter.render(this.auth, localUser));
+        return ok(home.render(this.auth, localUser));
     }
 
     public CompletionStage<Result> grafana() {
