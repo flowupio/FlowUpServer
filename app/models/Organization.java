@@ -3,10 +3,7 @@ package models;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,9 +20,10 @@ public class Organization extends Model {
     @ManyToMany
     private List<User> members;
 
-    private String grafanaId;
-
     private String googleAccount;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Application> applications;
 
     public static Model.Finder<UUID, Organization> find = new Model.Finder<>(Organization.class);
 
@@ -61,19 +59,19 @@ public class Organization extends Model {
         this.members = members;
     }
 
-    public String getGrafanaId() {
-        return grafanaId;
-    }
-
-    public void setGrafanaId(String grafanaId) {
-        this.grafanaId = grafanaId;
-    }
-
     public String getGoogleAccount() {
         return googleAccount;
     }
 
-    public void setGoogleAccount(String gooogleAccount) {
-        this.googleAccount = gooogleAccount;
+    public void setGoogleAccount(String googleAccount) {
+        this.googleAccount = googleAccount;
+    }
+
+    public List<Application> getApplications() {
+        return applications;
+    }
+
+    public void setApplications(List<Application> applications) {
+        this.applications = applications;
     }
 }
