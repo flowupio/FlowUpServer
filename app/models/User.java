@@ -90,33 +90,6 @@ public class User extends Model implements Subject {
         Ebean.save(Arrays.asList(new User[] { otherUser, this }));
     }
 
-    public static User create(final AuthUser authUser) {
-        final User user = new User();
-        user.active = true;
-        user.linkedAccounts = Collections.singletonList(LinkedAccount
-                .create(authUser));
-
-        if (authUser instanceof EmailIdentity) {
-            final EmailIdentity identity = (EmailIdentity) authUser;
-            // Remember, even when getting them from FB & Co., emails should be
-            // verified within the application as a security breach there might
-            // break your security as well!
-            user.email = identity.getEmail();
-            user.emailValidated = false;
-        }
-
-        if (authUser instanceof NameIdentity) {
-            final NameIdentity identity = (NameIdentity) authUser;
-            final String name = identity.getName();
-            if (name != null) {
-                user.name = name;
-            }
-        }
-
-        user.save();
-        return user;
-    }
-
     public static void merge(final AuthUser oldUser, final AuthUser newUser) {
         User.findByAuthUserIdentity(oldUser).merge(
                 User.findByAuthUserIdentity(newUser));

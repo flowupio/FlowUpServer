@@ -74,7 +74,7 @@ public class GrafanaClient {
     }
 
     public CompletionStage<GrafanaResponse> addUserToOrganisation(User user, Organization organization) {
-        String adminUserEndpoint = API_ORGS_ORG_ID_USERS.replaceFirst(":orgId", organization.grafanaId);
+        String adminUserEndpoint = API_ORGS_ORG_ID_USERS.replaceFirst(":orgId", organization.getGrafanaId());
 
         ObjectNode userRequest = Json.newObject()
                 .put("loginOrEmail", user.getEmail())
