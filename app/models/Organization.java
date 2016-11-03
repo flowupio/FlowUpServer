@@ -17,7 +17,7 @@ public class Organization extends Model {
     @OneToOne
     private ApiKey apiKey;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<User> members;
 
     private String googleAccount;
