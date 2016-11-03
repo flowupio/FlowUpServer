@@ -7,7 +7,6 @@ import datasources.grafana.GrafanaClient;
 import models.Organization;
 import models.User;
 import play.Logger;
-import play.cache.CacheApi;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -16,41 +15,52 @@ import java.util.concurrent.ExecutionException;
 public class UserRepository {
     private final UserDatasource userDatasource;
     private final OrganizationDatasource organizationDatasource;
-    private final CacheApi cacheApi;
     private final GrafanaClient grafanaClient;
 
     @Inject
-    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, CacheApi cacheApi, GrafanaClient grafanaClient) {
+    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, GrafanaClient grafanaClient) {
         this.userDatasource = userDatasource;
         this.organizationDatasource = organizationDatasource;
-        this.cacheApi = cacheApi;
         this.grafanaClient = grafanaClient;
     }
 
     public User create(AuthUser authUser) {
         User user = userDatasource.create(authUser);
-        createOrAddToOrg(user);
+        Organization organization = findOrCreateOrganization(user);
+        if (organization != null) {
+            user = joinOrganization(user, organization);
+        }
         createGrafanaUser(user);
         return user;
     }
 
 
-    private void createOrAddToOrg(User user) {
-        String[] split = user.getEmail().split("@");
-        if (split.length == 2) {
-            String domain = split[1];
-            if ("gmail.com".equals(domain) || "googlemail.com".equals(domain)) {
-                organizationDatasource.create(split[0]);
-            } else {
-                String googleAccount = "@" + domain;
-                Organization organization = organizationDatasource.findByGoogleAccount(googleAccount);
-                if (organization == null) {
-                    organization = organizationDatasource.create(domain, googleAccount);
+    private Organization findOrCreateOrganization(User user) {
+        String email = user.getEmail();
+        if (email != null) {
+            String[] split = email.split("@");
+            if (split.length == 2) {
+                String domain = split[1];
+                Organization organization;
+                if ("gmail.com".equals(domain) || "googlemail.com".equals(domain)) {
+                     organization = organizationDatasource.create(split[0]);
+                } else {
+                    String googleAccount = "@" + domain;
+                    organization = organizationDatasource.findByGoogleAccount(googleAccount);
+                    if (organization == null) {
+                        organization = organizationDatasource.create(domain, googleAccount);
+                    }
                 }
-                user.setOrganizations(Collections.singletonList(organization));
-                user.update();
+                return organization;
             }
         }
+        return null;
+    }
+
+    private User joinOrganization(User user, Organization organization) {
+        user.setOrganizations(Collections.singletonList(organization));
+        user.update();
+        return user;
     }
 
     private void createGrafanaUser(User user) {
@@ -62,20 +72,4 @@ public class UserRepository {
             Logger.debug(e.getMessage());
         }
     }
-
-//    private void addUserToGrafanaOrg(User user) {
-//        String[] split = user.getEmail().split("@");
-//        if (split.length == 2) {
-//            Organization organization = OrganizationDatasource.findByGoogleAccount("@" + split[1]);
-//            try {
-//                grafanaClient.addUserToOrganisation(user, organization).toCompletableFuture().get();
-//                user.refresh();
-//                grafanaClient.deleteUserInDefaultOrganisation(user).toCompletableFuture().get();
-//            } catch (InterruptedException e) {
-//                Logger.debug(e.getMessage());
-//            } catch (ExecutionException e) {
-//                Logger.debug(e.getMessage());
-//            }
-//        }
-//    }
 }
