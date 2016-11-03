@@ -1,7 +1,6 @@
 package datasources.database;
 
 import models.ApiKey;
-import models.Organization;
 
 import java.util.UUID;
 
@@ -11,7 +10,7 @@ public class ApiKeyDatasource {
     }
 
     public ApiKey findByApiKeyValue(String apiKeyValue) {
-        return ApiKey.find.where().eq("value", apiKeyValue).findUnique();
+        return ApiKey.find.fetch("organization").where().eq("value", apiKeyValue).findUnique();
     }
 
     public ApiKey create() {
@@ -24,5 +23,10 @@ public class ApiKeyDatasource {
         apiKey.setValue(value);
         apiKey.save();
         return apiKey;
+    }
+
+    public boolean delete(String apiKeyValue) {
+        ApiKey apiKey = findByApiKeyValue(apiKeyValue);
+        return apiKey != null && apiKey.delete();
     }
 }

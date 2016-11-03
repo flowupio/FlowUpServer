@@ -1,4 +1,5 @@
 import com.google.common.collect.ImmutableMap;
+import datasources.database.ApiKeyDatasource;
 import datasources.elasticsearch.BulkItemResponse;
 import datasources.elasticsearch.BulkResponse;
 import datasources.elasticsearch.ElasticsearchClient;
@@ -53,9 +54,6 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
-                .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
-                        "MODE", "MYSQL"
-                )))
                 .build();
     }
 
@@ -69,7 +67,7 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Test
     public void testRequestTooLarge() throws Exception {
-        ApiKey.create(API_KEY_VALUE);
+        setupDatabaseWithApiKey();
 
         String url = "http://localhost:" + this.testServer.port() + "/report";
         try (WSClient ws = WS.newClient(this.testServer.port())) {
@@ -86,9 +84,13 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
         }
     }
 
+    private void setupDatabaseWithApiKey() {
+        new ApiKeyDatasource().create(API_KEY_VALUE);
+    }
+
     @Test
     public void testGzipRequest() throws Exception {
-        ApiKey.create(API_KEY_VALUE);
+        setupDatabaseWithApiKey();
 
         String url = "http://localhost:" + this.testServer.port() + "/report";
         try (WSClient ws = WS.newClient(this.testServer.port())) {
