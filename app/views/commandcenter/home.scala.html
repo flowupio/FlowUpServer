@@ -12,7 +12,7 @@
 
                 <div class="dashhead">
                     <div class="dashhead-titles">
-                        <h1 class="dashhead-title">Get started with Flow Up</h1>
+                        <h1 class="dashhead-title">Getting started with Flow Up</h1>
                     </div>
 
                 </div>
@@ -22,9 +22,9 @@
                 <div class="row">
                     <div class="col-sm-9">
 
-                    <h2>Add FlowUp to your build</h2>
+                    <h2>Add the FlowUp Android SDK to your build:</h2>
                 <p>
-                    Merge the following into your build.gradle file:
+                    Add the following dependency to your build.gradle file:
                 </p>
 
                         <code>
@@ -36,37 +36,30 @@ dependencies {<br />
 
                 <hr class="m-t">
 
-                <h2>Initialize FlowUp</h2>
+                <h2>Initialize FlowUp:</h2>
 
                         <p>
-                            In your default Activity import the FlowUp class.
-                        </p>
-
-                        <code class="p-b">import io.flowup.FlowUp;</code>
-
-                        <p>
-                            And in the onCreate() method add this call to initialize FlowUp.
+                            Initialize the FlowUp Android SDK in the your Application class onCreate() method.
                         </p>
 
                         <code>
 FlowUp.Builder.with(this)<br />
     .apiKey(&quot;@apiKey.getValue&quot;)<br />
     .forceReports(BuildConfig.DEBUG)<br />
-    .logEnabled(BuildConfig.DEBUG)<br />
     .start();
                         </code>
 
                         <hr class="m-t">
 
-                        <h2>Build and run your application</h2>
+                        <h2>Build and run your application:</h2>
 
-                        <p>Clean your project and then run your app in an emulator or device to start seeing data.</p>
+                        <p>Build and run your app in an emulator or device to start seeing data. Remember to build the app using the DEBUG build type and review adjust the device date/timezone properly.</p>
 
                         <hr class="m-t">
 
-                        <h2>Start seeing data in just a few minutes</h2>
+                        <h2>Start seeing data in just a few seconds:</h2>
 
-                        <p>Within minutes you will see data in your FlowUp Dashboards.</p>
+                        <p>Within seconds you will see data in your FlowUp Dashboards.</p>
                         
                     </div>
                 </div>
