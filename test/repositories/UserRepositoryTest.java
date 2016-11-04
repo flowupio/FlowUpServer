@@ -3,6 +3,7 @@ package repositories;
 import com.avaje.ebean.Model;
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
 import datasources.database.OrganizationDatasource;
+import datasources.grafana.DashboardsClient;
 import datasources.grafana.GrafanaClient;
 import datasources.grafana.GrafanaResponse;
 import models.User;
@@ -28,16 +29,16 @@ import static play.inject.Bindings.bind;
 public class UserRepositoryTest extends WithApplication {
 
     @Mock
-    private GrafanaClient grafanaClient;
+    private DashboardsClient dashboardsClient;
 
 
     @Override
     protected Application provideApplication() {
         CompletableFuture<GrafanaResponse> grafanaResponseCompletableFuture = CompletableFuture.completedFuture(mock(GrafanaResponse.class));
-        when(grafanaClient.createUser(any())).thenReturn(grafanaResponseCompletableFuture);
+        when(dashboardsClient.createUser(any())).thenReturn(grafanaResponseCompletableFuture);
 
         return new GuiceApplicationBuilder()
-                .overrides(bind(GrafanaClient.class).toInstance(grafanaClient))
+                .overrides(bind(DashboardsClient.class).toInstance(dashboardsClient))
                 .build();
     }
 

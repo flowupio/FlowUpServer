@@ -2,7 +2,7 @@ package usecases;
 
 import datasources.database.ApiKeyDatasource;
 import datasources.database.ApplicationDatasource;
-import datasources.grafana.GrafanaClient;
+import datasources.grafana.DashboardsClient;
 import models.ApiKey;
 import models.Application;
 import play.cache.CacheApi;
@@ -14,14 +14,14 @@ import static java.util.stream.Collectors.toList;
 class ApplicationRepository {
     private final ApiKeyDatasource apiKeyDatasource;
     private final ApplicationDatasource applicationDatasource;
-    private final GrafanaClient grafanaClient;
+    private final DashboardsClient dashboardsClient;
     private final CacheApi cacheApi;
 
     @Inject
-    ApplicationRepository(ApiKeyDatasource apiKeyDatasource, ApplicationDatasource applicationDatasource, GrafanaClient grafanaClient, CacheApi cacheApi) {
+    ApplicationRepository(ApiKeyDatasource apiKeyDatasource, ApplicationDatasource applicationDatasource, DashboardsClient dashboardsClient, CacheApi cacheApi) {
         this.apiKeyDatasource = apiKeyDatasource;
         this.applicationDatasource = applicationDatasource;
-        this.grafanaClient = grafanaClient;
+        this.dashboardsClient = dashboardsClient;
         this.cacheApi = cacheApi;
     }
 
@@ -42,13 +42,13 @@ class ApplicationRepository {
         String cacheKey = getCacheKey(apiKeyValue, appPackage);
         cacheApi.set(cacheKey, true);
 
-        grafanaClient.createOrg(application).thenApply(grafanaResponse -> {
+        dashboardsClient.createOrg(application).thenApply(grafanaResponse -> {
 
-            grafanaClient.createDatasource(application);
+            dashboardsClient.createDatasource(application);
 
             return application.getOrganization().getMembers().stream().map(user -> {
-                return grafanaClient.addUserToOrganisation(user, application).thenApply(grafanaResponse1 -> {
-                    return grafanaClient.deleteUserInDefaultOrganisation(user);
+                return dashboardsClient.addUserToOrganisation(user, application).thenApply(grafanaResponse1 -> {
+                    return dashboardsClient.deleteUserInDefaultOrganisation(user);
                 });
             }).collect(toList());
         });

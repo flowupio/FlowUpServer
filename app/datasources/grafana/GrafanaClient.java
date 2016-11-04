@@ -20,7 +20,7 @@ import java.security.SecureRandom;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
-public class GrafanaClient {
+public class GrafanaClient implements DashboardsClient {
 
     private static final String API_ORG = "/api/orgs";
     private static final String API_ORGS_ORG_ID_USERS = "/api/orgs/:orgId/users";
@@ -66,6 +66,7 @@ public class GrafanaClient {
         return scheme + "://" + host + ":" + port;
     }
 
+    @Override
     public CompletionStage<GrafanaResponse> createUser(final User user) {
 
         String grafanaPassword = PasswordGenerator.generatePassword();
@@ -86,6 +87,7 @@ public class GrafanaClient {
         });
     }
 
+    @Override
     public CompletionStage<GrafanaResponse> createOrg(Application application) {
         String orgName = application.getOrganization().getName() + " " + application.getAppPackage();
         ObjectNode request = Json.newObject()
@@ -101,6 +103,7 @@ public class GrafanaClient {
         });
     }
 
+    @Override
     public CompletionStage<GrafanaResponse> addUserToOrganisation(User user, Application application) {
         String adminUserEndpoint = API_ORGS_ORG_ID_USERS.replaceFirst(":orgId", application.getGrafanaOrgId());
 
@@ -112,12 +115,14 @@ public class GrafanaClient {
         return post(adminUserEndpoint, userRequest);
     }
 
+    @Override
     public CompletionStage<GrafanaResponse> deleteUserInDefaultOrganisation(User user) {
         String adminUserEndpoint = API_ORGS_ORG_ID_USERS_USER_ID.replaceFirst(":orgId", "1").replaceFirst(":userId", user.getGrafanaUserId());
 
         return delete(adminUserEndpoint);
     }
 
+    @Override
     public CompletionStage<GrafanaResponse> createDatasource(Application application) {
         this.switchUserContext(application);
         ObjectNode request = Json.newObject()
@@ -128,6 +133,7 @@ public class GrafanaClient {
                 .put("is_default", true)
                 .put("basicAuth", false);
 
+        Logger.debug(request.toString());
         return post(API_DATASOURCE, request);
     }
 
