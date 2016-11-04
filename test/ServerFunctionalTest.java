@@ -1,9 +1,14 @@
 import com.google.common.collect.ImmutableMap;
+import datasources.database.ApiKeyDatasource;
+import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.BulkItemResponse;
 import datasources.elasticsearch.BulkResponse;
 import datasources.elasticsearch.ElasticsearchClient;
 import datasources.elasticsearch.IndexRequest;
 import models.ApiKey;
+import models.Organization;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -28,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.zip.GZIPOutputStream;
 
+import static org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.verify;
@@ -46,6 +52,8 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
     private ArgumentCaptor<List<IndexRequest>> argument;
 
     public static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
+    private ApiKey apiKey;
+    private Organization organization;
 
     @Override
     protected Application provideApplication() {
@@ -53,10 +61,20 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
-                .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
-                        "MODE", "MYSQL"
-                )))
                 .build();
+    }
+
+    @Before
+    public void setupDatabaseWithApiKey() {
+        ApiKeyDatasource apiKeyDatasource = new ApiKeyDatasource();
+        this.apiKey = apiKeyDatasource.create(API_KEY_VALUE);
+        this.organization = new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
+    }
+
+    @After
+    public void cleanupDatabase() {
+        organization.delete();
+        apiKey.delete();
     }
 
     private void setupElasticsearchClient() {
@@ -69,8 +87,6 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Test
     public void testRequestTooLarge() throws Exception {
-        ApiKey.create(API_KEY_VALUE);
-
         String url = "http://localhost:" + this.testServer.port() + "/report";
         try (WSClient ws = WS.newClient(this.testServer.port())) {
             CompletionStage<WSResponse> stage = ws.url(url)
@@ -88,8 +104,6 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Test
     public void testGzipRequest() throws Exception {
-        ApiKey.create(API_KEY_VALUE);
-
         String url = "http://localhost:" + this.testServer.port() + "/report";
         try (WSClient ws = WS.newClient(this.testServer.port())) {
             CompletionStage<WSResponse> stage = ws.url(url)

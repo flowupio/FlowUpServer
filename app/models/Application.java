@@ -6,23 +6,25 @@ import play.data.validation.Constraints;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import java.util.UUID;
 
 @Entity
-public class ApiKey extends Model {
+public class Application extends Model {
 
     @Id
     private UUID id;
 
     @Constraints.Required
     @Index
-    private String value;
+    private String appPackage;
 
-    @OneToOne(mappedBy = "apiKey")
+    @ManyToOne
     private Organization organization;
 
-    public static Finder<UUID, ApiKey> find = new Finder<>(ApiKey.class);
+    private String grafanaOrgId;
+
+    public static Finder<UUID, Application> find = new Finder<>(Application.class);
 
     public UUID getId() {
         return id;
@@ -32,12 +34,12 @@ public class ApiKey extends Model {
         this.id = id;
     }
 
-    public String getValue() {
-        return value;
+    public String getAppPackage() {
+        return appPackage;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setAppPackage(String appPackage) {
+        this.appPackage = appPackage;
     }
 
     public Organization getOrganization() {
@@ -46,5 +48,13 @@ public class ApiKey extends Model {
 
     public void setOrganization(Organization organization) {
         this.organization = organization;
+    }
+
+    public String getGrafanaOrgId() {
+        return grafanaOrgId;
+    }
+
+    public void setGrafanaOrgId(String grafanaOrgId) {
+        this.grafanaOrgId = grafanaOrgId;
     }
 }

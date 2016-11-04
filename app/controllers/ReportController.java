@@ -29,9 +29,7 @@ public class ReportController extends Controller {
         Logger.debug(body.asText());
         ReportRequest reportRequest = body.as(ReportRequest.class);
 
-        // Hardcoded for now, when organization management is ready we will use the UUID of the Org.
-        // Ticket https://github.com/Karumi/FlowUpServer/issues/64
-        String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
+        String apiKey = request().getHeader(HeaderParsers.X_API_KEY);
 
         List<Metric> metrics = new ArrayList<>();
         metrics.add(new Metric("network_data", dataPointMapper.mapNetwork(reportRequest)));
@@ -41,7 +39,7 @@ public class ReportController extends Controller {
         metrics.add(new Metric("memory_data", dataPointMapper.mapMemory(reportRequest)));
         metrics.add(new Metric("disk_data", dataPointMapper.mapDisk(reportRequest)));
 
-        Report report = new Report(organizationIdentifier, reportRequest.getAppPackage(), metrics);
+        Report report = new Report(apiKey, reportRequest.getAppPackage(), metrics);
 
         return insertDataPoints.execute(report).thenApply(result -> {
                     ReportResponse reportResponse = new ReportResponse("Metrics Inserted", result);

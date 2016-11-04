@@ -1,6 +1,7 @@
 package datasources.database;
 
 import com.avaje.ebean.ExpressionList;
+import models.ApiKey;
 import models.Organization;
 
 import javax.inject.Inject;
@@ -26,12 +27,16 @@ public class OrganizationDatasource {
         return create(name, null);
     }
 
-    public Organization create(String name, String gooogleAccount) {
+    public Organization create(String name, String googleAccount) {
+        return create(name, googleAccount, apiKeyDatasource.create());
+    }
+
+    public Organization create(String name, String googleAccount, ApiKey apiKey) {
         final Organization organization = new Organization();
         organization.setName(name);
-        organization.setApiKey(apiKeyDatasource.create());
-        if (gooogleAccount != null) {
-            organization.setGoogleAccount(gooogleAccount);
+        organization.setApiKey(apiKey);
+        if (googleAccount != null) {
+            organization.setGoogleAccount(googleAccount);
         }
 
         organization.save();

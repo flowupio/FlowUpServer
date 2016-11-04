@@ -2,8 +2,13 @@ package controllers;
 
 
 import com.google.common.collect.ImmutableMap;
+import datasources.database.ApiKeyDatasource;
+import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;
 import models.ApiKey;
+import models.Organization;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,16 +50,29 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Captor
     private ArgumentCaptor<List<IndexRequest>> argument;
+    private Organization organization;
+    private ApiKey apiKey;
 
     @Override
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
-                .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
-                        "MODE", "MYSQL"
-                )))
                 .build();
     }
+
+    @Before
+    public void setupDatabaseWithApiKey() {
+        ApiKeyDatasource apiKeyDatasource = new ApiKeyDatasource();
+        this.apiKey = apiKeyDatasource.create(API_KEY_VALUE);
+        this.organization = new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
+    }
+
+    @After
+    public void cleanupDatabase() {
+        organization.delete();
+        apiKey.delete();
+    }
+
 
     private void setupSuccessfullElasticsearchClient() {
         ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
@@ -93,7 +111,6 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     @Test
     public void testReportAPI() {
         setupSuccessfullElasticsearchClient();
-        ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("reportRequest.json"))
                 .header("X-Api-Key", API_KEY_VALUE)
@@ -111,7 +128,6 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     @Test
     public void testReportAPIWithElasticSearchError() {
         setupElasticsearchClientWithError();
-        ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("reportRequest.json"))
                 .header("X-Api-Key", API_KEY_VALUE)
@@ -127,7 +143,6 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     @Test
     public void testReportAPIWithElasticSearchFailures() {
         setupElasticsearchClientWithFailures();
-        ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("reportRequest.json"))
                 .header("X-Api-Key", API_KEY_VALUE)
@@ -143,7 +158,6 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     @Test
     public void testEmptyReport() {
         setupSuccessfullElasticsearchClient();
-        ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("EmptyReportRequest.json"))
                 .header("X-Api-Key", API_KEY_VALUE)
@@ -161,7 +175,6 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     @Test
     public void testWrongAPIFormat() {
         setupSuccessfullElasticsearchClient();
-        ApiKey.create(API_KEY_VALUE);
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("WrongAPIFormat.json"))
                 .header("X-Api-Key", API_KEY_VALUE)
