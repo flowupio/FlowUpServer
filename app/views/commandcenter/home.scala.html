@@ -19,38 +19,31 @@
 
                 <hr class="m-t">
 
-                <h2>Add New Relic to your build</h2>
+                <div class="row">
+                    <div class="col-sm-9">
+
+                    <h2>Add New Relic to your build</h2>
                 <p>
                     Merge the following into your build.gradle file:
                 </p>
 
-                <div class="row">
-                    <div class="col-sm-9">
                         <code>
 dependencies {<br />
     compile &#039;io.flowup:android-sdk:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
     testCompile &#039;io.flowup:android-sdk-no-op:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
 }
                         </code>
-                    </div>
-                </div>
 
                 <hr class="m-t">
 
                 <h2>Initialize FlowUp</h2>
 
-                <div class="row p-b">
-                    <div class="col-sm-9">
                         <p>
                             In your default Activity import the FlowUp class.
                         </p>
 
-                        <code>import io.flowup.FlowUp;</code>
-                    </div>
-                </div>
-                <div class="row">
+                        <code class="p-b">import io.flowup.FlowUp;</code>
 
-                    <div class="col-sm-9">
                         <p>
                             And in the onCreate() method add this call to initialize FlowUp.
                         </p>
@@ -62,8 +55,22 @@ FlowUp.Builder.with(this)<br />
     .logEnabled(BuildConfig.DEBUG)<br />
     .start();
                         </code>
+
+                        <hr class="m-t">
+
+                        <h2>Build and run your application</h2>
+
+                        <p>Clean your project and then run your app in an emulator or device to start seeing data.</p>
+
+                        <hr class="m-t">
+
+                        <h2>Start seeing data in just a few minutes</h2>
+
+                        <p>Within minutes you will see data in your FlowUp Dashboards.</p>
+                        
                     </div>
                 </div>
+
             </div>
         </div>
     }
