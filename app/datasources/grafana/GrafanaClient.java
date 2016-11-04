@@ -28,7 +28,7 @@ public class GrafanaClient {
 
     private static final String API_DATASOURCE = "/api/datasources";
     private static final String API_ADMIN_USERS = "/api/admin/users";
-    public static final String API_USER_USING_ORGANISATION_ID = "/api/user/using/:organisationId";
+    private static final String API_USER_USING_ORGANISATION_ID = "/api/user/using/:organisationId";
 
 
     private final WSClient ws;
