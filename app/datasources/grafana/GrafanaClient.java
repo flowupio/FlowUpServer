@@ -22,7 +22,7 @@ import java.util.concurrent.CompletionStage;
 
 public class GrafanaClient {
 
-    private static final String API_ORG = "/api/org";
+    private static final String API_ORG = "/api/orgs";
     private static final String API_ORGS_ORG_ID_USERS = "/api/orgs/:orgId/users";
     private static final String API_ORGS_ORG_ID_USERS_USER_ID = "/api/orgs/:orgId/users/:userId";
 

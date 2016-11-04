@@ -26,13 +26,21 @@ class ApplicationRepository {
     }
 
     boolean exist(String apiKey, String appPackage) {
-        return cacheApi.getOrElse("exist-" + apiKey + "-" + appPackage, () -> applicationDatasource.existByApiKeyAndAppPackage(apiKey, appPackage));
+        String cacheKey = getCacheKey(apiKey, appPackage);
+        return cacheApi.getOrElse(cacheKey, () -> applicationDatasource.existByApiKeyAndAppPackage(apiKey, appPackage));
+    }
+
+    private String getCacheKey(String apiKey, String appPackage) {
+        return "exist-" + apiKey + "-" + appPackage;
     }
 
     Application create(String apiKeyValue, String appPackage) {
         ApiKey apiKey = apiKeyDatasource.findByApiKeyValue(apiKeyValue);
 
         Application application = applicationDatasource.create(appPackage, apiKey);
+
+        String cacheKey = getCacheKey(apiKeyValue, appPackage);
+        cacheApi.set(cacheKey, true);
 
         grafanaClient.createOrg(application).thenApply(grafanaResponse -> {
 

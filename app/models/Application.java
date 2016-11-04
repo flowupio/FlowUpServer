@@ -19,6 +19,7 @@ public class Application extends Model {
     @Index
     private String appPackage;
 
+    @Constraints.Required
     @ManyToOne
     private Organization organization;
 
