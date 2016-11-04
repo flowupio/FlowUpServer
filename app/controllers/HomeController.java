@@ -16,6 +16,7 @@ public class HomeController extends Controller {
 
     static final String FLASH_MESSAGE_KEY = "message";
     static final String FLASH_ERROR_KEY = "error";
+    private static final String HTTP_FLOWUP_IO = "http://flowup.io";
     private final PlayAuthenticate auth;
 
     @Inject
@@ -23,7 +24,7 @@ public class HomeController extends Controller {
         this.auth = auth;
     }
     public Result index() {
-        return ok(index.render("Welcome to FlowUp"));
+        redirect(HTTP_FLOWUP_IO);
     }
 
     public Result health() {
