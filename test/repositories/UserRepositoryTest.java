@@ -1,21 +1,20 @@
 package repositories;
 
+import com.avaje.ebean.Model;
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
-import com.google.common.collect.ImmutableMap;
 import datasources.database.OrganizationDatasource;
-import datasources.database.UserDatasource;
 import datasources.grafana.GrafanaClient;
 import datasources.grafana.GrafanaResponse;
 import models.User;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.test.Helpers;
 import play.test.WithApplication;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -23,15 +22,22 @@ import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static play.inject.Bindings.bind;
 
+@RunWith(MockitoJUnitRunner.class)
 public class UserRepositoryTest extends WithApplication {
+
+    @Mock
+    private GrafanaClient grafanaClient;
+
 
     @Override
     protected Application provideApplication() {
+        CompletableFuture<GrafanaResponse> grafanaResponseCompletableFuture = CompletableFuture.completedFuture(mock(GrafanaResponse.class));
+        when(grafanaClient.createUser(any())).thenReturn(grafanaResponseCompletableFuture);
+
         return new GuiceApplicationBuilder()
-                .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
-                        "MODE", "MYSQL"
-                )))
+                .overrides(bind(GrafanaClient.class).toInstance(grafanaClient))
                 .build();
     }
 
@@ -44,6 +50,8 @@ public class UserRepositoryTest extends WithApplication {
         User user = userRepository.create(authUser);
 
         assertThat(user.getOrganizations(), hasSize(1));
+        user.getOrganizations().forEach(Model::delete);
+        user.delete();
     }
 
     @Test
@@ -55,10 +63,11 @@ public class UserRepositoryTest extends WithApplication {
         User user = userRepository.create(authUser);
 
         assertThat(user.getOrganizations(), hasSize(1));
+        user.getOrganizations().forEach(Model::delete);
+        user.delete();
     }
 
     @Test
-    @Ignore
     public void whenUserWithGoogleAppsAccountIsCreatedWithAnAlreadyExistingOrg() {
         UserRepository userRepository = givenUserRepositoryWithOneOrganization("Example", "@example.com");
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
@@ -67,28 +76,20 @@ public class UserRepositoryTest extends WithApplication {
         User user = userRepository.create(authUser);
 
         assertThat(user.getOrganizations(), hasSize(1));
+        user.getOrganizations().forEach(Model::delete);
+        user.delete();
     }
 
     @NotNull
     private UserRepository givenUserRepository() {
-        UserDatasource userDatasource = provideApplication().injector().instanceOf(UserDatasource.class);
-        OrganizationDatasource organizationDatasource = provideApplication().injector().instanceOf(OrganizationDatasource.class);
-        GrafanaClient grafanaClient = mock(GrafanaClient.class);
-
-        CompletableFuture<GrafanaResponse> grafanaResponseCompletableFuture = CompletableFuture.completedFuture(mock(GrafanaResponse.class));
-        when(grafanaClient.createUser(any())).thenReturn(grafanaResponseCompletableFuture);
-        return new UserRepository(userDatasource, organizationDatasource, grafanaClient);
+        return this.app.injector().instanceOf(UserRepository.class);
     }
 
     @NotNull
     private UserRepository givenUserRepositoryWithOneOrganization(String name, String gooogleAccount) {
-        UserDatasource userDatasource = provideApplication().injector().instanceOf(UserDatasource.class);
-        OrganizationDatasource organizationDatasource = provideApplication().injector().instanceOf(OrganizationDatasource.class);
+        OrganizationDatasource organizationDatasource = this.app.injector().instanceOf(OrganizationDatasource.class);
         organizationDatasource.create(name, gooogleAccount);
-        GrafanaClient grafanaClient = mock(GrafanaClient.class);
 
-        CompletableFuture<GrafanaResponse> grafanaResponseCompletableFuture = CompletableFuture.completedFuture(mock(GrafanaResponse.class));
-        when(grafanaClient.createUser(any())).thenReturn(grafanaResponseCompletableFuture);
-        return new UserRepository(userDatasource, organizationDatasource, grafanaClient);
+        return this.app.injector().instanceOf(UserRepository.class);
     }
 }

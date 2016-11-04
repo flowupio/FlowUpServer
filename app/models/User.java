@@ -40,7 +40,7 @@ public class User extends Model implements Subject {
     @OneToMany(cascade = CascadeType.ALL)
     private List<LinkedAccount> linkedAccounts;
 
-    @ManyToMany(mappedBy = "members")
+    @ManyToMany(mappedBy = "members", cascade = CascadeType.ALL)
     private List<Organization> organizations;
 
     @ManyToMany

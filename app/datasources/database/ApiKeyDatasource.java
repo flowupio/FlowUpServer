@@ -1,13 +1,16 @@
 package datasources.database;
 
 import models.ApiKey;
-import models.Organization;
 
 import java.util.UUID;
 
 public class ApiKeyDatasource {
     public boolean isValuePresentInDB(String apiKeyValue) {
         return ApiKey.find.where().eq("value", apiKeyValue).findRowCount() > 0;
+    }
+
+    public ApiKey findByApiKeyValue(String apiKeyValue) {
+        return ApiKey.find.fetch("organization").where().eq("value", apiKeyValue).findUnique();
     }
 
     public ApiKey create() {
@@ -17,8 +20,13 @@ public class ApiKeyDatasource {
 
     public ApiKey create(String value) {
         ApiKey apiKey = new ApiKey();
-        apiKey.value = value;
+        apiKey.setValue(value);
         apiKey.save();
         return apiKey;
+    }
+
+    public boolean delete(String apiKeyValue) {
+        ApiKey apiKey = findByApiKeyValue(apiKeyValue);
+        return apiKey != null && apiKey.delete();
     }
 }
