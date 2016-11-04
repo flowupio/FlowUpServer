@@ -37,3 +37,5 @@ Test your setup http://asquera.de/blog/2013-07-10/an-elasticsearch-workflow/
 ### How to execute the stress tests
 
 `sbt gatling:test`
+
+-
