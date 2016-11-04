@@ -20,6 +20,7 @@ public class GrafanaProxy {
     public static final String LOGIN = "/login";
     private final WSClient ws;
     private final String baseUrl;
+    private final String cookieDomain;
 
     @Inject
     public GrafanaProxy(WSClient ws, @Named("grafana") Configuration grafanaConf) {
@@ -29,6 +30,8 @@ public class GrafanaProxy {
         String host = grafanaConf.getString("host");
         String port = grafanaConf.getString("port");
         this.baseUrl = scheme + "://" + host + ":" + port;
+
+        this.cookieDomain = grafanaConf.getString("cookie_domain");
     }
 
     public CompletionStage<List<Http.Cookie>> retreiveSessionCookies(User user) {
@@ -44,8 +47,9 @@ public class GrafanaProxy {
 
     @NotNull
     private Http.Cookie toHttpCookie(WSCookie wsCookie) {
+        String domain = this.cookieDomain == null ? wsCookie.getDomain() : this.cookieDomain;
         return new Http.Cookie(wsCookie.getName(), wsCookie.getValue(), wsCookie.getMaxAge().intValue(), wsCookie.getPath(),
-                wsCookie.getDomain(), wsCookie.isSecure(), true);
+                domain, wsCookie.isSecure(), true);
     }
 
     public String getHomeUrl() {
