@@ -1,17 +1,69 @@
-@(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User = null)
+@(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User = null, apiKey: ApiKey)
 
-@import com.feth.play.module.pa.views.html._
+    @import com.feth.play.module.pa.views.html._
 
-@views.html.commandcenter.main("Command Center", user) {
+    @views.html.commandcenter.main("Command Center", user) {
 
-    <div class="row">
+        <div class="row">
 
-        @commandcenter.sidebar()
+            @commandcenter.sidebar()
 
-        <div class="col-sm-9 col-sm-offset-3 main content">
-            <div class="row">
+            <div class="col-sm-9 col-sm-offset-3 main content">
 
+                <div class="dashhead">
+                    <div class="dashhead-titles">
+                        <h1 class="dashhead-title">Get started with Flow Up</h1>
+                    </div>
+
+                </div>
+
+                <hr class="m-t">
+
+                <h2>Add New Relic to your build</h2>
+                <p>
+                    Merge the following into your build.gradle file:
+                </p>
+
+                <div class="row">
+                    <div class="col-sm-9">
+                        <code>
+dependencies {<br />
+    compile &#039;io.flowup:android-sdk:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
+    testCompile &#039;io.flowup:android-sdk-no-op:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
+}
+                        </code>
+                    </div>
+                </div>
+
+                <hr class="m-t">
+
+                <h2>Initialize FlowUp</h2>
+
+                <div class="row p-b">
+                    <div class="col-sm-9">
+                        <p>
+                            In your default Activity import the FlowUp class.
+                        </p>
+
+                        <code>import io.flowup.FlowUp;</code>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-sm-9">
+                        <p>
+                            And in the onCreate() method add this call to initialize FlowUp.
+                        </p>
+
+                        <code>
+FlowUp.Builder.with(this)<br />
+    .apiKey(&quot;@apiKey.value&quot;)<br />
+    .forceReports(BuildConfig.DEBUG)<br />
+    .logEnabled(BuildConfig.DEBUG)<br />
+    .start();
+                        </code>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-}
+    }

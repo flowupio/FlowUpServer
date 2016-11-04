@@ -2,6 +2,7 @@ package controllers;
 
 import com.feth.play.module.pa.PlayAuthenticate;
 import datasources.grafana.GrafanaProxy;
+import models.ApiKey;
 import models.User;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -28,7 +29,8 @@ public class CommandCenterController extends Controller {
 
     public Result index() {
         final User localUser =  User.findByAuthUserIdentity(this.auth.getUser(session()));
-        return ok(home.render(this.auth, localUser));
+        ApiKey apiKey = localUser.getOrganizations().get(0).getApiKey();
+        return ok(home.render(this.auth, localUser, apiKey));
     }
 
     public CompletionStage<Result> grafana() {
