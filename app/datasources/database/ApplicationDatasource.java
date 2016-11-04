@@ -3,15 +3,17 @@ package datasources.database;
 import models.ApiKey;
 import models.Application;
 
-import java.util.UUID;
-
 public class ApplicationDatasource {
-    public boolean existByApiKeyValue(String appPackage) {
-        return Application.find.where().eq("app_package", appPackage).findRowCount() > 0;
+    public boolean existByApiKeyAndAppPackage(String apiKey, String appPackage) {
+        Application application = findByAppPackage(appPackage);
+        return application != null && apiKey.equals(application.getOrganization().getApiKey().getValue());
     }
 
-    public Application findByApiKeyValue(String appPackage) {
-        return Application.find.where().eq("app_package", appPackage).findUnique();
+    public Application findByAppPackage(String appPackage) {
+        return Application.find
+                .fetch("organization")
+                .fetch("organization.apiKey")
+                .where().eq("appPackage", appPackage).findUnique();
     }
 
     public Application create(String appPackage, ApiKey apiKey) {

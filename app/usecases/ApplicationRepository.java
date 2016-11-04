@@ -25,9 +25,8 @@ class ApplicationRepository {
         this.cacheApi = cacheApi;
     }
 
-    boolean exist(String appPackage) {
-        // Test by Org
-        return applicationDatasource.existByApiKeyValue(appPackage);
+    boolean exist(String apiKey, String appPackage) {
+        return cacheApi.getOrElse("exist-" + apiKey + "-" + appPackage, () -> applicationDatasource.existByApiKeyAndAppPackage(apiKey, appPackage));
     }
 
     Application create(String apiKeyValue, String appPackage) {
