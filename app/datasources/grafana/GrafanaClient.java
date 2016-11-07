@@ -134,7 +134,7 @@ public class GrafanaClient implements DashboardsClient {
                     .put("url", this.elasticsearchEndpoint)
                     .put("database", ElasticSearchDatasource.FLOWUP + application.getAppPackage())
                     .put("access", "proxy")
-                    .put("is_default", true)
+                    .put("isDefault", true)
                     .put("basicAuth", false)
                     .set("jsonData", jsonNode);
 
