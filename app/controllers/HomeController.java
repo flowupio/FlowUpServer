@@ -24,7 +24,7 @@ public class HomeController extends Controller {
         this.auth = auth;
     }
     public Result index() {
-        redirect(HTTP_FLOWUP_IO);
+        return redirect(HTTP_FLOWUP_IO);
     }
 
     public Result health() {
