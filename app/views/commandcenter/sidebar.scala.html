@@ -1,3 +1,5 @@
+@(user: models.User = null)
+
 <div class="col-sm-3 sidebar">
     <nav class="sidebar-nav">
         <div class="sidebar-header">
@@ -9,6 +11,7 @@
             </a>
         </div>
 
+        @if(user.isActive) {
         <div class="collapse nav-toggleable-sm" id="nav-toggleable-sm">
             <ul class="nav nav-pills nav-stacked">
                 <li class="nav-header">Command Center</li>
@@ -28,5 +31,6 @@
             </ul>
             <hr class="visible-xs m-t">
         </div>
+        }
     </nav>
 </div>
