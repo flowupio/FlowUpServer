@@ -1,5 +1,6 @@
 package datasources.grafana;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import datasources.elasticsearch.ElasticSearchDatasource;
 import models.Application;
@@ -125,13 +126,17 @@ public class GrafanaClient implements DashboardsClient {
     @Override
     public CompletionStage<Application> createDatasource(Application application) {
         return this.switchUserContext(application).thenCompose(applicationSwitched -> {
-            ObjectNode request = Json.newObject()
+                    ObjectNode jsonNode = Json.newObject().put("timeField", "@timestamp").put("esVersion", 2);
+                    JsonNode request = Json.newObject()
+                    .put("orgId", application.getGrafanaOrgId())
                     .put("name", "default")
                     .put("type", "elasticsearch")
-                    .put("url", this.elasticsearchEndpoint + "/" + ElasticSearchDatasource.FLOWUP + application.getAppPackage())
+                    .put("url", this.elasticsearchEndpoint)
+                    .put("database", ElasticSearchDatasource.FLOWUP + application.getAppPackage())
                     .put("access", "proxy")
                     .put("is_default", true)
-                    .put("basicAuth", false);
+                    .put("basicAuth", false)
+                    .set("jsonData", jsonNode);
 
             Logger.info(request.toString());
             return post(API_DATASOURCE, request).thenApply(grafanaResponse -> applicationSwitched);
@@ -165,7 +170,7 @@ public class GrafanaClient implements DashboardsClient {
         return post(adminUserEndpoint, request).thenApply(grafanaResponse -> application);
     }
 
-    private CompletionStage<GrafanaResponse> post(String adminUserEndpoint, ObjectNode request) {
+    private CompletionStage<GrafanaResponse> post(String adminUserEndpoint, JsonNode request) {
         return getWsRequestForAdminUser(adminUserEndpoint).post(request).thenApply(this::parseWsResponse);
     }
 
