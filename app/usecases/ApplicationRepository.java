@@ -2,26 +2,28 @@ package usecases;
 
 import datasources.database.ApiKeyDatasource;
 import datasources.database.ApplicationDatasource;
-import datasources.grafana.GrafanaClient;
+import datasources.grafana.DashboardsClient;
 import models.ApiKey;
 import models.Application;
+import org.jetbrains.annotations.NotNull;
 import play.cache.CacheApi;
 
 import javax.inject.Inject;
 
-import static java.util.stream.Collectors.toList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 class ApplicationRepository {
     private final ApiKeyDatasource apiKeyDatasource;
     private final ApplicationDatasource applicationDatasource;
-    private final GrafanaClient grafanaClient;
+    private final DashboardsClient dashboardsClient;
     private final CacheApi cacheApi;
 
     @Inject
-    ApplicationRepository(ApiKeyDatasource apiKeyDatasource, ApplicationDatasource applicationDatasource, GrafanaClient grafanaClient, CacheApi cacheApi) {
+    ApplicationRepository(ApiKeyDatasource apiKeyDatasource, ApplicationDatasource applicationDatasource, DashboardsClient dashboardsClient, CacheApi cacheApi) {
         this.apiKeyDatasource = apiKeyDatasource;
         this.applicationDatasource = applicationDatasource;
-        this.grafanaClient = grafanaClient;
+        this.dashboardsClient = dashboardsClient;
         this.cacheApi = cacheApi;
     }
 
@@ -34,25 +36,33 @@ class ApplicationRepository {
         return "exist-" + apiKey + "-" + appPackage;
     }
 
-    Application create(String apiKeyValue, String appPackage) {
+    CompletionStage<Application> create(String apiKeyValue, String appPackage) {
         ApiKey apiKey = apiKeyDatasource.findByApiKeyValue(apiKeyValue);
+        if (apiKey == null) {
+            return null;
+        }
 
         Application application = applicationDatasource.create(appPackage, apiKey);
 
         String cacheKey = getCacheKey(apiKeyValue, appPackage);
         cacheApi.set(cacheKey, true);
 
-        grafanaClient.createOrg(application).thenApply(grafanaResponse -> {
+        return dashboardsClient.createOrg(application).thenCompose(applicationWithOrg -> {
 
-            grafanaClient.createDatasource(application);
+            CompletionStage<Void> datasourceCompletionStage = dashboardsClient.createDatasource(applicationWithOrg)
+                    .thenCompose(this::addUsersToApplicationDashboards);
 
-            return application.getOrganization().getMembers().stream().map(user -> {
-                return grafanaClient.addUserToOrganisation(user, application).thenApply(grafanaResponse1 -> {
-                    return grafanaClient.deleteUserInDefaultOrganisation(user);
-                });
-            }).collect(toList());
+            return datasourceCompletionStage.thenApply(result -> applicationWithOrg);
         });
+    }
 
-        return application;
+    @NotNull
+    private CompletionStage<Void> addUsersToApplicationDashboards(Application application) {
+        CompletableFuture[] completionStages = application.getOrganization().getMembers().stream().map(user -> {
+            return dashboardsClient.addUserToOrganisation(user, application).thenCompose(grafanaResponse1 -> {
+                return dashboardsClient.deleteUserInDefaultOrganisation(user);
+            }).toCompletableFuture();
+        }).toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(completionStages);
     }
 }

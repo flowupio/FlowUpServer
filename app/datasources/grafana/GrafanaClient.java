@@ -20,7 +20,7 @@ import java.security.SecureRandom;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
-public class GrafanaClient {
+public class GrafanaClient implements DashboardsClient {
 
     private static final String API_ORG = "/api/orgs";
     private static final String API_ORGS_ORG_ID_USERS = "/api/orgs/:orgId/users";
@@ -28,7 +28,7 @@ public class GrafanaClient {
 
     private static final String API_DATASOURCE = "/api/datasources";
     private static final String API_ADMIN_USERS = "/api/admin/users";
-    private static final String API_USER_USING_ORGANISATION_ID = "/api/user/using/:organisationId";
+    private static final String API_USER_USING_ORGANISATION_ID = "/api/user/using/:orgId";
 
 
     private final WSClient ws;
@@ -66,6 +66,7 @@ public class GrafanaClient {
         return scheme + "://" + host + ":" + port;
     }
 
+    @Override
     public CompletionStage<GrafanaResponse> createUser(final User user) {
 
         String grafanaPassword = PasswordGenerator.generatePassword();
@@ -86,7 +87,8 @@ public class GrafanaClient {
         });
     }
 
-    public CompletionStage<GrafanaResponse> createOrg(Application application) {
+    @Override
+    public CompletionStage<Application> createOrg(Application application) {
         String orgName = application.getOrganization().getName() + " " + application.getAppPackage();
         ObjectNode request = Json.newObject()
                 .put("name", orgName);
@@ -95,12 +97,13 @@ public class GrafanaClient {
 
         return post(API_ORG, request).thenApply(response -> {
             if (response.getStatus() == Http.Status.OK) {
-                updateApplicationWithGrafanaInfo(application.getId(), response);
+                return updateApplicationWithGrafanaInfo(application.getId(), response);
             }
-            return response;
+            return application;
         });
     }
 
+    @Override
     public CompletionStage<GrafanaResponse> addUserToOrganisation(User user, Application application) {
         String adminUserEndpoint = API_ORGS_ORG_ID_USERS.replaceFirst(":orgId", application.getGrafanaOrgId());
 
@@ -112,32 +115,37 @@ public class GrafanaClient {
         return post(adminUserEndpoint, userRequest);
     }
 
+    @Override
     public CompletionStage<GrafanaResponse> deleteUserInDefaultOrganisation(User user) {
         String adminUserEndpoint = API_ORGS_ORG_ID_USERS_USER_ID.replaceFirst(":orgId", "1").replaceFirst(":userId", user.getGrafanaUserId());
 
         return delete(adminUserEndpoint);
     }
 
-    public CompletionStage<GrafanaResponse> createDatasource(Application application) {
-        this.switchUserContext(application);
-        ObjectNode request = Json.newObject()
-                .put("name", "default")
-                .put("type", "elasticsearch")
-                .put("url", this.elasticsearchEndpoint + ElasticSearchDatasource.FLOWUP + application.getAppPackage())
-                .put("access", "proxy")
-                .put("is_default", true)
-                .put("basicAuth", false);
+    @Override
+    public CompletionStage<Application> createDatasource(Application application) {
+        return this.switchUserContext(application).thenCompose(applicationSwitched -> {
+            ObjectNode request = Json.newObject()
+                    .put("name", "default")
+                    .put("type", "elasticsearch")
+                    .put("url", this.elasticsearchEndpoint + "/" + ElasticSearchDatasource.FLOWUP + application.getAppPackage())
+                    .put("access", "proxy")
+                    .put("is_default", true)
+                    .put("basicAuth", false);
 
-        return post(API_DATASOURCE, request);
+            Logger.info(request.toString());
+            return post(API_DATASOURCE, request).thenApply(grafanaResponse -> applicationSwitched);
+        });
     }
 
-    private void updateApplicationWithGrafanaInfo(UUID applicationId, GrafanaResponse response) {
+    private Application updateApplicationWithGrafanaInfo(UUID applicationId, GrafanaResponse response) {
         Application application = Application.find.byId(applicationId);
         String orgId = response.getAdditionalProperties().get("orgId").toString();
         if (application != null) {
             application.setGrafanaOrgId(orgId);
             application.save();
         }
+        return application;
     }
 
     private void updateUserWithGrafanaInfo(String grafanaPassword, UUID userId, GrafanaResponse response) {
@@ -150,11 +158,11 @@ public class GrafanaClient {
         }
     }
 
-    private CompletionStage<GrafanaResponse> switchUserContext(Application application) {
+    private CompletionStage<Application> switchUserContext(Application application) {
         String adminUserEndpoint = API_USER_USING_ORGANISATION_ID.replaceFirst(":orgId", application.getGrafanaOrgId());
         ObjectNode request = Json.newObject();
 
-        return post(adminUserEndpoint, request);
+        return post(adminUserEndpoint, request).thenApply(grafanaResponse -> application);
     }
 
     private CompletionStage<GrafanaResponse> post(String adminUserEndpoint, ObjectNode request) {

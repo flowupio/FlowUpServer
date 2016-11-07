@@ -20,7 +20,7 @@ public class InsertDataPoints {
     public CompletionStage<InsertResult> execute(Report report) {
 
         if (!applicationRepository.exist(report.getApiKey(), report.getAppPackage())) {
-            Application application = applicationRepository.create(report.getApiKey(), report.getAppPackage());
+            CompletionStage<Application> applicationCompletionStage = applicationRepository.create(report.getApiKey(), report.getAppPackage());
         }
         return metricsDatasource.writeDataPoints(report);
     }
