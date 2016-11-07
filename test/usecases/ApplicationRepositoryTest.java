@@ -1,12 +1,9 @@
 package usecases;
 
-import com.avaje.ebean.Model;
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
-import com.google.common.collect.ImmutableMap;
 import datasources.grafana.DashboardsClient;
 import datasources.grafana.GrafanaResponse;
 import models.Application;
-import models.Organization;
 import models.User;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
@@ -14,15 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.test.Helpers;
 import play.test.WithApplication;
 import repositories.UserRepository;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -48,14 +41,13 @@ public class ApplicationRepositoryTest extends WithApplication {
     protected play.Application provideApplication() {
         CompletableFuture<GrafanaResponse> grafanaResponseCompletableFuture = CompletableFuture.completedFuture(mock(GrafanaResponse.class));
         when(dashboardsClient.createUser(any())).thenReturn(grafanaResponseCompletableFuture);
-        when(dashboardsClient.createOrg(any())).then(new Answer<CompletableFuture<Application>>() {
-            @Override
-            public CompletableFuture<Application> answer(InvocationOnMock invocation) throws Throwable {
-                Application application = invocation.getArgumentAt(0, Application.class);
-                application.setGrafanaOrgId("1");
-                application.setOrganization(mock(Organization.class));
-                return CompletableFuture.completedFuture(mock(Application.class));
-            }
+        when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, Application.class)));
+        when(dashboardsClient.createOrg(any())).then(invocation -> {
+            Application application = invocation.getArgumentAt(0, Application.class);
+            application.setGrafanaOrgId("2");
+            application.setOrganization(user.getOrganizations().get(0));
+            application.save();
+            return CompletableFuture.completedFuture(application);
         });
 
         return new GuiceApplicationBuilder()
