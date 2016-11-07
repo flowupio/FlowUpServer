@@ -8,7 +8,7 @@ import java.util.concurrent.CompletionStage;
 public interface DashboardsClient {
     CompletionStage<GrafanaResponse> createUser(User user);
 
-    CompletionStage<GrafanaResponse> createOrg(Application application);
+    CompletionStage<Application> createOrg(Application application);
 
     CompletionStage<GrafanaResponse> addUserToOrganisation(User user, Application application);
 

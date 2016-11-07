@@ -9,6 +9,8 @@ import play.cache.CacheApi;
 
 import javax.inject.Inject;
 
+import java.util.concurrent.CompletionStage;
+
 import static java.util.stream.Collectors.toList;
 
 class ApplicationRepository {
@@ -34,25 +36,28 @@ class ApplicationRepository {
         return "exist-" + apiKey + "-" + appPackage;
     }
 
-    Application create(String apiKeyValue, String appPackage) {
+    CompletionStage<Application> create(String apiKeyValue, String appPackage) {
         ApiKey apiKey = apiKeyDatasource.findByApiKeyValue(apiKeyValue);
+        if (apiKey == null) {
+            return null;
+        }
 
         Application application = applicationDatasource.create(appPackage, apiKey);
 
         String cacheKey = getCacheKey(apiKeyValue, appPackage);
         cacheApi.set(cacheKey, true);
 
-        dashboardsClient.createOrg(application).thenApply(grafanaResponse -> {
+        return dashboardsClient.createOrg(application).thenApply(applicationWithOrg -> {
 
-            dashboardsClient.createDatasource(application);
+            dashboardsClient.createDatasource(applicationWithOrg);
 
-            return application.getOrganization().getMembers().stream().map(user -> {
-                return dashboardsClient.addUserToOrganisation(user, application).thenApply(grafanaResponse1 -> {
+            application.getOrganization().getMembers().stream().map(user -> {
+                return dashboardsClient.addUserToOrganisation(user, applicationWithOrg).thenApply(grafanaResponse1 -> {
                     return dashboardsClient.deleteUserInDefaultOrganisation(user);
                 });
             }).collect(toList());
-        });
 
-        return application;
+            return application;
+        });
     }
 }

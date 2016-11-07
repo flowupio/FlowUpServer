@@ -28,7 +28,7 @@ public class GrafanaClient implements DashboardsClient {
 
     private static final String API_DATASOURCE = "/api/datasources";
     private static final String API_ADMIN_USERS = "/api/admin/users";
-    private static final String API_USER_USING_ORGANISATION_ID = "/api/user/using/:organisationId";
+    private static final String API_USER_USING_ORGANISATION_ID = "/api/user/using/:orgId";
 
 
     private final WSClient ws;
@@ -88,18 +88,18 @@ public class GrafanaClient implements DashboardsClient {
     }
 
     @Override
-    public CompletionStage<GrafanaResponse> createOrg(Application application) {
+    public CompletionStage<Application> createOrg(Application application) {
         String orgName = application.getOrganization().getName() + " " + application.getAppPackage();
         ObjectNode request = Json.newObject()
                 .put("name", orgName);
 
-        Logger.debug(request.toString());
+        Logger.info(request.toString());
 
         return post(API_ORG, request).thenApply(response -> {
             if (response.getStatus() == Http.Status.OK) {
-                updateApplicationWithGrafanaInfo(application.getId(), response);
+                return updateApplicationWithGrafanaInfo(application.getId(), response);
             }
-            return response;
+            return application;
         });
     }
 
@@ -137,13 +137,14 @@ public class GrafanaClient implements DashboardsClient {
         return post(API_DATASOURCE, request);
     }
 
-    private void updateApplicationWithGrafanaInfo(UUID applicationId, GrafanaResponse response) {
+    private Application updateApplicationWithGrafanaInfo(UUID applicationId, GrafanaResponse response) {
         Application application = Application.find.byId(applicationId);
         String orgId = response.getAdditionalProperties().get("orgId").toString();
         if (application != null) {
             application.setGrafanaOrgId(orgId);
             application.save();
         }
+        return application;
     }
 
     private void updateUserWithGrafanaInfo(String grafanaPassword, UUID userId, GrafanaResponse response) {

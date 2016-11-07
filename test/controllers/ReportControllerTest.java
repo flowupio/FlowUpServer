@@ -1,7 +1,6 @@
 package controllers;
 
 
-import com.google.common.collect.ImmutableMap;
 import datasources.database.ApiKeyDatasource;
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;
@@ -20,12 +19,10 @@ import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.Helpers;
 import play.test.WithApplication;
 import utils.WithResources;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.MatcherAssert.assertThat;
