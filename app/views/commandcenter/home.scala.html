@@ -1,17 +1,69 @@
-@(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User = null)
+@(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User = null, apiKey: ApiKey)
 
-@import com.feth.play.module.pa.views.html._
+    @import com.feth.play.module.pa.views.html._
 
-@views.html.commandcenter.main("Command Center", user) {
+    @views.html.commandcenter.main("Command Center", user) {
 
-    <div class="row">
+        <div class="row">
 
-        @commandcenter.sidebar()
+            @commandcenter.sidebar()
 
-        <div class="col-sm-9 col-sm-offset-3 main content">
-            <div class="row">
+            <div class="col-sm-9 col-sm-offset-3 main content">
+
+                <div class="dashhead">
+                    <div class="dashhead-titles">
+                        <h1 class="dashhead-title">Getting started with Flow Up</h1>
+                    </div>
+
+                </div>
+
+                <hr class="m-t">
+
+                <div class="row">
+                    <div class="col-sm-9">
+
+                    <h2>Add the FlowUp Android SDK to your build:</h2>
+                <p>
+                    Add the following dependency to your build.gradle file:
+                </p>
+
+                        <code>
+dependencies {<br />
+    compile &#039;io.flowup:android-sdk:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
+    testCompile &#039;io.flowup:android-sdk-no-op:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
+}
+                        </code>
+
+                <hr class="m-t">
+
+                <h2>Initialize FlowUp:</h2>
+
+                        <p>
+                            Initialize the FlowUp Android SDK in the your Application class onCreate() method.
+                        </p>
+
+                        <code>
+FlowUp.Builder.with(this)<br />
+    .apiKey(&quot;@apiKey.getValue&quot;)<br />
+    .forceReports(BuildConfig.DEBUG)<br />
+    .start();
+                        </code>
+
+                        <hr class="m-t">
+
+                        <h2>Build and run your application:</h2>
+
+                        <p>Build and run your app in an emulator or device to start seeing data. Remember to build the app using the DEBUG build type and review adjust the device date/timezone properly.</p>
+
+                        <hr class="m-t">
+
+                        <h2>Start seeing data in just a few seconds:</h2>
+
+                        <p>Within seconds you will see data in your FlowUp Dashboards.</p>
+                        
+                    </div>
+                </div>
 
             </div>
         </div>
-    </div>
-}
+    }

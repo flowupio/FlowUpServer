@@ -3,7 +3,7 @@ package repositories;
 import com.feth.play.module.pa.user.AuthUser;
 import datasources.database.OrganizationDatasource;
 import datasources.database.UserDatasource;
-import datasources.grafana.GrafanaClient;
+import datasources.grafana.DashboardsClient;
 import models.Organization;
 import models.User;
 import play.Logger;
@@ -15,13 +15,13 @@ import java.util.concurrent.ExecutionException;
 public class UserRepository {
     private final UserDatasource userDatasource;
     private final OrganizationDatasource organizationDatasource;
-    private final GrafanaClient grafanaClient;
+    private final DashboardsClient dashboardsClient;
 
     @Inject
-    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, GrafanaClient grafanaClient) {
+    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, DashboardsClient dashboardsClient) {
         this.userDatasource = userDatasource;
         this.organizationDatasource = organizationDatasource;
-        this.grafanaClient = grafanaClient;
+        this.dashboardsClient = dashboardsClient;
     }
 
     public User create(AuthUser authUser) {
@@ -65,7 +65,7 @@ public class UserRepository {
 
     private void createGrafanaUser(User user) {
         try {
-            grafanaClient.createUser(user).toCompletableFuture().get();
+            dashboardsClient.createUser(user).toCompletableFuture().get();
         } catch (InterruptedException e) {
             Logger.debug(e.getMessage());
         } catch (ExecutionException e) {
