@@ -93,7 +93,7 @@ public class GrafanaClient implements DashboardsClient {
         ObjectNode request = Json.newObject()
                 .put("name", orgName);
 
-        Logger.info(request.toString());
+        Logger.debug(request.toString());
 
         return post(API_ORG, request).thenApply(response -> {
             if (response.getStatus() == Http.Status.OK) {
