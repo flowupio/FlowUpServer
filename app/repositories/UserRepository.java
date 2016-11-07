@@ -1,9 +1,11 @@
 package repositories;
 
 import com.feth.play.module.pa.user.AuthUser;
+import com.feth.play.module.pa.user.EmailIdentity;
 import datasources.database.OrganizationDatasource;
 import datasources.database.UserDatasource;
 import datasources.grafana.DashboardsClient;
+import models.LinkedAccount;
 import models.Organization;
 import models.User;
 import play.Logger;
@@ -25,6 +27,7 @@ public class UserRepository {
     }
 
     public User create(AuthUser authUser) {
+        boolean isActive = this.existsOrganizationByEmail(authUser);
         User user = userDatasource.create(authUser);
         Organization organization = findOrCreateOrganization(user);
         if (organization != null) {
@@ -43,7 +46,7 @@ public class UserRepository {
                 String domain = split[1];
                 Organization organization;
                 if ("gmail.com".equals(domain) || "googlemail.com".equals(domain)) {
-                     organization = organizationDatasource.create(split[0]);
+                    organization = organizationDatasource.create(split[0]);
                 } else {
                     String googleAccount = "@" + domain;
                     organization = organizationDatasource.findByGoogleAccount(googleAccount);
@@ -55,6 +58,21 @@ public class UserRepository {
             }
         }
         return null;
+    }
+
+    private boolean existsOrganizationByEmail(AuthUser authUser) {
+        if (authUser instanceof EmailIdentity) {
+            EmailIdentity identity = (EmailIdentity) authUser;
+
+            String[] split = identity.getEmail().split("@");
+            if (split.length == 2) {
+                String domain = split[1];
+                String googleAccount = "@" + domain;
+                Organization organization = organizationDatasource.findByGoogleAccount(googleAccount);
+                return organization != null;
+            }
+        }
+        return false;
     }
 
     private User joinOrganization(User user, Organization organization) {
