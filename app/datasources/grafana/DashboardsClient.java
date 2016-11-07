@@ -14,5 +14,5 @@ public interface DashboardsClient {
 
     CompletionStage<GrafanaResponse> deleteUserInDefaultOrganisation(User user);
 
-    CompletionStage<GrafanaResponse> createDatasource(Application application);
+    CompletionStage<Application> createDatasource(Application application);
 }

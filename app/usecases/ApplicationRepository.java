@@ -5,13 +5,13 @@ import datasources.database.ApplicationDatasource;
 import datasources.grafana.DashboardsClient;
 import models.ApiKey;
 import models.Application;
+import org.jetbrains.annotations.NotNull;
 import play.cache.CacheApi;
 
 import javax.inject.Inject;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
-import static java.util.stream.Collectors.toList;
 
 class ApplicationRepository {
     private final ApiKeyDatasource apiKeyDatasource;
@@ -47,17 +47,22 @@ class ApplicationRepository {
         String cacheKey = getCacheKey(apiKeyValue, appPackage);
         cacheApi.set(cacheKey, true);
 
-        return dashboardsClient.createOrg(application).thenApply(applicationWithOrg -> {
+        return dashboardsClient.createOrg(application).thenCompose(applicationWithOrg -> {
 
-            dashboardsClient.createDatasource(applicationWithOrg);
+            CompletionStage<Void> datasourceCompletionStage = dashboardsClient.createDatasource(applicationWithOrg)
+                    .thenCompose(this::addUsersToApplicationDashboards);
 
-            application.getOrganization().getMembers().stream().map(user -> {
-                return dashboardsClient.addUserToOrganisation(user, applicationWithOrg).thenApply(grafanaResponse1 -> {
-                    return dashboardsClient.deleteUserInDefaultOrganisation(user);
-                });
-            }).collect(toList());
-
-            return application;
+            return datasourceCompletionStage.thenApply(result -> applicationWithOrg);
         });
+    }
+
+    @NotNull
+    private CompletionStage<Void> addUsersToApplicationDashboards(Application application) {
+        CompletableFuture[] completionStages = application.getOrganization().getMembers().stream().map(user -> {
+            return dashboardsClient.addUserToOrganisation(user, application).thenCompose(grafanaResponse1 -> {
+                return dashboardsClient.deleteUserInDefaultOrganisation(user);
+            }).toCompletableFuture();
+        }).toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(completionStages);
     }
 }

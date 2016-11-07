@@ -123,18 +123,19 @@ public class GrafanaClient implements DashboardsClient {
     }
 
     @Override
-    public CompletionStage<GrafanaResponse> createDatasource(Application application) {
-        this.switchUserContext(application);
-        ObjectNode request = Json.newObject()
-                .put("name", "default")
-                .put("type", "elasticsearch")
-                .put("url", this.elasticsearchEndpoint + ElasticSearchDatasource.FLOWUP + application.getAppPackage())
-                .put("access", "proxy")
-                .put("is_default", true)
-                .put("basicAuth", false);
+    public CompletionStage<Application> createDatasource(Application application) {
+        return this.switchUserContext(application).thenCompose(applicationSwitched -> {
+            ObjectNode request = Json.newObject()
+                    .put("name", "default")
+                    .put("type", "elasticsearch")
+                    .put("url", this.elasticsearchEndpoint + "/" + ElasticSearchDatasource.FLOWUP + application.getAppPackage())
+                    .put("access", "proxy")
+                    .put("is_default", true)
+                    .put("basicAuth", false);
 
-        Logger.debug(request.toString());
-        return post(API_DATASOURCE, request);
+            Logger.info(request.toString());
+            return post(API_DATASOURCE, request).thenApply(grafanaResponse -> applicationSwitched);
+        });
     }
 
     private Application updateApplicationWithGrafanaInfo(UUID applicationId, GrafanaResponse response) {
@@ -157,11 +158,11 @@ public class GrafanaClient implements DashboardsClient {
         }
     }
 
-    private CompletionStage<GrafanaResponse> switchUserContext(Application application) {
+    private CompletionStage<Application> switchUserContext(Application application) {
         String adminUserEndpoint = API_USER_USING_ORGANISATION_ID.replaceFirst(":orgId", application.getGrafanaOrgId());
         ObjectNode request = Json.newObject();
 
-        return post(adminUserEndpoint, request);
+        return post(adminUserEndpoint, request).thenApply(grafanaResponse -> application);
     }
 
     private CompletionStage<GrafanaResponse> post(String adminUserEndpoint, ObjectNode request) {
