@@ -7,14 +7,13 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Model;
 import com.avaje.ebean.PagedList;
+import com.avaje.ebean.annotation.CreatedTimestamp;
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
-import com.feth.play.module.pa.user.EmailIdentity;
-import com.feth.play.module.pa.user.NameIdentity;
-import lombok.Data;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.*;
 
 @Entity
@@ -36,6 +35,9 @@ public class User extends Model implements Subject {
     private String grafanaUserId;
 
     private String grafanaPassword;
+
+    @CreatedTimestamp
+    private Timestamp createdAt;
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<LinkedAccount> linkedAccounts;
@@ -216,5 +218,13 @@ public class User extends Model implements Subject {
 
     public void setRoles(List<SecurityRole> roles) {
         this.roles = roles;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }
