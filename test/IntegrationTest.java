@@ -26,12 +26,6 @@ public class IntegrationTest extends WithBrowser {
     }
 
     @Test
-    public void testIndex() {
-        browser.goTo("/");
-        assertTrue(browser.pageSource().contains("Welcome to FlowUp"));
-    }
-
-    @Test
     public void testLogin() {
         browser.goTo("/login");
         assertNotNull(browser.$("div#login a"));
