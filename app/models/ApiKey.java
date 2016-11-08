@@ -22,6 +22,8 @@ public class ApiKey extends Model {
     @OneToOne(mappedBy = "apiKey")
     private Organization organization;
 
+    private boolean enabled = true;
+
     public static Finder<UUID, ApiKey> find = new Finder<>(ApiKey.class);
 
     public UUID getId() {
@@ -46,5 +48,13 @@ public class ApiKey extends Model {
 
     public void setOrganization(Organization organization) {
         this.organization = organization;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
