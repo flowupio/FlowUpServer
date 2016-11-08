@@ -71,8 +71,7 @@ class HeaderParsers {
         this.apiKeyDatasource = apiKeyDatasource;
     }
 
-    private boolean apiKeyIsValid(Http.RequestHeader request) {
-        String apiKey = request.getHeader(X_API_KEY);
+    private boolean apiKeyIsValid(String apiKey) {
         if (apiKey != null) {
             Boolean validApiKey = cache.get("apiKey.isValid." + apiKey);
             if (validApiKey != null) {
@@ -87,9 +86,29 @@ class HeaderParsers {
         }
     }
 
+    private boolean apiKeyIsEnabled(String apiKey) {
+        if (apiKey != null) {
+            Boolean validApiKey = cache.get("apiKey.isEnabled." + apiKey);
+            if (validApiKey != null) {
+                return validApiKey;
+            } else {
+                boolean isApiKeyEnabled = apiKeyDatasource.isApiKeyEnabled(apiKey);
+                cache.set("apiKey.isEnabled." + apiKey, isApiKeyEnabled);
+                return isApiKeyEnabled;
+            }
+        } else {
+            return false;
+        }
+    }
+
     F.Either<Result, Http.RequestHeader> apply(Http.RequestHeader request) {
-        if (apiKeyIsValid(request)) {
+        String apiKey = request.getHeader(X_API_KEY);
+        boolean apiKeyIsValid = apiKeyIsValid(apiKey);
+        boolean apiKeyIsEnabled = apiKeyIsEnabled(apiKey);
+        if (apiKeyIsValid && apiKeyIsEnabled) {
             return Right(request);
+        } else if (apiKeyIsValid && !apiKeyIsEnabled) {
+            return Left(Results.status(Http.Status.PRECONDITION_FAILED, "API KEY disabled"));
         } else {
             return Left(Results.unauthorized("Expected Valid API KEY"));
         }
