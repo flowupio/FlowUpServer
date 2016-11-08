@@ -71,7 +71,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     }
 
 
-    private void setupSuccessfullElasticsearchClient() {
+    private void setupSuccessfulElasticsearchClient() {
         ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
         networkDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
         BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse)};
@@ -107,7 +107,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testReportAPI() {
-        setupSuccessfullElasticsearchClient();
+        setupSuccessfulElasticsearchClient();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("reportRequest.json"))
                 .header("X-Api-Key", API_KEY_VALUE)
@@ -154,7 +154,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testEmptyReport() {
-        setupSuccessfullElasticsearchClient();
+        setupSuccessfulElasticsearchClient();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("EmptyReportRequest.json"))
                 .header("X-Api-Key", API_KEY_VALUE)
@@ -171,7 +171,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testWrongAPIFormat() {
-        setupSuccessfullElasticsearchClient();
+        setupSuccessfulElasticsearchClient();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("WrongAPIFormat.json"))
                 .header("X-Api-Key", API_KEY_VALUE)
@@ -186,7 +186,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     @Test
     @Ignore
     public void testMalformedReportReport() {
-        setupSuccessfullElasticsearchClient();
+        setupSuccessfulElasticsearchClient();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("MalformedReportRequest.json"))
                 .header("Content-Type", "application/json");

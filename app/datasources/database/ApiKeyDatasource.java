@@ -5,13 +5,6 @@ import models.ApiKey;
 import java.util.UUID;
 
 public class ApiKeyDatasource {
-    public boolean isValuePresentInDB(String apiKeyValue) {
-        return ApiKey.find.where().eq("value", apiKeyValue).findRowCount() > 0;
-    }
-
-    public boolean isApiKeyEnabled(String apiKeyValue) {
-        return findByApiKeyValue(apiKeyValue).isEnabled();
-    }
 
     public ApiKey findByApiKeyValue(String apiKeyValue) {
         return ApiKey.find.fetch("organization").where().eq("value", apiKeyValue).findUnique();

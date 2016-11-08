@@ -3,6 +3,7 @@ package controllers;
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
 import datasources.database.ApiKeyDatasource;
+import models.ApiKey;
 import play.cache.CacheApi;
 import play.libs.F;
 import play.libs.streams.Accumulator;
@@ -11,13 +12,17 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import static play.libs.F.Either.Left;
 import static play.libs.F.Either.Right;
 
 class ReportRequestBodyParser implements BodyParser<ReportRequest> {
+
     private final BodyParser.Json jsonParser;
     private final Executor executor;
     private final HeaderParsers headerParsers;
@@ -61,6 +66,8 @@ class ReportRequestBodyParser implements BodyParser<ReportRequest> {
 
 class HeaderParsers {
 
+    private static final int API_KEY_CACHE_TTL = (int) TimeUnit.HOURS.toSeconds(1);
+
     private CacheApi cache;
     private ApiKeyDatasource apiKeyDatasource;
     static String X_API_KEY = "X-Api-Key";
@@ -71,40 +78,18 @@ class HeaderParsers {
         this.apiKeyDatasource = apiKeyDatasource;
     }
 
-    private boolean apiKeyIsValid(String apiKey) {
-        if (apiKey != null) {
-            Boolean validApiKey = cache.get("apiKey.isValid." + apiKey);
-            if (validApiKey != null) {
-                return validApiKey;
-            } else {
-                boolean valuePresentInDB = apiKeyDatasource.isValuePresentInDB(apiKey);
-                cache.set("apiKey.isValid." + apiKey, valuePresentInDB);
-                return valuePresentInDB;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    private boolean apiKeyIsEnabled(String apiKey) {
-        if (apiKey != null) {
-            Boolean validApiKey = cache.get("apiKey.isEnabled." + apiKey);
-            if (validApiKey != null) {
-                return validApiKey;
-            } else {
-                boolean isApiKeyEnabled = apiKeyDatasource.isApiKeyEnabled(apiKey);
-                cache.set("apiKey.isEnabled." + apiKey, isApiKeyEnabled);
-                return isApiKeyEnabled;
-            }
-        } else {
-            return false;
-        }
+    @Nullable
+    private ApiKey getApiKey(String apiKey) {
+        return cache.getOrElse("apiKey.value." + apiKey,
+                () -> apiKeyDatasource.findByApiKeyValue(apiKey),
+                API_KEY_CACHE_TTL);
     }
 
     F.Either<Result, Http.RequestHeader> apply(Http.RequestHeader request) {
-        String apiKey = request.getHeader(X_API_KEY);
-        boolean apiKeyIsValid = apiKeyIsValid(apiKey);
-        boolean apiKeyIsEnabled = apiKeyIsEnabled(apiKey);
+        String plainApiKey = request.getHeader(X_API_KEY);
+        ApiKey apiKey = getApiKey(plainApiKey);
+        boolean apiKeyIsValid = apiKey != null;
+        boolean apiKeyIsEnabled = apiKeyIsValid && apiKey.isEnabled();
         if (apiKeyIsValid && apiKeyIsEnabled) {
             return Right(request);
         } else if (apiKeyIsValid && !apiKeyIsEnabled) {
