@@ -34,7 +34,7 @@ public class HeaderParsersTest extends WithApplication {
         cacheApi.remove("apiKey.value."+ API_KEY_VALUE);
         super.stopPlay();
     }
-    
+
     @Test
     public void whenHeaderParsersIsCalledTwiceWithTheSameAPIKeyItShouldItTheCache() {
         ApiKeyDatasource apiKeyDatasource = givenApiKeyDatasource();

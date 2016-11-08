@@ -8,6 +8,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
+import utils.WithFlowUpApplication;
 
 import java.util.Map;
 
@@ -16,7 +17,7 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
 
-public class HomeControllerTest extends WithApplication {
+public class HomeControllerTest extends WithFlowUpApplication {
     @Override
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()

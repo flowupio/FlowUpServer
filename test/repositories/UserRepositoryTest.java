@@ -15,6 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.test.WithApplication;
+import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserRepositoryTest extends WithApplication {
+public class UserRepositoryTest extends WithFlowUpApplication {
 
     @Mock
     private DashboardsClient dashboardsClient;

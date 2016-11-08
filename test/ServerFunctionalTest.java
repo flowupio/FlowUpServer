@@ -71,12 +71,6 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
         this.organization = new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
     }
 
-    @After
-    public void cleanupDatabase() {
-        organization.delete();
-        apiKey.delete();
-    }
-
     private void setupElasticsearchClient() {
         BulkItemResponse[] responses = {};
         BulkResponse bulkResponse = new BulkResponse(responses, 67);

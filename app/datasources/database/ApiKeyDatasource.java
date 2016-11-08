@@ -16,8 +16,13 @@ public class ApiKeyDatasource {
     }
 
     public ApiKey create(String value) {
+        return create(value, true);
+    }
+
+    public ApiKey create(String value, boolean enabled) {
         ApiKey apiKey = new ApiKey();
         apiKey.setValue(value);
+        apiKey.setEnabled(enabled);
         apiKey.save();
         return apiKey;
     }

@@ -1,6 +1,5 @@
 package controllers;
 
-
 import datasources.database.ApiKeyDatasource;
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;
@@ -20,6 +19,7 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.WithApplication;
+import utils.WithFlowUpApplication;
 import utils.WithResources;
 
 import java.util.List;
@@ -38,7 +38,7 @@ import static play.mvc.Http.Status.CREATED;
 import static play.test.Helpers.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReportControllerTest extends WithApplication implements WithResources {
+public class ReportControllerTest extends WithFlowUpApplication implements WithResources {
 
     private static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
 
@@ -49,6 +49,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     private ArgumentCaptor<List<IndexRequest>> argument;
     private Organization organization;
     private ApiKey apiKey;
+    private ApiKeyDatasource apiKeyDatasource;
 
     @Override
     protected Application provideApplication() {
@@ -58,16 +59,27 @@ public class ReportControllerTest extends WithApplication implements WithResourc
     }
 
     @Before
-    public void setupDatabaseWithApiKey() {
-        ApiKeyDatasource apiKeyDatasource = new ApiKeyDatasource();
-        this.apiKey = apiKeyDatasource.create(API_KEY_VALUE);
-        this.organization = new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
+    @Override
+    public void startPlay() {
+        super.startPlay();
+        apiKeyDatasource = new ApiKeyDatasource();
     }
 
     @After
-    public void cleanupDatabase() {
+    @Override
+    public void stopPlay() {
         organization.delete();
         apiKey.delete();
+        super.stopPlay();
+    }
+
+    private void setupDatabaseWithApiKey() {
+        setupDatabaseWithApiKey(true);
+    }
+
+    private void setupDatabaseWithApiKey(boolean enabled) {
+        this.apiKey = apiKeyDatasource.create(API_KEY_VALUE, enabled);
+        this.organization = new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
     }
 
 
@@ -107,6 +119,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testReportAPI() {
+        setupDatabaseWithApiKey();
         setupSuccessfulElasticsearchClient();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("reportRequest.json"))
@@ -124,6 +137,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testReportAPIWithElasticSearchError() {
+        setupDatabaseWithApiKey();
         setupElasticsearchClientWithError();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("reportRequest.json"))
@@ -139,6 +153,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testReportAPIWithElasticSearchFailures() {
+        setupDatabaseWithApiKey();
         setupElasticsearchClientWithFailures();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("reportRequest.json"))
@@ -154,6 +169,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testEmptyReport() {
+        setupDatabaseWithApiKey();
         setupSuccessfulElasticsearchClient();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("EmptyReportRequest.json"))
@@ -171,6 +187,7 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
     @Test
     public void testWrongAPIFormat() {
+        setupDatabaseWithApiKey();
         setupSuccessfulElasticsearchClient();
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
                 .bodyText(getFile("WrongAPIFormat.json"))
@@ -181,6 +198,21 @@ public class ReportControllerTest extends WithApplication implements WithResourc
 
         assertEquals(BAD_REQUEST, result.status());
         assertThat(contentAsString(result), containsString("Unable to read class"));
+    }
+
+    @Test
+    public void returnsPreconditionFailedResponseIfTheApiKeyIsDisabled() {
+        setupDatabaseWithApiKey(false);
+        setupSuccessfulElasticsearchClient();
+
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json");
+
+        Result result = route(requestBuilder);
+
+        assertEquals(PRECONDITION_FAILED, result.status());
     }
 
     @Test
