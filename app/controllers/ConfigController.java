@@ -2,8 +2,8 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import play.libs.Json;
-import play.mvc.BodyParser;
 import play.mvc.Result;
+import play.mvc.Security;
 import usecases.ApiKeyConfig;
 import usecases.GetApiKeyConfig;
 
@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import static play.mvc.Controller.request;
 import static play.mvc.Results.ok;
 
+@Security.Authenticated(ApiKeySecured.class)
 public class ConfigController {
 
     private static final String X_API_KEY = "X-Api-Key";
@@ -23,7 +24,6 @@ public class ConfigController {
         this.getConfig = getConfig;
     }
 
-    @BodyParser.Of(ReportRequestBodyParser.class)
     public Result getConfig() {
         ApiKeyConfig apiKeyConfig = getApiKeyConfig();
         JsonNode content = Json.toJson(apiKeyConfig);

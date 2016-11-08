@@ -73,11 +73,13 @@ class HeaderParsers {
     F.Either<Result, Http.RequestHeader> apply(Http.RequestHeader request) {
         String plainApiKey = request.getHeader(X_API_KEY);
         ApiKey apiKey = repository.getApiKey(plainApiKey);
-        boolean apiKeyIsValid = apiKey != null;
-        boolean apiKeyIsEnabled = apiKeyIsValid && apiKey.isEnabled();
-        if (apiKeyIsValid && apiKeyIsEnabled) {
+        boolean apiKeyExists = apiKey != null;
+        boolean apiKeyIsEnabled = apiKeyExists && apiKey.isEnabled();
+        if (apiKeyExists && apiKeyIsEnabled) {
             return Right(request);
-        } else if (apiKeyIsValid && !apiKeyIsEnabled) {
+        } else if (!apiKeyExists) {
+            return Left(Results.unauthorized("Expected Valid API KEY"));
+        } else if (!apiKeyIsEnabled) {
             return Left(Results.status(Http.Status.PRECONDITION_FAILED, "API KEY disabled"));
         } else {
             return Left(Results.unauthorized("Expected Valid API KEY"));

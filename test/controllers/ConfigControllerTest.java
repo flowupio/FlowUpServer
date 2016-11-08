@@ -1,9 +1,6 @@
 package controllers;
 
-import datasources.database.ApiKeyDatasource;
-import datasources.database.OrganizationDatasource;
 import models.ApiKey;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -17,6 +14,7 @@ import utils.WithFlowUpApplication;
 import utils.WithResources;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.UNAUTHORIZED;
@@ -30,7 +28,6 @@ public class ConfigControllerTest extends WithFlowUpApplication implements WithR
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
-    private ApiKeyDatasource apiKeyDatasource;
 
     @Override
     protected Application provideApplication() {
@@ -39,56 +36,47 @@ public class ConfigControllerTest extends WithFlowUpApplication implements WithR
                 .build();
     }
 
-    @Before
-    @Override
-    public void startPlay() {
-        super.startPlay();
-        apiKeyDatasource = new ApiKeyDatasource();
-    }
-
     @Test
     public void returnsTheConfigAsEnabledIfTheApiKeyIsEnabled() {
         givenAnApiKey(API_KEY_VALUE, true);
-        Http.RequestBuilder requestBuilder = getConfig();
 
-        Result result = route(requestBuilder);
+        Result result = getConfig(API_KEY_VALUE);
 
         assertEquals(OK, result.status());
-        String expect = "{\"enabled\":\"true\"}";
+        String expect = "{\"enabled\":true}";
         assertEqualsString(expect, result);
     }
 
     @Test
     public void returnsTheConfigAsDisabledIfTheApiKeyIsDisabled() {
         givenAnApiKey(API_KEY_VALUE, false);
-        Http.RequestBuilder requestBuilder = getConfig();
 
-        Result result = route(requestBuilder);
+        Result result = getConfig(API_KEY_VALUE);
 
         assertEquals(OK, result.status());
-        String expect = "{\"enabled\":\"false\"}";
+        String expect = "{\"enabled\":false}";
         assertEqualsString(expect, result);
     }
 
     @Test
     public void returnsUnauthorizedIfThereIsNoApiKeyWithTheValueSpecified() {
-        givenAnApiKey(API_KEY_VALUE, false);
-        Http.RequestBuilder requestBuilder = getConfig();
-
-        Result result = route(requestBuilder);
+        Result result = getConfig(API_KEY_VALUE);
 
         assertEquals(UNAUTHORIZED, result.status());
     }
 
-    private Http.RequestBuilder getConfig() {
-        return fakeRequest("GET", "/config")
-                .header("X-Api-Key", API_KEY_VALUE)
+    private Result getConfig(String apiKey) {
+        Http.RequestBuilder requestBuilder = fakeRequest("GET", "/config")
+                .header("X-Api-Key", apiKey)
                 .header("Content-Type", "application/json");
+        return route(requestBuilder);
     }
 
     private void givenAnApiKey(String apiKeyValue, boolean enabled) {
-        ApiKey apiKey = apiKeyDatasource.create(apiKeyValue, enabled);
-        new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
+        ApiKey apiKey = new ApiKey();
+        apiKey.setValue(apiKeyValue);
+        apiKey.setEnabled(enabled);
+        when(apiKeyRepository.getApiKey(apiKeyValue)).thenReturn(apiKey);
     }
 
 }
