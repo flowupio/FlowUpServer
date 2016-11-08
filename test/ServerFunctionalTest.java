@@ -54,8 +54,8 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @After
     public void tearDown() {
-        apiKey.delete();
         organization.delete();
+        apiKey.delete();
     }
 
     @Override

@@ -46,7 +46,6 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
 
     @Captor
     private ArgumentCaptor<List<IndexRequest>> argument;
-    private Organization organization;
     private ApiKey apiKey;
     private ApiKeyDatasource apiKeyDatasource;
 
@@ -64,21 +63,13 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
         apiKeyDatasource = new ApiKeyDatasource();
     }
 
-    @After
-    @Override
-    public void stopPlay() {
-        organization.delete();
-        apiKey.delete();
-        super.stopPlay();
-    }
-
     private void setupDatabaseWithApiKey() {
         setupDatabaseWithApiKey(true);
     }
 
     private void setupDatabaseWithApiKey(boolean enabled) {
         this.apiKey = apiKeyDatasource.create(API_KEY_VALUE, enabled);
-        this.organization = new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
+        new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
     }
 
 

@@ -1,37 +1,25 @@
 package utils
 
-import org.junit.Before
+import org.junit.{After, Before}
 import play.api.db.evolutions.Evolutions
-import play.api.db.{Database, Databases}
+import play.api.db.Databases
 import play.test.WithApplication
 
 
 class WithFlowUpApplication extends WithApplication {
 
-  var database: Database = null
-
-  @Before
-  override def startPlay() = {
-    super.startPlay()
-    initDatabase()
-  }
-
-  @Before
+  @After
   override def stopPlay() = {
     cleanDatabase()
     super.stopPlay()
   }
 
-  private def initDatabase() = {
-    database = Databases("com.mysql.jdbc.Driver",
+  private def cleanDatabase(): Unit = {
+    val database = Databases("com.mysql.jdbc.Driver",
       "jdbc:mysql://localhost/flowupdb",
       "flowupdb",
       Map("user" -> "flowupUser",
         "password" -> "flowupPassword"))
-  }
-
-  private def cleanDatabase(): Unit = {
     Evolutions.cleanupEvolutions(database)
-    database.shutdown()
   }
 }

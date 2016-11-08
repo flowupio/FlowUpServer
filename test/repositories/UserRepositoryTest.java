@@ -32,7 +32,6 @@ public class UserRepositoryTest extends WithFlowUpApplication {
     @Mock
     private DashboardsClient dashboardsClient;
 
-
     @Override
     protected Application provideApplication() {
         CompletableFuture<GrafanaResponse> grafanaResponseCompletableFuture = CompletableFuture.completedFuture(mock(GrafanaResponse.class));
@@ -91,7 +90,6 @@ public class UserRepositoryTest extends WithFlowUpApplication {
     private UserRepository givenUserRepositoryWithOneOrganization(String name, String gooogleAccount) {
         OrganizationDatasource organizationDatasource = this.app.injector().instanceOf(OrganizationDatasource.class);
         organizationDatasource.create(name, gooogleAccount);
-
         return this.app.injector().instanceOf(UserRepository.class);
     }
 }
