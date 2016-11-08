@@ -2,9 +2,8 @@ package controllers;
 
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
-import datasources.database.ApiKeyDatasource;
+import repositories.ApiKeyRepository;
 import models.ApiKey;
-import play.cache.CacheApi;
 import play.libs.F;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
@@ -12,11 +11,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 import static play.libs.F.Either.Left;
 import static play.libs.F.Either.Right;
@@ -66,28 +62,17 @@ class ReportRequestBodyParser implements BodyParser<ReportRequest> {
 
 class HeaderParsers {
 
-    private static final int API_KEY_CACHE_TTL = (int) TimeUnit.HOURS.toSeconds(1);
-
-    private CacheApi cache;
-    private ApiKeyDatasource apiKeyDatasource;
+    private final ApiKeyRepository repository;
     static String X_API_KEY = "X-Api-Key";
 
     @Inject
-    HeaderParsers(CacheApi cache, ApiKeyDatasource apiKeyDatasource) {
-        this.cache = cache;
-        this.apiKeyDatasource = apiKeyDatasource;
-    }
-
-    @Nullable
-    private ApiKey getApiKey(String apiKey) {
-        return cache.getOrElse("apiKey.value." + apiKey,
-                () -> apiKeyDatasource.findByApiKeyValue(apiKey),
-                API_KEY_CACHE_TTL);
+    public HeaderParsers(ApiKeyRepository repository) {
+        this.repository = repository;
     }
 
     F.Either<Result, Http.RequestHeader> apply(Http.RequestHeader request) {
         String plainApiKey = request.getHeader(X_API_KEY);
-        ApiKey apiKey = getApiKey(plainApiKey);
+        ApiKey apiKey = repository.getApiKey(plainApiKey);
         boolean apiKeyIsValid = apiKey != null;
         boolean apiKeyIsEnabled = apiKeyIsValid && apiKey.isEnabled();
         if (apiKeyIsValid && apiKeyIsEnabled) {

@@ -17,5 +17,6 @@ public class WithFlowUpApplication extends WithApplication {
     private void cleanDatabase() {
         Database database = app.injector().instanceOf(Database.class);
         Evolutions.cleanupEvolutions(database);
+        database.shutdown();
     }
 }
