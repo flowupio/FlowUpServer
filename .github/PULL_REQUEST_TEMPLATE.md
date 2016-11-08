@@ -8,4 +8,6 @@ _Provide a description of the overall goal (you can usually copy the one from th
 
 ### How is it being implemented?
 
+- [ ] Access to I/O are done in Background using Play WS API or CompletableFuture.supplyAsync()
+
 _Provide a description of the implementation_
