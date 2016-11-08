@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-class ApplicationRepository {
+public class ApplicationRepository {
     private final ApiKeyDatasource apiKeyDatasource;
     private final ApplicationDatasource applicationDatasource;
     private final DashboardsClient dashboardsClient;
@@ -36,7 +36,7 @@ class ApplicationRepository {
         return "exist-" + apiKey + "-" + appPackage;
     }
 
-    CompletionStage<Application> create(String apiKeyValue, String appPackage) {
+    public CompletionStage<Application> create(String apiKeyValue, String appPackage) {
         ApiKey apiKey = apiKeyDatasource.findByApiKeyValue(apiKeyValue);
         if (apiKey == null) {
             return null;

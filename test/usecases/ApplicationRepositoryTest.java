@@ -2,7 +2,6 @@ package usecases;
 
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
 import datasources.grafana.DashboardsClient;
-import datasources.grafana.GrafanaResponse;
 import models.Application;
 import models.User;
 import org.jetbrains.annotations.NotNull;
@@ -36,12 +35,13 @@ public class ApplicationRepositoryTest extends WithApplication {
     @Mock
     private DashboardsClient dashboardsClient;
 
-
     @Override
     protected play.Application provideApplication() {
-        CompletableFuture<GrafanaResponse> grafanaResponseCompletableFuture = CompletableFuture.completedFuture(mock(GrafanaResponse.class));
-        when(dashboardsClient.createUser(any())).thenReturn(grafanaResponseCompletableFuture);
+        CompletableFuture<User> userCompletableFuture = CompletableFuture.completedFuture(mock(User.class));
+        when(dashboardsClient.createUser(any())).thenReturn(userCompletableFuture);
         when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, Application.class)));
+        when(dashboardsClient.addUserToOrganisation(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, Application.class)));
+        when(dashboardsClient.deleteUserInDefaultOrganisation(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, User.class)));
         when(dashboardsClient.createOrg(any())).then(invocation -> {
             Application application = invocation.getArgumentAt(0, Application.class);
             application.setGrafanaOrgId("2");
@@ -57,12 +57,12 @@ public class ApplicationRepositoryTest extends WithApplication {
 
 
     @Before
-    public void setupUserDatabase() {
+    public void setupUserDatabase() throws ExecutionException, InterruptedException {
         UserRepository userRepository = this.app.injector().instanceOf(UserRepository.class);
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getEmail()).thenReturn(JOHN_GMAIL_COM);
 
-        this.user = userRepository.create(authUser);
+        this.user = userRepository.create(authUser).toCompletableFuture().get();
     }
 
     @After

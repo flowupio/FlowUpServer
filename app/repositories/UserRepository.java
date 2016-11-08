@@ -5,17 +5,12 @@ import com.feth.play.module.pa.user.EmailIdentity;
 import datasources.database.OrganizationDatasource;
 import datasources.database.UserDatasource;
 import datasources.grafana.DashboardsClient;
-import models.Application;
-import models.LinkedAccount;
 import models.Organization;
 import models.User;
-import play.Logger;
 
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 
 public class UserRepository {
     private final UserDatasource userDatasource;
@@ -29,23 +24,24 @@ public class UserRepository {
         this.dashboardsClient = dashboardsClient;
     }
 
-    public User create(AuthUser authUser) {
+    public CompletionStage<User> create(AuthUser authUser) {
         boolean isActive = this.existsOrganizationByEmail(authUser);
         User user = userDatasource.create(authUser, isActive);
         Organization organization = findOrCreateOrganization(user);
         if (organization != null) {
             user = joinOrganization(user, organization);
         }
-        createGrafanaUser(user);
-        joinApplicationDashboards(user, organization);
-        return user;
+
+        return dashboardsClient.createUser(user).thenCompose(userWithGrafana -> {
+            return joinApplicationDashboards(userWithGrafana, organization);
+        });
     }
 
-    private void joinApplicationDashboards(User user, Organization organization) {
+    private CompletionStage<User> joinApplicationDashboards(User user, Organization organization) {
         organization.getApplications().forEach(application -> {
             dashboardsClient.addUserToOrganisation(user, application);
         });
-        dashboardsClient.deleteUserInDefaultOrganisation(user);
+        return dashboardsClient.deleteUserInDefaultOrganisation(user);
     }
 
 
@@ -90,15 +86,5 @@ public class UserRepository {
         user.setOrganizations(Collections.singletonList(organization));
         user.update();
         return user;
-    }
-
-    private void createGrafanaUser(User user) {
-        try {
-            dashboardsClient.createUser(user).toCompletableFuture().get();
-        } catch (InterruptedException e) {
-            Logger.debug(e.getMessage());
-        } catch (ExecutionException e) {
-            Logger.debug(e.getMessage());
-        }
     }
 }

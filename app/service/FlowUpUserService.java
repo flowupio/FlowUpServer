@@ -26,12 +26,24 @@ public class FlowUpUserService extends AbstractUserService {
         this.userRepository = userRepository;
     }
 
+    private Object createUserSync(AuthUser authUser) {
+        try {
+            User user = userRepository.create(authUser).toCompletableFuture().get();
+            return user.getId();
+        } catch (InterruptedException e) {
+            Logger.error(e.getMessage());
+            return null;
+        } catch (ExecutionException e) {
+            Logger.error(e.getMessage());
+            return null;
+        }
+    }
+
     @Override
     public Object save(AuthUser authUser) {
         final boolean isLinked = User.existsByAuthUserIdentity(authUser);
         if (!isLinked) {
-            User user = userRepository.create(authUser);
-            return user.getId();
+            return createUserSync(authUser);
         } else {
             // we have this user already, so return null
             return null;
