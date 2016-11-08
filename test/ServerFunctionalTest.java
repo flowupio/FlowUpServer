@@ -1,4 +1,4 @@
-import com.google.common.collect.ImmutableMap;
+
 import datasources.database.ApiKeyDatasource;
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.BulkItemResponse;
@@ -20,7 +20,6 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
-import play.test.Helpers;
 import play.test.WithServer;
 import utils.WithResources;
 
@@ -28,12 +27,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.zip.GZIPOutputStream;
 
-import static org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.verify;
@@ -54,6 +51,12 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
     public static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
     private ApiKey apiKey;
     private Organization organization;
+
+    @After
+    public void tearDown() {
+        apiKey.delete();
+        organization.delete();
+    }
 
     @Override
     protected Application provideApplication() {

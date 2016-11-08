@@ -4,24 +4,20 @@ import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUse
 import datasources.grafana.DashboardsClient;
 import datasources.grafana.GrafanaResponse;
 import models.Application;
-import models.Organization;
 import models.User;
 import org.jetbrains.annotations.NotNull;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.test.WithApplication;
 import repositories.UserRepository;
 import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.IsNot.not;

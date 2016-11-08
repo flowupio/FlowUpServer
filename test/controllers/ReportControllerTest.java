@@ -18,7 +18,6 @@ import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.test.WithApplication;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 

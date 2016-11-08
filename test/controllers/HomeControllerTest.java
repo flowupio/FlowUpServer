@@ -7,7 +7,6 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import play.test.WithApplication;
 import utils.WithFlowUpApplication;
 
 import java.util.Map;

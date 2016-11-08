@@ -6,15 +6,10 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Spy;
 import play.cache.CacheApi;
-import play.cache.DefaultCacheApi;
 import play.mvc.Http;
 import play.test.WithApplication;
 
-import javax.inject.Inject;
-
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -24,14 +19,16 @@ public class HeaderParsersTest extends WithApplication {
 
     private CacheApi cacheApi;
 
-    @Before public void startPlay() {
+    @Before
+    public void startPlay() {
         super.startPlay();
         cacheApi = app.injector().instanceOf(CacheApi.class);
         cacheApi = spy(cacheApi);
     }
 
-    @After public void stopPlay() {
-        cacheApi.remove("apiKey.value."+ API_KEY_VALUE);
+    @After
+    public void stopPlay() {
+        cacheApi.remove("apiKey.value." + API_KEY_VALUE);
         super.stopPlay();
     }
 

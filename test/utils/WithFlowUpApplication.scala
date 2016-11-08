@@ -1,5 +1,6 @@
 package utils
 
+import org.junit.Before
 import play.api.db.evolutions.Evolutions
 import play.api.db.{Database, Databases}
 import play.test.WithApplication
@@ -9,13 +10,15 @@ class WithFlowUpApplication extends WithApplication {
 
   var database: Database = null
 
-  override def startPlay(): Unit = {
+  @Before
+  override def startPlay() = {
     super.startPlay()
-    initDatabase();
+    initDatabase()
   }
 
-  override def stopPlay(): Unit = {
-    cleanDatabase();
+  @Before
+  override def stopPlay() = {
+    cleanDatabase()
     super.stopPlay()
   }
 
@@ -29,5 +32,6 @@ class WithFlowUpApplication extends WithApplication {
 
   private def cleanDatabase(): Unit = {
     Evolutions.cleanupEvolutions(database)
+    database.shutdown()
   }
 }
