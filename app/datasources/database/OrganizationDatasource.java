@@ -3,17 +3,18 @@ package datasources.database;
 import com.avaje.ebean.ExpressionList;
 import models.ApiKey;
 import models.Organization;
+import repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
 
 public class OrganizationDatasource {
-    private final ApiKeyDatasource apiKeyDatasource;
+
+    private final ApiKeyRepository apiKeyRepository;
 
     @Inject
-    public OrganizationDatasource(ApiKeyDatasource apiKeyDatasource) {
-        this.apiKeyDatasource = apiKeyDatasource;
+    public OrganizationDatasource(ApiKeyRepository apiKeyRepository) {
+        this.apiKeyRepository = apiKeyRepository;
     }
-
 
     public Organization findByGoogleAccount(String googleAccount) {
         return getGoogleAccountUserFind(googleAccount).findUnique();
@@ -28,7 +29,7 @@ public class OrganizationDatasource {
     }
 
     public Organization create(String name, String googleAccount) {
-        return create(name, googleAccount, apiKeyDatasource.create());
+        return create(name, googleAccount, apiKeyRepository.create());
     }
 
     public Organization create(String name, String googleAccount, ApiKey apiKey) {

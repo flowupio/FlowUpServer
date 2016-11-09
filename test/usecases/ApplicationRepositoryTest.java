@@ -5,15 +5,15 @@ import datasources.grafana.DashboardsClient;
 import models.Application;
 import models.User;
 import org.jetbrains.annotations.NotNull;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.test.WithApplication;
 import repositories.UserRepository;
+import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApplicationRepositoryTest extends WithApplication {
+public class ApplicationRepositoryTest extends WithFlowUpApplication {
 
     private static final String JOHN_GMAIL_COM = "john@gmail.com";
     private User user;
@@ -37,8 +37,13 @@ public class ApplicationRepositoryTest extends WithApplication {
 
     @Override
     protected play.Application provideApplication() {
-        CompletableFuture<User> userCompletableFuture = CompletableFuture.completedFuture(mock(User.class));
-        when(dashboardsClient.createUser(any())).thenReturn(userCompletableFuture);
+        when(dashboardsClient.createUser(any())).then(invocation -> {
+            User user = invocation.getArgumentAt(0, User.class);
+            user.setGrafanaUserId("2");
+            user.setGrafanaPassword("GrafanaPassword");
+            user.save();
+            return CompletableFuture.completedFuture(user);
+        });
         when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, Application.class)));
         when(dashboardsClient.addUserToOrganisation(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, Application.class)));
         when(dashboardsClient.deleteUserInDefaultOrganisation(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, User.class)));
@@ -56,18 +61,18 @@ public class ApplicationRepositoryTest extends WithApplication {
     }
 
 
+    @Override
     @Before
-    public void setupUserDatabase() throws ExecutionException, InterruptedException {
+    public void startPlay() {
+        super.startPlay();
         UserRepository userRepository = this.app.injector().instanceOf(UserRepository.class);
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getEmail()).thenReturn(JOHN_GMAIL_COM);
-
-        this.user = userRepository.create(authUser).toCompletableFuture().get();
-    }
-
-    @After
-    public void cleanupDatabase() {
-        User.findByEmail("john@gmail.com").delete();
+        try {
+            this.user = userRepository.create(authUser).toCompletableFuture().get();
+        } catch (InterruptedException | ExecutionException e) {
+            this.user = null;
+        }
     }
 
     @Test

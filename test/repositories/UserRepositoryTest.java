@@ -4,7 +4,6 @@ import com.avaje.ebean.Model;
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
 import datasources.database.OrganizationDatasource;
 import datasources.grafana.DashboardsClient;
-import datasources.grafana.GrafanaResponse;
 import models.Organization;
 import models.User;
 import org.jetbrains.annotations.NotNull;
@@ -14,8 +13,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.test.WithApplication;
 import usecases.ApplicationRepository;
+import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -28,17 +27,23 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserRepositoryTest extends WithApplication {
+public class UserRepositoryTest extends WithFlowUpApplication {
 
     @Mock
     private DashboardsClient dashboardsClient;
 
-
     @Override
     protected Application provideApplication() {
-        CompletableFuture<User> userCompletableFuture = CompletableFuture.completedFuture(mock(User.class));
-        when(dashboardsClient.createUser(any())).thenReturn(userCompletableFuture);
+        when(dashboardsClient.createUser(any())).then(invocation -> {
+            User user = invocation.getArgumentAt(0, User.class);
+            user.setGrafanaUserId("2");
+            user.setGrafanaPassword("GrafanaPassword");
+            user.save();
+            return CompletableFuture.completedFuture(user);
+        });
         when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, models.Application.class)));
+        when(dashboardsClient.addUserToOrganisation(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, models.Application.class)));
+        when(dashboardsClient.deleteUserInDefaultOrganisation(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, User.class)));
         when(dashboardsClient.createOrg(any())).then(invocation -> {
             models.Application application = invocation.getArgumentAt(0, models.Application.class);
             application.setGrafanaOrgId("2");
@@ -113,7 +118,6 @@ public class UserRepositoryTest extends WithApplication {
     private UserRepository givenUserRepositoryWithOneOrganization(String name, String gooogleAccount) {
         OrganizationDatasource organizationDatasource = this.app.injector().instanceOf(OrganizationDatasource.class);
         organizationDatasource.create(name, gooogleAccount);
-
         return this.app.injector().instanceOf(UserRepository.class);
     }
 

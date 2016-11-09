@@ -10,9 +10,4 @@ create table application (
 
 # --- !Downs
 
-alter table application drop foreign key fk_application_organization_id;
-drop index ix_application_organization_id on application;
-
 drop table if exists application;
-
-drop index ix_application_app_package on application;

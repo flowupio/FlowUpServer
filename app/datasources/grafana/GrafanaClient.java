@@ -76,13 +76,11 @@ public class GrafanaClient implements DashboardsClient {
                 .put("email", user.getEmail())
                 .put("password", grafanaPassword);
 
-        UUID userId = user.getId();
-
         Logger.debug(userRequest.toString());
 
         return post(API_ADMIN_USERS, userRequest).thenApply(response -> {
             if (response.getStatus() == Http.Status.OK) {
-                return updateUserWithGrafanaInfo(grafanaPassword, userId, response);
+                return updateUserWithGrafanaInfo(grafanaPassword, user, response);
             }
             return user;
         });
@@ -153,14 +151,11 @@ public class GrafanaClient implements DashboardsClient {
         return application;
     }
 
-    private User updateUserWithGrafanaInfo(String grafanaPassword, UUID userId, GrafanaResponse response) {
+    private User updateUserWithGrafanaInfo(String grafanaPassword, User user, GrafanaResponse response) {
         String id = response.getAdditionalProperties().get("id").toString();
-        User user = User.find.byId(userId);
-        if (user != null) {
-            user.setGrafanaUserId(id);
-            user.setGrafanaPassword(grafanaPassword);
-            user.save();
-        }
+        user.setGrafanaUserId(id);
+        user.setGrafanaPassword(grafanaPassword);
+        user.save();
         return user;
     }
 

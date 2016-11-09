@@ -16,15 +16,6 @@ import static org.junit.Assert.assertTrue;
 
 public class IntegrationTest extends WithBrowser {
 
-    @Override
-    protected Application provideApplication() {
-        return new GuiceApplicationBuilder()
-                .configure((Map) Helpers.inMemoryDatabase("default", ImmutableMap.of(
-                        "MODE", "MYSQL"
-                )))
-                .build();
-    }
-
     @Test
     public void testLogin() {
         browser.goTo("/login");
