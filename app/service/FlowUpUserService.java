@@ -30,10 +30,7 @@ public class FlowUpUserService extends AbstractUserService {
         try {
             User user = userRepository.create(authUser).toCompletableFuture().get();
             return user.getId();
-        } catch (InterruptedException e) {
-            Logger.error(e.getMessage());
-            return null;
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             Logger.error(e.getMessage());
             return null;
         }
