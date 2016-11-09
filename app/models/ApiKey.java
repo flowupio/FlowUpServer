@@ -7,13 +7,15 @@ import play.data.validation.Constraints;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 public class ApiKey extends Model {
 
     @Id
-    private UUID id;
+    private String id;
 
     @Constraints.Required
     @Index
@@ -24,13 +26,18 @@ public class ApiKey extends Model {
 
     private boolean enabled;
 
+    private int numberOfAllowedUUIDs;
+
+    @OneToOne(mappedBy = "apiKey")
+    private List<UUID> allowedUUIDs;
+
     public static Finder<UUID, ApiKey> find = new Finder<>(ApiKey.class);
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -56,5 +63,24 @@ public class ApiKey extends Model {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public int getNumberOfAllowedUUIDs() {
+        return numberOfAllowedUUIDs;
+    }
+
+    public void setNumberOfAllowedUUIDs(int numberOfAllowedUUIDs) {
+        this.numberOfAllowedUUIDs = numberOfAllowedUUIDs;
+    }
+
+    public List<UUID> getAllowedUUIDs() {
+        if (allowedUUIDs == null) {
+            allowedUUIDs = Collections.emptyList();
+        }
+        return allowedUUIDs;
+    }
+
+    public void setAllowedUUIDs(List<UUID> allowedUUIDs) {
+        this.allowedUUIDs = allowedUUIDs;
     }
 }
