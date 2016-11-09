@@ -1,4 +1,4 @@
-package repositories;
+package usecases.repositories;
 
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.EmailIdentity;

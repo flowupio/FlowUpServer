@@ -1,6 +1,5 @@
 package controllers;
 
-import datasources.database.ApiKeyDatasource;
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;
 import models.ApiKey;
@@ -16,7 +15,7 @@ import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.ApiKeyRepository;
+import usecases.repositories.ApiKeyRepository;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 

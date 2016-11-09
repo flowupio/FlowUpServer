@@ -22,7 +22,7 @@ import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.test.WithServer;
-import repositories.ApiKeyRepository;
+import usecases.repositories.ApiKeyRepository;
 import utils.WithResources;
 
 import java.io.ByteArrayInputStream;

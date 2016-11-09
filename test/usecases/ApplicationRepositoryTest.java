@@ -6,13 +6,12 @@ import models.Application;
 import models.User;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.guice.GuiceApplicationBuilder;
-import repositories.UserRepository;
+import usecases.repositories.UserRepository;
 import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;

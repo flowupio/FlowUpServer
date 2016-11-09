@@ -1,4 +1,4 @@
-package repositories;
+package usecases.repositories;
 
 import com.avaje.ebean.Model;
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
