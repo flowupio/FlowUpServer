@@ -16,11 +16,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
+import play.cache.CacheApi;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.test.WithServer;
+import repositories.ApiKeyRepository;
 import utils.WithResources;
 
 import java.io.ByteArrayInputStream;
@@ -69,9 +71,9 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Before
     public void setupDatabaseWithApiKey() {
-        ApiKeyDatasource apiKeyDatasource = new ApiKeyDatasource();
-        this.apiKey = apiKeyDatasource.create(API_KEY_VALUE);
-        this.organization = new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
+        ApiKeyRepository apiKeyRepository = new ApiKeyRepository(app.injector().instanceOf(CacheApi.class), new ApiKeyDatasource());
+        this.apiKey = apiKeyRepository.create(API_KEY_VALUE);
+        this.organization = new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey);
     }
 
     private void setupElasticsearchClient() {

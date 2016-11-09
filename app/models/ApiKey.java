@@ -22,7 +22,7 @@ public class ApiKey extends Model {
     @OneToOne(mappedBy = "apiKey")
     private Organization organization;
 
-    private boolean enabled = true;
+    private boolean enabled;
 
     public static Finder<UUID, ApiKey> find = new Finder<>(ApiKey.class);
 

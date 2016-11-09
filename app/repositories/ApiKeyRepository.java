@@ -6,6 +6,7 @@ import play.cache.CacheApi;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.concurrent.TimeUnit;
 
 public class ApiKeyRepository {
@@ -22,11 +23,34 @@ public class ApiKeyRepository {
         this.apiKeyDatasource = apiKeyDatasource;
     }
 
+    @NotNull
+    public ApiKey create() {
+        ApiKey apiKey = apiKeyDatasource.create();
+        updateApiKeyCache(apiKey);
+        return apiKey;
+    }
+
+    @NotNull
+    public ApiKey create(String value) {
+        return create(value, true);
+    }
+
+    @NotNull
+    public ApiKey create(String value, boolean enabled) {
+        ApiKey apiKey = apiKeyDatasource.create(value, enabled);
+        updateApiKeyCache(apiKey);
+        return apiKey;
+    }
+
     @Nullable
     public ApiKey getApiKey(String apiKey) {
         return cache.getOrElse(API_KEY_CACHE_KEY + apiKey,
                 () -> apiKeyDatasource.findByApiKeyValue(apiKey),
                 API_KEY_CACHE_TTL);
+    }
+
+    private void updateApiKeyCache(ApiKey apiKey) {
+        cache.set(API_KEY_CACHE_KEY + apiKey, API_KEY_CACHE_TTL);
     }
 
 }

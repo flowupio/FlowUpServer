@@ -21,9 +21,9 @@ class ApiKeySecured extends Security.Authenticator {
 
     @Override
     public String getUsername(Http.Context ctx) {
-        Option<String> apiKeyHeaderValue = ctx._requestHeader().headers().get(X_API_KEY);
-        if (apiKeyHeaderValue.isDefined()) {
-            ApiKey apiKey = repository.getApiKey(apiKeyHeaderValue.get());
+        String apiKeyHeaderValue = ctx.request().getHeader(X_API_KEY);
+        if (apiKeyHeaderValue != null) {
+            ApiKey apiKey = repository.getApiKey(apiKeyHeaderValue);
             return apiKey == null ? null : apiKey.getValue();
         } else {
             return null;

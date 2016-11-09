@@ -4,8 +4,6 @@ import datasources.database.ApiKeyDatasource;
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;
 import models.ApiKey;
-import models.Organization;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,6 +16,7 @@ import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
+import repositories.ApiKeyRepository;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 
@@ -46,7 +45,7 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
 
     @Captor
     private ArgumentCaptor<List<IndexRequest>> argument;
-    private ApiKeyDatasource apiKeyDatasource;
+    private ApiKeyRepository apiKeyRepository;
 
     @Override
     protected Application provideApplication() {
@@ -59,7 +58,7 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
     @Override
     public void startPlay() {
         super.startPlay();
-        apiKeyDatasource = new ApiKeyDatasource();
+        apiKeyRepository = app.injector().instanceOf(ApiKeyRepository.class);
     }
 
     private void setupDatabaseWithApiKey() {
@@ -67,8 +66,8 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
     }
 
     private void setupDatabaseWithApiKey(boolean enabled) {
-        ApiKey apiKey = apiKeyDatasource.create(API_KEY_VALUE, enabled);
-        new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
+        ApiKey apiKey = apiKeyRepository.create(API_KEY_VALUE, enabled);
+        new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey);
     }
 
 
