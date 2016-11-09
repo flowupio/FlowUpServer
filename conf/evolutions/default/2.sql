@@ -11,6 +11,6 @@ create index ix_api_key_value on api_key (value);
 
 # --- !Downs
 
-drop index ix_api_key_value on api_key;
-
 drop table if exists api_key;
+
+drop index ix_api_key_value on api_key;
