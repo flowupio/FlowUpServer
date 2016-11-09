@@ -15,6 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.test.WithApplication;
+import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -26,11 +27,10 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserRepositoryTest extends WithApplication {
+public class UserRepositoryTest extends WithFlowUpApplication {
 
     @Mock
     private DashboardsClient dashboardsClient;
-
 
     @Override
     protected Application provideApplication() {
@@ -90,7 +90,6 @@ public class UserRepositoryTest extends WithApplication {
     private UserRepository givenUserRepositoryWithOneOrganization(String name, String gooogleAccount) {
         OrganizationDatasource organizationDatasource = this.app.injector().instanceOf(OrganizationDatasource.class);
         organizationDatasource.create(name, gooogleAccount);
-
         return this.app.injector().instanceOf(UserRepository.class);
     }
 }

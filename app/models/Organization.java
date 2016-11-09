@@ -27,6 +27,10 @@ public class Organization extends Model {
 
     public static Model.Finder<UUID, Organization> find = new Model.Finder<>(Organization.class);
 
+    public static List<Organization> findByName(String name) {
+        return find.where().eq("name", name).findList();
+    }
+
     public UUID getId() {
         return id;
     }
@@ -74,4 +78,5 @@ public class Organization extends Model {
     public void setApplications(List<Application> applications) {
         this.applications = applications;
     }
+
 }

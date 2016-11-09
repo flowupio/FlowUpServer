@@ -6,15 +6,15 @@ import datasources.grafana.GrafanaResponse;
 import models.Application;
 import models.User;
 import org.jetbrains.annotations.NotNull;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.test.WithApplication;
 import repositories.UserRepository;
+import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -29,13 +29,12 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApplicationRepositoryTest extends WithApplication {
+public class ApplicationRepositoryTest extends WithFlowUpApplication {
 
     private static final String JOHN_GMAIL_COM = "john@gmail.com";
     private User user;
     @Mock
     private DashboardsClient dashboardsClient;
-
 
     @Override
     protected play.Application provideApplication() {
@@ -57,17 +56,13 @@ public class ApplicationRepositoryTest extends WithApplication {
 
 
     @Before
-    public void setupUserDatabase() {
+    @Override
+    public void startPlay() {
+        super.startPlay();
         UserRepository userRepository = this.app.injector().instanceOf(UserRepository.class);
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getEmail()).thenReturn(JOHN_GMAIL_COM);
-
         this.user = userRepository.create(authUser);
-    }
-
-    @After
-    public void cleanupDatabase() {
-        User.findByEmail("john@gmail.com").delete();
     }
 
     @Test
