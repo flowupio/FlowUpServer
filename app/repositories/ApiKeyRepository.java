@@ -50,7 +50,6 @@ public class ApiKeyRepository {
     }
 
     private void updateApiKeyCache(ApiKey apiKey) {
-        cache.set(API_KEY_CACHE_KEY + apiKey, API_KEY_CACHE_TTL);
+        cache.set(API_KEY_CACHE_KEY + apiKey, apiKey, API_KEY_CACHE_TTL);
     }
-
 }
