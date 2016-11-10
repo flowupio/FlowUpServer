@@ -34,7 +34,7 @@ public class ApiKeyDatasource {
     }
 
     public ApiKey addAllowedUUID(ApiKey apiKey, String uuid) {
-        AllowedUUID allowedUUID = new AllowedUUID(UUID.fromString(uuid));
+        AllowedUUID allowedUUID = new AllowedUUID(uuid);
         allowedUUID.save();
         apiKey.getAllowedUUIDs().add(allowedUUID);
         apiKey.update();

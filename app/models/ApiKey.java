@@ -81,6 +81,10 @@ public class ApiKey extends Model {
         return allowedUUIDs;
     }
 
+    public void setAllowedUUIDs(List<AllowedUUID> allowedUUIDs) {
+        this.allowedUUIDs = allowedUUIDs;
+    }
+
     public boolean containsAllowedUUID(String uuid) {
         return allowedUUIDs.stream()
                 .filter(allowedUUID -> allowedUUID.getId().equals(uuid))
