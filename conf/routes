@@ -6,9 +6,10 @@
 GET     /health                     controllers.HomeController.health
 
 # User Website
-GET     /                           controllers.HomeController.index
-GET     /command-center             controllers.CommandCenterController.index
-GET     /command-center/grafana     controllers.CommandCenterController.grafana
+GET     /                                   controllers.HomeController.index
+GET     /command-center                     controllers.CommandCenterController.index
+GET     /command-center/application/:id     controllers.CommandCenterController.application(id)
+GET     /command-center/grafana             controllers.CommandCenterController.grafana
 
 # Admin Website
 GET     /admin/                       controllers.admin.UserController.index()

@@ -1,4 +1,5 @@
-@(user: models.User = null)
+@import java.util
+@(user: models.User, applications: util.List[models.Application])
 
 <div class="col-sm-3 sidebar">
     <nav class="sidebar-nav">
@@ -18,9 +19,15 @@
                 <li >
                     <a href="#">Overview</a>
                 </li>
-                <li >
-                    <a href="@controllers.routes.CommandCenterController.grafana()">Dashboard</a>
-                </li>
+                @if(!applications.isEmpty) {
+                    <li>
+                        <a href="@controllers.routes.CommandCenterController.grafana()">Dashboards</a>
+                    </li>
+
+                    @for(appplication <- applications) {
+                        <li><a href="@controllers.routes.CommandCenterController.application(appplication.getId.toString)">@appplication.getAppPackage</a></li>
+                    }
+                }
 
                 <li class="nav-header">More</li>
                 <li >
