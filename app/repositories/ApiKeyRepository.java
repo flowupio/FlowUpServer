@@ -49,6 +49,11 @@ public class ApiKeyRepository {
                 API_KEY_CACHE_TTL);
     }
 
+    public void addAllowedUUID(ApiKey apiKey, String uuid) {
+        apiKey = apiKeyDatasource.addAllowedUUID(apiKey, uuid);
+        updateApiKeyCache(apiKey);
+    }
+
     private void updateApiKeyCache(ApiKey apiKey) {
         cache.set(API_KEY_CACHE_KEY + apiKey, apiKey, API_KEY_CACHE_TTL);
     }

@@ -16,6 +16,10 @@ public class AllowedUUID extends Model {
     @CreatedTimestamp
     private Timestamp createdAt;
 
+    public AllowedUUID(UUID id) {
+        this.id = id;
+    }
+
     public UUID getId() {
         return id;
     }

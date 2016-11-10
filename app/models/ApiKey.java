@@ -10,6 +10,7 @@ import javax.persistence.OneToOne;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 @Entity
 public class ApiKey extends Model {
@@ -80,7 +81,9 @@ public class ApiKey extends Model {
         return allowedUUIDs;
     }
 
-    public void setAllowedUUIDs(List<AllowedUUID> allowedUUIDs) {
-        this.allowedUUIDs = allowedUUIDs;
+    public boolean containsAllowedUUID(String uuid) {
+        return allowedUUIDs.stream()
+                .filter(allowedUUID -> allowedUUID.getId().equals(uuid))
+                .count() > 0;
     }
 }

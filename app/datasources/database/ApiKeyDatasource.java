@@ -1,5 +1,6 @@
 package datasources.database;
 
+import models.AllowedUUID;
 import models.ApiKey;
 
 import java.util.UUID;
@@ -30,5 +31,13 @@ public class ApiKeyDatasource {
     public boolean delete(String apiKeyValue) {
         ApiKey apiKey = findByApiKeyValue(apiKeyValue);
         return apiKey != null && apiKey.delete();
+    }
+
+    public ApiKey addAllowedUUID(ApiKey apiKey, String uuid) {
+        AllowedUUID allowedUUID = new AllowedUUID(UUID.fromString(uuid));
+        allowedUUID.save();
+        apiKey.getAllowedUUIDs().add(allowedUUID);
+        apiKey.update();
+        return apiKey;
     }
 }

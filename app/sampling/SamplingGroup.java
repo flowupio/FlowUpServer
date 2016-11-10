@@ -6,7 +6,6 @@ import repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.UUID;
 
 public class SamplingGroup {
 
@@ -28,17 +27,17 @@ public class SamplingGroup {
         if (uuid == null) {
             return true;
         }
-        return isInSamplingGroup(apiKey);
+        return isInSamplingGroup(apiKey, uuid);
     }
 
-    private boolean isInSamplingGroup(ApiKey apiKey) {
+    private boolean isInSamplingGroup(ApiKey apiKey, String uuid) {
         if (!apiKey.isEnabled()) {
             return false;
         }
         if (hasExceededTheNumberOfAllowedUUIDs(apiKey)) {
-            return false;
+            return apiKey.containsAllowedUUID(uuid);
         } else {
-            //TODO: Insert allowed uuid.
+            apiKeyRepository.addAllowedUUID(apiKey, uuid);
             return true;
         }
     }
