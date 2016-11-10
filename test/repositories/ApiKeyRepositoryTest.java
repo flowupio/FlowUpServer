@@ -91,7 +91,6 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         verify(cache).remove("apiKey.todayAllowedUUIDCount." + apiKey.getId());
     }
 
-
     @Test
     public void flushesTheAllowedUUIDsWithTheNewValue() {
         ApiKey apiKey = givenAnApiKey();
@@ -125,11 +124,6 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         }).count();
         assertEquals(2, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
         assertEquals(2, numberOfAllowedUUIDs);
-    }
-
-    @Test
-    public void addsTheUUIDToTheList() {
-
     }
 
     private void givenTodayIsYesterday() {

@@ -19,9 +19,9 @@ public class SamplingGroup {
         if (apiKey == null) {
             return false;
         }
-        //The Android SDK 0.1.3 or younger versions does not
+        // The Android SDK 0.1.3 or younger versions does not
         // send the UUID as part of the header. This is
-        //because the sampling was implemented in client side.
+        // because the sampling was implemented in client side.
         if (uuid == null) {
             return true;
         }
