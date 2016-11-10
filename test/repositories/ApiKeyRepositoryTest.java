@@ -18,13 +18,11 @@ import utils.WithFlowUpApplication;
 
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
@@ -40,7 +38,7 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     private UUID apiKeyId;
     @Mock
     private Time time = new Time();
-    Time defaultTime = new Time();
+    private Time defaultTime = new Time();
 
     @Before
     @Override
@@ -80,24 +78,6 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         ApiKey apiKey = apiKeyRepository.getApiKey(originalApiKey.getValue());
 
         assertTrue(apiKeyRepository.containsAllowedUUID(apiKey, ANY_UUID));
-    }
-
-    @Test
-    public void flushesTheCachedApiKeyAllowedUUIDCounterWithTheNewValue() {
-        ApiKey apiKey = givenAnApiKey();
-
-        apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
-
-        verify(cache).remove("apiKey.todayAllowedUUIDCount." + apiKey.getId());
-    }
-
-    @Test
-    public void flushesTheAllowedUUIDsWithTheNewValue() {
-        ApiKey apiKey = givenAnApiKey();
-
-        apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
-
-        verify(cache).remove("allowedUUIDs." + apiKey.getId());
     }
 
     @Test
