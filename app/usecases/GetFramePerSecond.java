@@ -1,7 +1,6 @@
 package usecases;
 
 import datasources.elasticsearch.ElasticSearchDatasource;
-import datasources.elasticsearch.MSearchResponse;
 import models.Application;
 
 import javax.inject.Inject;
@@ -15,7 +14,7 @@ public class GetFramePerSecond {
         this.elasticSearchDatasource = elasticSearchDatasource;
     }
 
-    public CompletionStage<MSearchResponse> execute(Application application) {
+    public CompletionStage<LineChart> execute(Application application) {
         return elasticSearchDatasource.singleStat(application);
     }
 }

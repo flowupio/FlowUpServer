@@ -31,7 +31,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         List<IndexRequest> indexRequestList = new ArrayList<>();
         populateIndexRequest(report, indexRequestList);
 
-        return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processResponse);
+        return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processBulkResponse);
     }
 
     private ObjectNode mapSource(DataPoint datapoint) {
@@ -86,7 +86,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         });
     }
 
-    private InsertResult processResponse(BulkResponse bulkResponse) {
+    private InsertResult processBulkResponse(BulkResponse bulkResponse) {
         List<InsertResult.MetricResult> items = new ArrayList<>();
         for (BulkItemResponse item : bulkResponse.getItems()) {
             String name = item.getIndex().replace(STATSD, "");
@@ -94,7 +94,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
             int successful;
             if (shardInfo != null) {
                 successful = shardInfo.getSuccessful();
-            } else  {
+            } else {
                 successful = 0;
             }
             items.add(new InsertResult.MetricResult(name, successful));
@@ -103,14 +103,27 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
     }
 
-    public CompletionStage<MSearchResponse> singleStat(Application application) {
+    public CompletionStage<LineChart> singleStat(Application application) {
         long gteEpochMillis = 1478386800000L;
         long lteEpochMillis = 1478773156290L;
         String field = "FramesPerSecond.p10";
 
         SearchQuery searchQuery = prepareSearchQuery(application, gteEpochMillis, lteEpochMillis, field);
 
-        return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery));
+        return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchResponse);
+    }
+
+    private LineChart processMSearchResponse(MSearchResponse mSearchResponse) {
+        List<String> keys = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+        for (SearchResponse searchResponse : mSearchResponse.getResponses()) {
+            for (JsonNode bucket : searchResponse.getAggregations().get("2").get("buckets")) {
+                keys.add(bucket.get("key_as_string").asText());
+                values.add(bucket.get("key").asDouble());
+            }
+        }
+
+        return new LineChart(keys, values);
     }
 
     @NotNull

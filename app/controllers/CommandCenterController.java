@@ -3,6 +3,7 @@ package controllers;
 import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.user.AuthUser;
 import datasources.grafana.GrafanaProxy;
+import lombok.Data;
 import models.Application;
 import models.Organization;
 import models.User;
@@ -19,6 +20,7 @@ import views.html.commandcenter.application;
 
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
@@ -56,8 +58,8 @@ public class CommandCenterController extends Controller {
         Organization organization = getPrimaryOrganization.execute(user);
 
         Application applicationModel = getApplicationById.execute(UUID.fromString(applicationUUID));
-        return getFramePerSecond.execute(applicationModel).thenApply(mSearchResponse -> {
-            return ok(application.render(user, applicationModel, organization.getApplications()));
+        return getFramePerSecond.execute(applicationModel).thenApply(lineChart -> {
+            return ok(application.render(user, applicationModel, organization.getApplications(), lineChart));
         });
     }
 
@@ -68,6 +70,4 @@ public class CommandCenterController extends Controller {
             return redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()]));
         });
     }
-
-    
 }

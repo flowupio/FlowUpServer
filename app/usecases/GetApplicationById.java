@@ -1,6 +1,7 @@
 package usecases;
 
 import models.Application;
+import usecases.repositories.ApplicationRepository;
 
 import javax.inject.Inject;
 import java.util.UUID;

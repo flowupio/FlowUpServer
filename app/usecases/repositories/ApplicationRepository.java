@@ -68,7 +68,7 @@ public class ApplicationRepository {
         return CompletableFuture.allOf(completionStages);
     }
 
-    Application findById(UUID id) {
+    public Application findById(UUID id) {
         return Application.find.byId(id);
     }
 }
