@@ -9,12 +9,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import repositories.ApiKeyRepository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,12 +34,23 @@ public class SamplingGroupTest {
     }
 
     @Test
-    public void returnsIsNotInTheSamplingGroupIfItIsFull() {
-        givenAnApiKeyFullOfUsers(ANY_API_KEY);
+    public void returnsIsNotInTheSamplingGroupIfItIsFullAndDoesNotContainsTheUUID() {
+        ApiKey apiKey = givenAnApiKeyFullOfUsers(ANY_API_KEY);
+        givenTheUUIDIsNotInTheGroup(apiKey, ANY_UUID);
 
         boolean isUUIDIn = samplingGroup.isIn(ANY_API_KEY, ANY_UUID);
 
         assertFalse(isUUIDIn);
+    }
+
+    @Test
+    public void returnsIsInTheSamplingGroupIfItIsFullAndContainsTheUUID() {
+        ApiKey apiKey = givenAnApiKeyFullOfUsers(ANY_API_KEY);
+        givenTheUUIDIsInTheGroup(apiKey, ANY_UUID);
+
+        boolean isUUIDIn = samplingGroup.isIn(ANY_API_KEY, ANY_UUID);
+
+        assertTrue(isUUIDIn);
     }
 
     @Test
@@ -80,34 +90,48 @@ public class SamplingGroupTest {
     }
 
     private ApiKey givenAnApiKeyWithSpaceInTheSamplingGroup(String anyApiKey) {
-        return givenAnApiKey(true, anyApiKey, Collections.emptyList());
+        return givenAnApiKey(true, anyApiKey, Collections.emptySet());
     }
 
     private ApiKey givenADisabledApiKey(String anyApiKey) {
-        return givenAnApiKey(false, anyApiKey, Collections.emptyList());
+        return givenAnApiKey(false, anyApiKey, Collections.emptySet());
     }
 
     private ApiKey givenAnApiKeyWithAllowedUUIDs(String apiKey, String uuid) {
-        AllowedUUID allowedUUID = new AllowedUUID(uuid);
-        List<AllowedUUID> allowedUuids = Collections.singletonList(allowedUUID);
+        AllowedUUID allowedUUID = new AllowedUUID();
+        allowedUUID.setInstallationUUID(uuid);
+        Set<AllowedUUID> allowedUuids = new HashSet();
+        allowedUuids.add(allowedUUID);
         return givenAnApiKey(true, apiKey, allowedUuids);
     }
 
     private ApiKey givenAnApiKeyFullOfUsers(String apiKeyValue) {
-        List<AllowedUUID> allowedUuids = new ArrayList<>(ANY_NUMBER_OF_ALLOWED_UUID);
+        Set<AllowedUUID> allowedUuids = new HashSet<>();
+        UUID uuidId = UUID.randomUUID();
         for (int i = 0; i < ANY_NUMBER_OF_ALLOWED_UUID; i++) {
-            AllowedUUID allowedUUID = new AllowedUUID(String.valueOf(i));
+            AllowedUUID allowedUUID = new AllowedUUID();
+            allowedUUID.setId(uuidId);
+            allowedUUID.setInstallationUUID(String.valueOf(i));
             allowedUuids.add(allowedUUID);
         }
+        when(apiKeyRepository.getTodayAllowedUUIDCount(any(ApiKey.class))).thenReturn(ANY_NUMBER_OF_ALLOWED_UUID);
         return givenAnApiKey(true, apiKeyValue, allowedUuids);
     }
 
-    private ApiKey givenAnApiKey(boolean enabled, String apiKeyValue, List<AllowedUUID> allowedUuids) {
+    private ApiKey givenAnApiKey(boolean enabled, String apiKeyValue, Set<AllowedUUID> allowedUuids) {
         ApiKey apiKey = new ApiKey();
         apiKey.setEnabled(enabled);
         apiKey.setNumberOfAllowedUUIDs(ANY_NUMBER_OF_ALLOWED_UUID);
-        apiKey.setAllowedUUIDs(allowedUuids);
         when(apiKeyRepository.getApiKey(apiKeyValue)).thenReturn(apiKey);
+        when(apiKeyRepository.getTodayAllowedUUIDS(apiKey)).thenReturn(allowedUuids);
         return apiKey;
+    }
+
+    private void givenTheUUIDIsNotInTheGroup(ApiKey apiKey, String uuid) {
+        when(apiKeyRepository.containsAllowedUUID(apiKey, uuid)).thenReturn(false);
+    }
+
+    private void givenTheUUIDIsInTheGroup(ApiKey apiKey, String uuid) {
+        when(apiKeyRepository.containsAllowedUUID(apiKey, uuid)).thenReturn(true);
     }
 }

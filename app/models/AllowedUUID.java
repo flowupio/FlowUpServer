@@ -2,33 +2,57 @@ package models;
 
 import com.avaje.ebean.Model;
 import com.avaje.ebean.annotation.CreatedTimestamp;
+import play.data.validation.Constraints;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
 public class AllowedUUID extends Model {
 
+    public static Finder<UUID, AllowedUUID> find = new Finder<>(AllowedUUID.class);
+
     @Id
-    private String id;
+    private UUID id;
+    private String installationUUID;
     @CreatedTimestamp
-    private Timestamp createdAt;
+    private Timestamp creationTimestamp;
+    @Constraints.Required
+    @ManyToOne
+    private ApiKey apiKey;
 
-    public AllowedUUID(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
+    public String getInstallationUUID() {
+        return installationUUID;
+    }
+
+    public void setInstallationUUID(String installationUUID) {
+        this.installationUUID = installationUUID;
+    }
+
+    public Timestamp getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(Timestamp creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
+    }
+
+    public ApiKey getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(ApiKey apiKey) {
+        this.apiKey = apiKey;
     }
 }

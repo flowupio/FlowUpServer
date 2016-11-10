@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -16,7 +17,7 @@ import java.util.function.Predicate;
 public class ApiKey extends Model {
 
     @Id
-    private String id;
+    private UUID id;
 
     @Constraints.Required
     @Index
@@ -29,16 +30,13 @@ public class ApiKey extends Model {
 
     private int numberOfAllowedUUIDs;
 
-    @OneToOne(mappedBy = "apiKey")
-    private List<AllowedUUID> allowedUUIDs;
-
     public static Finder<UUID, ApiKey> find = new Finder<>(ApiKey.class);
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -74,20 +72,4 @@ public class ApiKey extends Model {
         this.numberOfAllowedUUIDs = numberOfAllowedUUIDs;
     }
 
-    public List<AllowedUUID> getAllowedUUIDs() {
-        if (allowedUUIDs == null) {
-            allowedUUIDs = Collections.emptyList();
-        }
-        return allowedUUIDs;
-    }
-
-    public void setAllowedUUIDs(List<AllowedUUID> allowedUUIDs) {
-        this.allowedUUIDs = allowedUUIDs;
-    }
-
-    public boolean containsAllowedUUID(String uuid) {
-        return allowedUUIDs.stream()
-                .filter(allowedUUID -> allowedUUID.getId().equals(uuid))
-                .count() > 0;
-    }
 }

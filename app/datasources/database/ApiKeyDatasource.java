@@ -33,11 +33,10 @@ public class ApiKeyDatasource {
         return apiKey != null && apiKey.delete();
     }
 
-    public ApiKey addAllowedUUID(ApiKey apiKey, String uuid) {
-        AllowedUUID allowedUUID = new AllowedUUID(uuid);
+    public void addAllowedUUID(ApiKey apiKey, String uuid) {
+        AllowedUUID allowedUUID = new AllowedUUID();
+        allowedUUID.setInstallationUUID(uuid);
+        allowedUUID.setApiKey(apiKey);
         allowedUUID.save();
-        apiKey.getAllowedUUIDs().add(allowedUUID);
-        apiKey.update();
-        return apiKey;
     }
 }
