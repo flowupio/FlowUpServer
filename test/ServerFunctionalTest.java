@@ -1,4 +1,4 @@
-import com.google.common.collect.ImmutableMap;
+
 import datasources.database.ApiKeyDatasource;
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.BulkItemResponse;
@@ -16,24 +16,23 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
+import play.cache.CacheApi;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.ws.WS;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
-import play.test.Helpers;
 import play.test.WithServer;
+import repositories.ApiKeyRepository;
 import utils.WithResources;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.zip.GZIPOutputStream;
 
-import static org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.verify;
@@ -55,6 +54,12 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
     private ApiKey apiKey;
     private Organization organization;
 
+    @After
+    public void tearDown() {
+        organization.delete();
+        apiKey.delete();
+    }
+
     @Override
     protected Application provideApplication() {
         setupElasticsearchClient();
@@ -66,15 +71,9 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Before
     public void setupDatabaseWithApiKey() {
-        ApiKeyDatasource apiKeyDatasource = new ApiKeyDatasource();
-        this.apiKey = apiKeyDatasource.create(API_KEY_VALUE);
-        this.organization = new OrganizationDatasource(apiKeyDatasource).create("example", "@example.com", apiKey);
-    }
-
-    @After
-    public void cleanupDatabase() {
-        organization.delete();
-        apiKey.delete();
+        ApiKeyRepository apiKeyRepository = new ApiKeyRepository(app.injector().instanceOf(CacheApi.class), new ApiKeyDatasource());
+        this.apiKey = apiKeyRepository.create(API_KEY_VALUE);
+        this.organization = new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey);
     }
 
     private void setupElasticsearchClient() {

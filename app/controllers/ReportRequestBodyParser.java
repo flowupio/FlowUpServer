@@ -2,8 +2,8 @@ package controllers;
 
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
-import datasources.database.ApiKeyDatasource;
-import play.cache.CacheApi;
+import repositories.ApiKeyRepository;
+import models.ApiKey;
 import play.libs.F;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
@@ -18,6 +18,7 @@ import static play.libs.F.Either.Left;
 import static play.libs.F.Either.Right;
 
 class ReportRequestBodyParser implements BodyParser<ReportRequest> {
+
     private final BodyParser.Json jsonParser;
     private final Executor executor;
     private final HeaderParsers headerParsers;
@@ -61,35 +62,25 @@ class ReportRequestBodyParser implements BodyParser<ReportRequest> {
 
 class HeaderParsers {
 
-    private CacheApi cache;
-    private ApiKeyDatasource apiKeyDatasource;
+    private final ApiKeyRepository repository;
     static String X_API_KEY = "X-Api-Key";
 
     @Inject
-    HeaderParsers(CacheApi cache, ApiKeyDatasource apiKeyDatasource) {
-        this.cache = cache;
-        this.apiKeyDatasource = apiKeyDatasource;
-    }
-
-    private boolean apiKeyIsValid(Http.RequestHeader request) {
-        String apiKey = request.getHeader(X_API_KEY);
-        if (apiKey != null) {
-            Boolean validApiKey = cache.get("apiKey.isValid." + apiKey);
-            if (validApiKey != null) {
-                return validApiKey;
-            } else {
-                boolean valuePresentInDB = apiKeyDatasource.isValuePresentInDB(apiKey);
-                cache.set("apiKey.isValid." + apiKey, valuePresentInDB);
-                return valuePresentInDB;
-            }
-        } else {
-            return false;
-        }
+    public HeaderParsers(ApiKeyRepository repository) {
+        this.repository = repository;
     }
 
     F.Either<Result, Http.RequestHeader> apply(Http.RequestHeader request) {
-        if (apiKeyIsValid(request)) {
+        String plainApiKey = request.getHeader(X_API_KEY);
+        ApiKey apiKey = repository.getApiKey(plainApiKey);
+        boolean apiKeyExists = apiKey != null;
+        boolean apiKeyIsEnabled = apiKeyExists && apiKey.isEnabled();
+        if (apiKeyExists && apiKeyIsEnabled) {
             return Right(request);
+        } else if (!apiKeyExists) {
+            return Left(Results.unauthorized("Expected Valid API KEY"));
+        } else if (!apiKeyIsEnabled) {
+            return Left(Results.status(Http.Status.PRECONDITION_FAILED, "API KEY disabled"));
         } else {
             return Left(Results.unauthorized("Expected Valid API KEY"));
         }

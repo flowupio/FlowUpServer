@@ -35,3 +35,6 @@ GET     /webjars/*file              controllers.WebJarAssets.at(file)
 
 # API
 POST    /report                    controllers.ReportController.index
+
+# CONFIG
+GET     /config                    controllers.ConfigController.getConfig
