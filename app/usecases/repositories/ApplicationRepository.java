@@ -1,4 +1,4 @@
-package usecases;
+package usecases.repositories;
 
 import datasources.database.ApiKeyDatasource;
 import datasources.database.ApplicationDatasource;
@@ -27,7 +27,7 @@ public class ApplicationRepository {
         this.cacheApi = cacheApi;
     }
 
-    boolean exist(String apiKey, String appPackage) {
+    public boolean exist(String apiKey, String appPackage) {
         String cacheKey = getCacheKey(apiKey, appPackage);
         return cacheApi.getOrElse(cacheKey, () -> applicationDatasource.existByApiKeyAndAppPackage(apiKey, appPackage));
     }

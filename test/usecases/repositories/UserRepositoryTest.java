@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
-import usecases.ApplicationRepository;
 import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;

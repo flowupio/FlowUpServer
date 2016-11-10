@@ -1,4 +1,4 @@
-package usecases;
+package usecases.models;
 
 
 import lombok.Data;

@@ -2,7 +2,7 @@ package controllers;
 
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
-import usecases.StatisticalValue;
+import usecases.models.StatisticalValue;
 
 import java.util.Collections;
 import java.util.List;

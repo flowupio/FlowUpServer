@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.guice.GuiceApplicationBuilder;
+import usecases.repositories.ApplicationRepository;
 import usecases.repositories.UserRepository;
 import utils.WithFlowUpApplication;
 
