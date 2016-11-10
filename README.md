@@ -38,4 +38,8 @@ Test your setup http://asquera.de/blog/2013-07-10/an-elasticsearch-workflow/
 
 `sbt gatling:test`
 
--
+### How to send a report to local instance of play
+
+
+`curl -XPOST http://localhost:9000/report -H 'Content-Type: application/json;charset=UTF-8' -H 'X-Api-Key: 7fe70e07761e4ea5a6039e7e0371022d' -d @test/resources/reportRequest.json`
+---
