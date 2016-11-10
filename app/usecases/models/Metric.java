@@ -1,6 +1,7 @@
-package usecases;
+package usecases.models;
 
 import lombok.Data;
+import usecases.models.DataPoint;
 
 import java.util.List;
 

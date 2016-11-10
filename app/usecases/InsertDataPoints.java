@@ -1,6 +1,8 @@
 package usecases;
 
 import models.Application;
+import usecases.models.Report;
+import usecases.repositories.ApplicationRepository;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;

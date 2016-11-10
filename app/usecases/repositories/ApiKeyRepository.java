@@ -1,4 +1,4 @@
-package repositories;
+package usecases.repositories;
 
 import com.avaje.ebean.ExpressionList;
 import datasources.database.ApiKeyDatasource;

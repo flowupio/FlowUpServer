@@ -5,12 +5,10 @@ import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Security;
 import sampling.SamplingGroup;
-import usecases.ApiKeyConfig;
+import usecases.models.ApiKeyConfig;
 import usecases.GetApiKeyConfig;
 
 import javax.inject.Inject;
-
-import java.util.concurrent.CompletableFuture;
 
 import static play.mvc.Controller.request;
 import static play.mvc.Http.Status.PRECONDITION_FAILED;

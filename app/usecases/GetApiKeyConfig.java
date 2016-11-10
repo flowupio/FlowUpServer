@@ -1,7 +1,8 @@
 package usecases;
 
 import models.ApiKey;
-import repositories.ApiKeyRepository;
+import usecases.models.ApiKeyConfig;
+import usecases.repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
 

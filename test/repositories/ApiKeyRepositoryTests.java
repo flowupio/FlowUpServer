@@ -5,9 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import play.cache.CacheApi;
 import play.inject.Injector;
+import usecases.repositories.ApiKeyRepository;
 import utils.WithFlowUpApplication;
-
-import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.spy;
@@ -51,7 +50,6 @@ public class ApiKeyRepositoryTests extends WithFlowUpApplication {
     }
 
 
-
     @Test
     public void flushesTheAllowedUUIDsWithTheNewValue() {
         ApiKey originalApiKey = givenAnApiKey();
@@ -61,8 +59,6 @@ public class ApiKeyRepositoryTests extends WithFlowUpApplication {
 
         verify(cache).remove("allowedUUIDs." + apiKey.getId());
     }
-
-    //Flush allowed uuid cache
 
     private ApiKey givenAnApiKey() {
         return apiKeyRepository.create(ANY_API_KEY);

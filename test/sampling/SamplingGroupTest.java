@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import repositories.ApiKeyRepository;
+import usecases.repositories.ApiKeyRepository;
 
 import java.util.*;
 

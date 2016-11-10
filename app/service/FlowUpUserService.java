@@ -4,12 +4,9 @@ import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.service.AbstractUserService;
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
-import datasources.database.OrganizationDatasource;
-import datasources.grafana.GrafanaClient;
-import models.Organization;
 import models.User;
 import play.Logger;
-import repositories.UserRepository;
+import usecases.repositories.UserRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,12 +23,21 @@ public class FlowUpUserService extends AbstractUserService {
         this.userRepository = userRepository;
     }
 
+    private Object createUserSync(AuthUser authUser) {
+        try {
+            User user = userRepository.create(authUser).toCompletableFuture().get();
+            return user.getId();
+        } catch (InterruptedException | ExecutionException e) {
+            Logger.error(e.getMessage());
+            return null;
+        }
+    }
+
     @Override
     public Object save(AuthUser authUser) {
         final boolean isLinked = User.existsByAuthUserIdentity(authUser);
         if (!isLinked) {
-            User user = userRepository.create(authUser);
-            return user.getId();
+            return createUserSync(authUser);
         } else {
             // we have this user already, so return null
             return null;
