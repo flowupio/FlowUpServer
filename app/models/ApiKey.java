@@ -26,9 +26,9 @@ public class ApiKey extends Model {
     @OneToOne(mappedBy = "apiKey")
     private Organization organization;
 
-    private boolean enabled;
+    private boolean enabled = true;
 
-    private int numberOfAllowedUUIDs;
+    private int numberOfAllowedUUIDs = 50;
 
     public static Finder<UUID, ApiKey> find = new Finder<>(ApiKey.class);
 

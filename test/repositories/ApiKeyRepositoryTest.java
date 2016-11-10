@@ -12,7 +12,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-public class ApiKeyRepositoryTests extends WithFlowUpApplication {
+public class ApiKeyRepositoryTest extends WithFlowUpApplication {
 
     private static final String ANY_UUID = "abcd";
     private static final java.lang.String ANY_API_KEY = "12345";
@@ -41,10 +41,9 @@ public class ApiKeyRepositoryTests extends WithFlowUpApplication {
 
     @Test
     public void flushesTheCachedApiKeyAllowedUUIDCounterWithTheNewValue() {
-        ApiKey originalApiKey = givenAnApiKey();
+        ApiKey apiKey = givenAnApiKey();
 
-        apiKeyRepository.addAllowedUUID(originalApiKey, ANY_UUID);
-        ApiKey apiKey = apiKeyRepository.getApiKey(originalApiKey.getValue());
+        apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
 
         verify(cache).remove("apiKey.todayAllowedUUIDCount." + apiKey.getId());
     }
@@ -52,10 +51,9 @@ public class ApiKeyRepositoryTests extends WithFlowUpApplication {
 
     @Test
     public void flushesTheAllowedUUIDsWithTheNewValue() {
-        ApiKey originalApiKey = givenAnApiKey();
+        ApiKey apiKey = givenAnApiKey();
 
-        apiKeyRepository.addAllowedUUID(originalApiKey, ANY_UUID);
-        ApiKey apiKey = apiKeyRepository.getApiKey(originalApiKey.getValue());
+        apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
 
         verify(cache).remove("allowedUUIDs." + apiKey.getId());
     }
