@@ -1,5 +1,6 @@
 package sampling;
 
+import models.AllowedUUID;
 import models.ApiKey;
 import repositories.ApiKeyRepository;
 
@@ -43,7 +44,7 @@ public class SamplingGroup {
     }
 
     private boolean hasExceededTheNumberOfAllowedUUIDs(ApiKey apiKey) {
-        List<UUID> allowedUUIDs = apiKey.getAllowedUUIDs();
+        List<AllowedUUID> allowedUUIDs = apiKey.getAllowedUUIDs();
         return allowedUUIDs.size() >= apiKey.getNumberOfAllowedUUIDs();
     }
 }
