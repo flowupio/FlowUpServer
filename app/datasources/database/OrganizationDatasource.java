@@ -3,7 +3,7 @@ package datasources.database;
 import com.avaje.ebean.ExpressionList;
 import models.ApiKey;
 import models.Organization;
-import repositories.ApiKeyRepository;
+import usecases.repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
 

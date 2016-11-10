@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Security;
-import usecases.ApiKeyConfig;
+import usecases.models.ApiKeyConfig;
 import usecases.GetApiKeyConfig;
 
 import javax.inject.Inject;

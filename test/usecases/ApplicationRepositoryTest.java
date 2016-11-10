@@ -2,18 +2,17 @@ package usecases;
 
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
 import datasources.grafana.DashboardsClient;
-import datasources.grafana.GrafanaResponse;
 import models.Application;
 import models.User;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.guice.GuiceApplicationBuilder;
-import repositories.UserRepository;
+import usecases.repositories.ApplicationRepository;
+import usecases.repositories.UserRepository;
 import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;
@@ -38,9 +37,16 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
 
     @Override
     protected play.Application provideApplication() {
-        CompletableFuture<GrafanaResponse> grafanaResponseCompletableFuture = CompletableFuture.completedFuture(mock(GrafanaResponse.class));
-        when(dashboardsClient.createUser(any())).thenReturn(grafanaResponseCompletableFuture);
+        when(dashboardsClient.createUser(any())).then(invocation -> {
+            User user = invocation.getArgumentAt(0, User.class);
+            user.setGrafanaUserId("2");
+            user.setGrafanaPassword("GrafanaPassword");
+            user.save();
+            return CompletableFuture.completedFuture(user);
+        });
         when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, Application.class)));
+        when(dashboardsClient.addUserToOrganisation(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, Application.class)));
+        when(dashboardsClient.deleteUserInDefaultOrganisation(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, User.class)));
         when(dashboardsClient.createOrg(any())).then(invocation -> {
             Application application = invocation.getArgumentAt(0, Application.class);
             application.setGrafanaOrgId("2");
@@ -55,14 +61,18 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
     }
 
 
-    @Before
     @Override
+    @Before
     public void startPlay() {
         super.startPlay();
         UserRepository userRepository = this.app.injector().instanceOf(UserRepository.class);
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getEmail()).thenReturn(JOHN_GMAIL_COM);
-        this.user = userRepository.create(authUser);
+        try {
+            this.user = userRepository.create(authUser).toCompletableFuture().get();
+        } catch (InterruptedException | ExecutionException e) {
+            this.user = null;
+        }
     }
 
     @Test

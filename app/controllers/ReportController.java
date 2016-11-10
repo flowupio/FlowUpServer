@@ -9,6 +9,10 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import usecases.*;
+import usecases.models.DataPoint;
+import usecases.models.Metric;
+import usecases.models.Report;
+import usecases.models.Value;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

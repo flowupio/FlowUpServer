@@ -9,7 +9,7 @@ import org.junit.Test;
 import play.cache.CacheApi;
 import play.mvc.Http;
 import play.test.WithApplication;
-import repositories.ApiKeyRepository;
+import usecases.repositories.ApiKeyRepository;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;

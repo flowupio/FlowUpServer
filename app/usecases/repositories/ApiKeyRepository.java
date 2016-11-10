@@ -1,4 +1,4 @@
-package repositories;
+package usecases.repositories;
 
 import datasources.database.ApiKeyDatasource;
 import models.ApiKey;

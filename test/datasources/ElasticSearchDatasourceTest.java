@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.libs.Json;
 import usecases.InsertResult;
-import usecases.Report;
+import usecases.models.Report;
 import utils.WithResources;
 
 import java.util.ArrayList;

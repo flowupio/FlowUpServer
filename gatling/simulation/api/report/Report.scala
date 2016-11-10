@@ -8,7 +8,7 @@ import controllers.ReportRequest
 import controllers.ReportRequest._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import usecases.StatisticalValue
+import usecases.models.StatisticalValue
 
 import scala.collection.JavaConversions._
 

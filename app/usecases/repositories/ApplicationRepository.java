@@ -1,4 +1,4 @@
-package usecases;
+package usecases.repositories;
 
 import datasources.database.ApiKeyDatasource;
 import datasources.database.ApplicationDatasource;
@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-class ApplicationRepository {
+public class ApplicationRepository {
     private final ApiKeyDatasource apiKeyDatasource;
     private final ApplicationDatasource applicationDatasource;
     private final DashboardsClient dashboardsClient;
@@ -29,7 +29,7 @@ class ApplicationRepository {
         this.cacheApi = cacheApi;
     }
 
-    boolean exist(String apiKey, String appPackage) {
+    public boolean exist(String apiKey, String appPackage) {
         String cacheKey = getCacheKey(apiKey, appPackage);
         return cacheApi.getOrElse(cacheKey, () -> applicationDatasource.existByApiKeyAndAppPackage(apiKey, appPackage));
     }
@@ -38,7 +38,7 @@ class ApplicationRepository {
         return "exist-" + apiKey + "-" + appPackage;
     }
 
-    CompletionStage<Application> create(String apiKeyValue, String appPackage) {
+    public CompletionStage<Application> create(String apiKeyValue, String appPackage) {
         ApiKey apiKey = apiKeyDatasource.findByApiKeyValue(apiKeyValue);
         if (apiKey == null) {
             return null;

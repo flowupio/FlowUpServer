@@ -9,7 +9,7 @@ import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
-import repositories.ApiKeyRepository;
+import usecases.repositories.ApiKeyRepository;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 
