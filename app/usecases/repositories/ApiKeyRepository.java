@@ -5,6 +5,7 @@ import datasources.database.ApiKeyDatasource;
 import models.AllowedUUID;
 import models.ApiKey;
 import play.cache.CacheApi;
+import utils.Time;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -21,13 +22,15 @@ public class ApiKeyRepository {
     private static final String TODAY_ALLOWED_UUID_COUNT_CACHE_KEY = "apiKey.todayAllowedUUIDCount.";
     private static final String TODAY_ALLOWED_UUIDS = "allowedUUIDs.";
 
-    private CacheApi cache;
-    private ApiKeyDatasource apiKeyDatasource;
+    private final CacheApi cache;
+    private final ApiKeyDatasource apiKeyDatasource;
+    private final Time time;
 
     @Inject
-    public ApiKeyRepository(CacheApi cache, ApiKeyDatasource apiKeyDatasource) {
+    public ApiKeyRepository(CacheApi cache, ApiKeyDatasource apiKeyDatasource, Time time) {
         this.cache = cache;
         this.apiKeyDatasource = apiKeyDatasource;
+        this.time = time;
     }
 
     @NotNull
@@ -61,15 +64,6 @@ public class ApiKeyRepository {
         flushAllowedUUIDCache(apiKey);
     }
 
-    private void updateApiKeyCache(ApiKey apiKey) {
-        cache.set(API_KEY_CACHE_KEY + apiKey, apiKey, API_KEY_CACHE_TTL);
-    }
-
-    private void flushAllowedUUIDCache(ApiKey apiKey) {
-        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey.getId());
-        cache.remove(TODAY_ALLOWED_UUIDS + apiKey.getId());
-    }
-
     public boolean containsAllowedUUID(ApiKey apiKey, String uuid) {
         Set<AllowedUUID> todayAllowedUUIDS = getTodayAllowedUUIDS(apiKey);
         return todayAllowedUUIDS.stream()
@@ -78,9 +72,9 @@ public class ApiKeyRepository {
                 .count() > 0;
     }
 
-    public int getTodayAllowedUUIDCount(ApiKey apiKeyId) {
-        return cache.getOrElse(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKeyId,
-                () -> getTodayAllowedUUIDQuery(apiKeyId).findRowCount(),
+    public int getTodayAllowedUUIDCount(ApiKey apiKey) {
+        return cache.getOrElse(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey,
+                () -> getTodayAllowedUUIDQuery(apiKey).findRowCount(),
                 API_KEY_TODAY_ALLOWED_UUID_COUNT_TTL);
     }
 
@@ -92,12 +86,18 @@ public class ApiKeyRepository {
 
     }
 
+    private void updateApiKeyCache(ApiKey apiKey) {
+        cache.set(API_KEY_CACHE_KEY + apiKey, apiKey, API_KEY_CACHE_TTL);
+    }
+
+    private void flushAllowedUUIDCache(ApiKey apiKey) {
+        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey.getId());
+        cache.remove(TODAY_ALLOWED_UUIDS + apiKey.getId());
+    }
+
     private ExpressionList<AllowedUUID> getTodayAllowedUUIDQuery(ApiKey apiKey) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), 0, 0, 0);
-        Date today = calendar.getTime();
-        calendar.add(Calendar.DATE, 1);
-        Date tomorrow = calendar.getTime();
+        Date today = time.getTodayMidnightDate();
+        Date tomorrow = time.getTomorrowMidhtDate();
         return AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("creation_timestamp", today, tomorrow);
     }
 }
