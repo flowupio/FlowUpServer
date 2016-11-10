@@ -1,6 +1,10 @@
 package datasources.elasticsearch;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Data;
+import models.Application;
+import org.jetbrains.annotations.NotNull;
 import play.libs.F;
 import play.libs.Json;
 import usecases.*;
@@ -71,7 +75,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         report.getMetrics().forEach(metric -> {
 
             metric.getDataPoints().forEach(datapoint -> {
-                IndexRequest indexRequest = new IndexRequest(FLOWUP + report.getAppPackage(), metric.getName());
+                IndexRequest indexRequest = new IndexRequest(indexName(report.getAppPackage()), metric.getName());
 
                 ObjectNode source = mapSource(datapoint);
 
@@ -96,5 +100,66 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         }
 
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
+    }
+
+    public void singleStat(Application application) {
+        long gteEpochMillis = 1478386800000L;
+        long lteEpochMillis = 1478773156290L;
+        String field = "FramesPerSecond.p10";
+
+        SearchQuery searchQuery = prepareSearchQuery(application, gteEpochMillis, lteEpochMillis, field);
+        
+    }
+
+    @NotNull
+    private SearchQuery prepareSearchQuery(Application application, long gteEpochMillis, long lteEpochMillis, String field) {
+        SearchQuery searchQuery = new SearchQuery();
+
+        SearchIndex searchIndex = new SearchIndex();
+        searchIndex.setIndex(indexName(application.getAppPackage()));
+        searchIndex.setIgnoreUnavailable(true);
+        searchIndex.setSearchType("count");
+        searchQuery.setSearchIndex(searchIndex);
+
+        SearchBody searchBody = new SearchBody();
+        searchBody.setSize(0);
+        SearchBodyQuery query = new SearchBodyQuery();
+        SearchBodyQueryFiltered filtered = new SearchBodyQueryFiltered();
+        SearchBodyQueryFilteredQuery filteredQuery = new SearchBodyQueryFilteredQuery();
+        QueryString queryString = new QueryString();
+        queryString.setAnalyzeWildcard(true);
+        queryString.setQuery("");
+        filteredQuery.setQueryString(queryString);
+        filtered.setQuery(filteredQuery);
+        ObjectNode filter = Json.newObject();
+        JsonNode range = Json.newObject()
+                .set("range", Json.newObject()
+                        .set("@timestamp", Json.newObject()
+                                .put("gte", gteEpochMillis)
+                                .put("lte", lteEpochMillis)
+                                .put("format", "epoch_millis")));
+        filter.set("bool", Json.newObject().set("must", Json.newArray().add(range)));
+        filtered.setFilter(filter);
+        query.setFiltered(filtered);
+        searchBody.setQuery(query);
+        ObjectNode aggsObject = Json.newObject();
+        JsonNode dateHistogram = Json.newObject()
+                .put("interval", "4m")
+                .put("field", "@timestamp")
+                .put("min_doc_count", 0)
+                .put("format", "epoch_millis")
+                .set("extended_bounds", Json.newObject().put("min", gteEpochMillis).put("max", lteEpochMillis));
+        aggsObject.set("date_histogram", dateHistogram);
+        JsonNode aggsNode = Json.newObject().set("1", Json.newObject().set("avg", Json.newObject().put("field", field)))
+        aggsObject.set("aggs", aggsNode);
+        JsonNode aggs = Json.newObject().set("2", aggsObject);
+        searchBody.setAggs(aggs);
+        searchQuery.setSearchBody(searchBody);
+        return searchQuery;
+    }
+
+    @NotNull
+    private String indexName(String appPackage) {
+        return FLOWUP + appPackage;
     }
 }
