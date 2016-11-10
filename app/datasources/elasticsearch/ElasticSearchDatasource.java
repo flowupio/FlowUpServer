@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.F;
 import play.libs.Json;
 import usecases.*;
+import usecases.models.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package controllers;
 
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
-import repositories.ApiKeyRepository;
+import usecases.repositories.ApiKeyRepository;
 import models.ApiKey;
 import play.libs.F;
 import play.libs.streams.Accumulator;

@@ -3,8 +3,7 @@ package controllers;
 import models.ApiKey;
 import play.mvc.Http;
 import play.mvc.Security;
-import repositories.ApiKeyRepository;
-import scala.Option;
+import usecases.repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
 

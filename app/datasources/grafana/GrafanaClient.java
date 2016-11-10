@@ -68,7 +68,7 @@ public class GrafanaClient implements DashboardsClient {
     }
 
     @Override
-    public CompletionStage<GrafanaResponse> createUser(final User user) {
+    public CompletionStage<User> createUser(User user) {
 
         String grafanaPassword = PasswordGenerator.generatePassword();
         ObjectNode userRequest = Json.newObject()
@@ -76,15 +76,13 @@ public class GrafanaClient implements DashboardsClient {
                 .put("email", user.getEmail())
                 .put("password", grafanaPassword);
 
-        UUID userId = user.getId();
-
         Logger.debug(userRequest.toString());
 
         return post(API_ADMIN_USERS, userRequest).thenApply(response -> {
             if (response.getStatus() == Http.Status.OK) {
-                updateUserWithGrafanaInfo(grafanaPassword, userId, response);
+                return updateUserWithGrafanaInfo(grafanaPassword, user, response);
             }
-            return response;
+            return user;
         });
     }
 
@@ -105,7 +103,7 @@ public class GrafanaClient implements DashboardsClient {
     }
 
     @Override
-    public CompletionStage<GrafanaResponse> addUserToOrganisation(User user, Application application) {
+    public CompletionStage<Application> addUserToOrganisation(User user, Application application) {
         String adminUserEndpoint = API_ORGS_ORG_ID_USERS.replaceFirst(":orgId", application.getGrafanaOrgId());
 
         ObjectNode userRequest = Json.newObject()
@@ -113,14 +111,14 @@ public class GrafanaClient implements DashboardsClient {
                 .put("role", "Viewer");
 
         Logger.debug(userRequest.toString());
-        return post(adminUserEndpoint, userRequest);
+        return post(adminUserEndpoint, userRequest).thenApply(grafanaResponse -> application);
     }
 
     @Override
-    public CompletionStage<GrafanaResponse> deleteUserInDefaultOrganisation(User user) {
+    public CompletionStage<User> deleteUserInDefaultOrganisation(User user) {
         String adminUserEndpoint = API_ORGS_ORG_ID_USERS_USER_ID.replaceFirst(":orgId", "1").replaceFirst(":userId", user.getGrafanaUserId());
 
-        return delete(adminUserEndpoint);
+        return delete(adminUserEndpoint).thenApply(grafanaResponse -> user);
     }
 
     @Override
@@ -153,14 +151,12 @@ public class GrafanaClient implements DashboardsClient {
         return application;
     }
 
-    private void updateUserWithGrafanaInfo(String grafanaPassword, UUID userId, GrafanaResponse response) {
+    private User updateUserWithGrafanaInfo(String grafanaPassword, User user, GrafanaResponse response) {
         String id = response.getAdditionalProperties().get("id").toString();
-        User user = User.find.byId(userId);
-        if (user != null) {
-            user.setGrafanaUserId(id);
-            user.setGrafanaPassword(grafanaPassword);
-            user.save();
-        }
+        user.setGrafanaUserId(id);
+        user.setGrafanaPassword(grafanaPassword);
+        user.save();
+        return user;
     }
 
     private CompletionStage<Application> switchUserContext(Application application) {
