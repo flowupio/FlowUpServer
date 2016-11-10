@@ -29,7 +29,7 @@ public class ApiKey extends Model {
     private int numberOfAllowedUUIDs;
 
     @OneToOne(mappedBy = "apiKey")
-    private List<UUID> allowedUUIDs;
+    private List<AllowedUUID> allowedUUIDs;
 
     public static Finder<UUID, ApiKey> find = new Finder<>(ApiKey.class);
 
@@ -73,14 +73,14 @@ public class ApiKey extends Model {
         this.numberOfAllowedUUIDs = numberOfAllowedUUIDs;
     }
 
-    public List<UUID> getAllowedUUIDs() {
+    public List<AllowedUUID> getAllowedUUIDs() {
         if (allowedUUIDs == null) {
             allowedUUIDs = Collections.emptyList();
         }
         return allowedUUIDs;
     }
 
-    public void setAllowedUUIDs(List<UUID> allowedUUIDs) {
+    public void setAllowedUUIDs(List<AllowedUUID> allowedUUIDs) {
         this.allowedUUIDs = allowedUUIDs;
     }
 }
