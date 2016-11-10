@@ -64,7 +64,7 @@ public class ElasticsearchClient {
 
         Logger.debug(content);
 
-        return ws.url(baseUrl + BULK_ENDPOINT).setContentType("application/x-www-form-urlencoded").post(content).thenApply(
+        return ws.url(baseUrl + MSEARCH_ENDPOINT).setContentType("application/x-www-form-urlencoded").post(content).thenApply(
                 response -> {
                     Logger.debug(response.getBody());
                     return Json.fromJson(response.asJson(), MSearchResponse.class);

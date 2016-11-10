@@ -2,7 +2,6 @@ package datasources.elasticsearch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.Data;
 import models.Application;
 import org.jetbrains.annotations.NotNull;
 import play.libs.F;
@@ -11,6 +10,7 @@ import usecases.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -102,13 +102,14 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
     }
 
-    public void singleStat(Application application) {
+    public CompletionStage<MSearchResponse> singleStat(Application application) {
         long gteEpochMillis = 1478386800000L;
         long lteEpochMillis = 1478773156290L;
         String field = "FramesPerSecond.p10";
 
         SearchQuery searchQuery = prepareSearchQuery(application, gteEpochMillis, lteEpochMillis, field);
-        
+
+        return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery));
     }
 
     @NotNull
@@ -150,7 +151,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
                 .put("format", "epoch_millis")
                 .set("extended_bounds", Json.newObject().put("min", gteEpochMillis).put("max", lteEpochMillis));
         aggsObject.set("date_histogram", dateHistogram);
-        JsonNode aggsNode = Json.newObject().set("1", Json.newObject().set("avg", Json.newObject().put("field", field)))
+        JsonNode aggsNode = Json.newObject().set("1", Json.newObject().set("avg", Json.newObject().put("field", field)));
         aggsObject.set("aggs", aggsNode);
         JsonNode aggs = Json.newObject().set("2", aggsObject);
         searchBody.setAggs(aggs);

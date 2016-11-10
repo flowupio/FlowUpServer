@@ -11,6 +11,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
 import usecases.GetApplicationById;
+import usecases.GetFramePerSecond;
 import usecases.GetPrimaryOrganization;
 import usecases.GetUserByAuthUserIdentity;
 import views.html.commandcenter.home;
@@ -29,15 +30,17 @@ public class CommandCenterController extends Controller {
     private final GetUserByAuthUserIdentity getUserByAuthUserIdentity;
     private final GetPrimaryOrganization getPrimaryOrganization;
     private final GetApplicationById getApplicationById;
+    private final GetFramePerSecond getFramePerSecond;
 
 
     @Inject
-    public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity, GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById) {
+    public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity, GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById, GetFramePerSecond getFramePerSecond) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
         this.getPrimaryOrganization = getPrimaryOrganization;
         this.getApplicationById = getApplicationById;
+        this.getFramePerSecond = getFramePerSecond;
     }
 
     public Result index() {
@@ -47,13 +50,15 @@ public class CommandCenterController extends Controller {
         return ok(home.render(this.auth, user, organization.getApiKey(), organization.getApplications()));
     }
 
-    public Result application(String applicationUUID) {
+    public CompletionStage<Result> application(String applicationUUID) {
         AuthUser authUser = this.auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
         Organization organization = getPrimaryOrganization.execute(user);
 
         Application applicationModel = getApplicationById.execute(UUID.fromString(applicationUUID));
-        return ok(application.render(user, applicationModel, organization.getApplications()));
+        return getFramePerSecond.execute(applicationModel).thenApply(mSearchResponse -> {
+            return ok(application.render(user, applicationModel, organization.getApplications()));
+        });
     }
 
     public CompletionStage<Result> grafana() {
@@ -63,4 +68,6 @@ public class CommandCenterController extends Controller {
             return redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()]));
         });
     }
+
+    
 }

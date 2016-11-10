@@ -1,5 +1,6 @@
 package datasources.elasticsearch;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
@@ -12,7 +13,9 @@ public class SearchQuery {
 @Data
 class SearchIndex {
     private String index;
+    @JsonProperty("search_type")
     private String searchType;
+    @JsonProperty("ignore_unavailable")
     private boolean ignoreUnavailable;
 }
 
@@ -37,11 +40,13 @@ class SearchBodyQueryFiltered {
 
 @Data
 class SearchBodyQueryFilteredQuery {
+    @JsonProperty("query_string")
     private QueryString queryString;
 }
 
 @Data
 class QueryString {
+    @JsonProperty("analyze_wildcard")
     private boolean analyzeWildcard;
     private String query;
 }
