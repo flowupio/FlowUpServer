@@ -1,34 +1,29 @@
 package utils;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Calendar;
-import java.util.Date;
+import org.joda.time.*;
 
 public class Time {
 
-    public Date getYesterdayMidnightDate() {
-        Calendar calendar = getTodayCalendar();
-        calendar.add(Calendar.DATE, -1);
-        return calendar.getTime();
+    public DateTime getYesterdayMidnightDate() {
+        DateTimeZone timeZone = getTimeZone();
+        DateTime tomorrow = new DateTime(timeZone).plusDays(-1);
+        return tomorrow.withTimeAtStartOfDay();
     }
 
-    public Date getTodayMidnightDate() {
-        Calendar calendar = getTodayCalendar();
-        return calendar.getTime();
+    public DateTime getTodayMidnightDate() {
+        DateTimeZone timeZone = getTimeZone();
+        return new DateTime(timeZone).withTimeAtStartOfDay();
     }
 
-    public Date getTomorrowMidhtDate() {
-        Calendar calendar = getTodayCalendar();
-        calendar.add(Calendar.DATE, 1);
-        return calendar.getTime();
+    public DateTime getTomorrowMidhtDate() {
+        DateTimeZone timeZone = getTimeZone();
+        DateTime tomorrow = new DateTime(timeZone).plusDays(1);
+        return tomorrow.withTimeAtStartOfDay();
     }
 
-    @NotNull
-    private Calendar getTodayCalendar() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), 0, 0, 0);
-        return calendar;
+    private DateTimeZone getTimeZone() {
+        return DateTimeZone.forID("Europe/Berlin");
     }
+
 
 }

@@ -67,6 +67,7 @@ public class ConfigControllerTest extends WithFlowUpApplication implements WithR
     private Result getConfig(String apiKey) {
         Http.RequestBuilder requestBuilder = fakeRequest("GET", "/config")
                 .header("X-Api-Key", apiKey)
+                .header("X-UUID", "anyUUID")
                 .header("Content-Type", "application/json");
         return route(requestBuilder);
     }

@@ -19,7 +19,7 @@ public class AllowedUUID extends Model {
     private UUID id;
     private String installationUUID;
     @CreatedTimestamp
-    private Timestamp creationTimestamp;
+    private Timestamp createdAt;
     @Constraints.Required
     @ManyToOne
     private ApiKey apiKey;
@@ -40,12 +40,12 @@ public class AllowedUUID extends Model {
         this.installationUUID = installationUUID;
     }
 
-    public Timestamp getCreationTimestamp() {
-        return creationTimestamp;
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreationTimestamp(Timestamp creationTimestamp) {
-        this.creationTimestamp = creationTimestamp;
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
     public ApiKey getApiKey() {

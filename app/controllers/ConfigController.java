@@ -32,7 +32,7 @@ public class ConfigController {
 
     public Result getConfig() {
         String apiKey = request().getHeader(HeaderParsers.X_API_KEY);
-        String uuid = request().getHeader(HeaderParsers.X_API_KEY);
+        String uuid = request().getHeader(HeaderParsers.X_UUID);
         if (!samplingGroup.isIn(apiKey, uuid)) {
             return status(PRECONDITION_FAILED);
         }

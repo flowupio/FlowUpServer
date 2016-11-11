@@ -37,7 +37,7 @@ public class ReportController extends Controller {
         ReportRequest reportRequest = body.as(ReportRequest.class);
 
         String apiKey = request().getHeader(HeaderParsers.X_API_KEY);
-        String uuid = request().getHeader(HeaderParsers.X_API_KEY);
+        String uuid = request().getHeader(HeaderParsers.X_UUID);
         if (!samplingGroup.isIn(apiKey, uuid)) {
             return CompletableFuture.completedFuture(status(PRECONDITION_FAILED));
         }

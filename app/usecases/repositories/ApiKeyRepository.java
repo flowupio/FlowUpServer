@@ -4,6 +4,7 @@ import com.avaje.ebean.ExpressionList;
 import datasources.database.ApiKeyDatasource;
 import models.AllowedUUID;
 import models.ApiKey;
+import org.joda.time.DateTime;
 import play.cache.CacheApi;
 import utils.Time;
 
@@ -16,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 public class ApiKeyRepository {
 
     private static final int API_KEY_CACHE_TTL = (int) TimeUnit.HOURS.toSeconds(1);
-    private static final int API_KEY_TODAY_ALLOWED_UUID_COUNT_TTL = (int) TimeUnit.HOURS.toSeconds(1);
-    private static final int ALLOWED_UUIDS_TTL = (int) TimeUnit.HOURS.toSeconds(1);
+    private static final int API_KEY_TODAY_ALLOWED_UUID_COUNT_TTL = (int) TimeUnit.DAYS.toSeconds(1);
+    private static final int ALLOWED_UUIDS_TTL = (int) TimeUnit.DAYS.toSeconds(1);
     private static final String API_KEY_CACHE_KEY = "apiKey.value.";
     private static final String TODAY_ALLOWED_UUID_COUNT_CACHE_KEY = "apiKey.todayAllowedUUIDCount.";
     private static final String TODAY_ALLOWED_UUIDS = "allowedUUIDs.";
@@ -79,10 +80,9 @@ public class ApiKeyRepository {
     }
 
     public Set<AllowedUUID> getTodayAllowedUUIDS(ApiKey apiKey) {
-        return cache.getOrElse(TODAY_ALLOWED_UUIDS + apiKey, () -> {
-            ExpressionList<AllowedUUID> query = getTodayAllowedUUIDQuery(apiKey);
-            return query.findSet();
-        }, ALLOWED_UUIDS_TTL);
+        return cache.getOrElse(TODAY_ALLOWED_UUIDS + apiKey,
+                () -> getTodayAllowedUUIDQuery(apiKey).findSet(),
+                ALLOWED_UUIDS_TTL);
 
     }
 
@@ -96,8 +96,8 @@ public class ApiKeyRepository {
     }
 
     private ExpressionList<AllowedUUID> getTodayAllowedUUIDQuery(ApiKey apiKey) {
-        Date today = time.getTodayMidnightDate();
-        Date tomorrow = time.getTomorrowMidhtDate();
-        return AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("creation_timestamp", today, tomorrow);
+        DateTime today = time.getTodayMidnightDate();
+        DateTime tomorrow = time.getTomorrowMidhtDate();
+        return AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("created_at", today, tomorrow);
     }
 }
