@@ -23,7 +23,8 @@ libraryDependencies ++= Seq(javaJdbc, cache, javaWs,
   "org.webjars" % "bootstrap" % "3.3.4",
   "com.adrianhurt" %% "play-bootstrap" % "1.1-P25-B3",
   "mysql" % "mysql-connector-java" % "5.1.40",
-  "be.objectify" %% "deadbolt-java" % "2.5.0"
+  "be.objectify" %% "deadbolt-java" % "2.5.0",
+  "com.spotify" % "completable-futures" % "0.3.0"
 )
 
 topLevelDirectory := None

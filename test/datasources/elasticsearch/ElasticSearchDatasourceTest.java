@@ -1,7 +1,7 @@
-package datasources;
+package datasources.elasticsearch;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import datasources.elasticsearch.*;
+import models.Application;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,27 +9,35 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.libs.Json;
 import usecases.InsertResult;
+import usecases.models.LineChart;
 import usecases.models.Report;
 import utils.WithResources;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ElasticSearchDatasourceTest implements WithResources {
 
+    public static final String ANY_FIELD = "AnyField";
     @Mock
     private ElasticsearchClient elasticsearchClient;
 
     @Test
-    public void parsingElasticSearchClientResponse() throws Exception {
+    public void parsingElasticSearchClientBulkResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnTwoItems();
         Report report = givenAnEmptyReport();
 
@@ -40,6 +48,24 @@ public class ElasticSearchDatasourceTest implements WithResources {
         items.add(new InsertResult.MetricResult("network_data", 1));
         items.add(new InsertResult.MetricResult("ui_data", 1));
         assertEquals(new InsertResult(false, false, items), insertResult);
+    }
+
+    @Test
+    public void parsingElasticSearchClientMSearchResponse() throws Exception {
+        ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnAggregation();
+        Application application = givenAnyApplication();
+
+        CompletionStage<LineChart> lineChartCompletionStage = elasticSearchDatasource.singleStat(application, ANY_FIELD, Instant.now().minusSeconds(1L), Instant.now());
+        LineChart lineChart = lineChartCompletionStage.toCompletableFuture().get();
+
+        List<Double> values = Arrays.asList(49.714285714285715, 47.73076923076923, 48.714285714285715, 47.22727272727273, 46.083333333333336, 47.25);
+        List<String> labels = Arrays.asList("1478866080000", "1478866320000", "1478866560000", "1478866800000", "1478867040000", "1478867280000");
+        assertEquals(values, lineChart.getValues());
+        assertEquals(labels, lineChart.getLabels());
+    }
+
+    private Application givenAnyApplication() {
+        return mock(Application.class);
     }
 
     @NotNull
@@ -124,35 +150,52 @@ public class ElasticSearchDatasourceTest implements WithResources {
     }
 
     @NotNull
+    private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnAggregation() {
+        return loadElasticSearchDatasourceMSearchFromFile("elasticsearch/es_msearch_response.json");
+    }
+
+
+    @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnOneItem() {
-        return loadElasticSearchDatasourceFromFile("elasticsearch/es_simple_bulk_response.json");
+        return loadElasticSearchDatasourcePostBulkFromFile("elasticsearch/es_simple_bulk_response.json");
     }
 
 
     @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnError() {
-        return loadElasticSearchDatasourceFromFile("elasticsearch/es_bulk_error.json");
+        return loadElasticSearchDatasourcePostBulkFromFile("elasticsearch/es_bulk_error.json");
     }
 
     @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnErrorParseException() {
-        return loadElasticSearchDatasourceFromFile("elasticsearch/es_bulk_error_parse_exception.json");
+        return loadElasticSearchDatasourcePostBulkFromFile("elasticsearch/es_bulk_error_parse_exception.json");
     }
 
     @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnFailure() {
         String fileName = "elasticsearch/es_bulk_failures.json";
-        return loadElasticSearchDatasourceFromFile(fileName);
+        return loadElasticSearchDatasourcePostBulkFromFile(fileName);
     }
 
     @NotNull
-    private ElasticSearchDatasource loadElasticSearchDatasourceFromFile(String fileName) {
+    private ElasticSearchDatasource loadElasticSearchDatasourcePostBulkFromFile(String fileName) {
         JsonNode postBulkResult = Json.parse(getFile(fileName));
         BulkResponse bulkResponse = Json.fromJson(postBulkResult, BulkResponse.class);
 
         ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
         when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
+        return elasticSearchDatasource;
+    }
+
+    @NotNull
+    private ElasticSearchDatasource loadElasticSearchDatasourceMSearchFromFile(String fileName) {
+        JsonNode postMSearchResult = Json.parse(getFile(fileName));
+        MSearchResponse mSearchResponse = Json.fromJson(postMSearchResult, MSearchResponse.class);
+
+        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        when(elasticsearchClient.multiSearch(any()))
+                .thenReturn(CompletableFuture.completedFuture(mSearchResponse));
         return elasticSearchDatasource;
     }
 }
