@@ -4,6 +4,11 @@ import org.joda.time.*;
 
 public class Time {
 
+    public DateTime now() {
+        DateTimeZone timeZone = getTimeZone();
+        return new DateTime(timeZone);
+    }
+
     public DateTime getYesterdayMidnightDate() {
         DateTimeZone timeZone = getTimeZone();
         DateTime tomorrow = new DateTime(timeZone).plusDays(-1);

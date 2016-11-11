@@ -51,6 +51,7 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     }
 
     private void configureDefaultTime() {
+        when(time.now()).thenReturn(defaultTime.now());
         when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate());
         when(time.getTomorrowMidhtDate()).thenReturn(defaultTime.getTomorrowMidhtDate());
     }
@@ -104,6 +105,10 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         }).count();
         assertEquals(2, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
         assertEquals(2, numberOfAllowedUUIDs);
+    }
+
+    @Test public void removesTheAllowedUUIDsCreatedYesterday() {
+
     }
 
     private void givenTodayIsYesterday() {

@@ -7,6 +7,7 @@ import org.joda.time.DateTime;
 import utils.Time;
 
 import javax.inject.Inject;
+import java.sql.Timestamp;
 import java.util.Set;
 import java.util.UUID;
 
@@ -47,6 +48,8 @@ public class ApiKeyDatasource {
 
     public void addAllowedUUID(ApiKey apiKey, String uuid) {
         AllowedUUID allowedUUID = new AllowedUUID();
+        long nowTimestamp = this.time.now().toDate().getTime();
+        allowedUUID.setCreatedAt(new Timestamp(nowTimestamp));
         allowedUUID.setInstallationUUID(uuid);
         allowedUUID.setApiKey(apiKey);
         allowedUUID.save();
