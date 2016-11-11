@@ -1,13 +1,22 @@
 package datasources.elasticsearch;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.Application;
+import org.jetbrains.annotations.NotNull;
 import play.libs.F;
 import play.libs.Json;
 import usecases.*;
 import usecases.models.*;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -27,7 +36,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         List<IndexRequest> indexRequestList = new ArrayList<>();
         populateIndexRequest(report, indexRequestList);
 
-        return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processResponse);
+        return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processBulkResponse);
     }
 
     private ObjectNode mapSource(DataPoint datapoint) {
@@ -72,7 +81,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         report.getMetrics().forEach(metric -> {
 
             metric.getDataPoints().forEach(datapoint -> {
-                IndexRequest indexRequest = new IndexRequest(FLOWUP + report.getAppPackage(), metric.getName());
+                IndexRequest indexRequest = new IndexRequest(indexName(report.getAppPackage()), metric.getName());
 
                 ObjectNode source = mapSource(datapoint);
 
@@ -82,7 +91,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         });
     }
 
-    private InsertResult processResponse(BulkResponse bulkResponse) {
+    private InsertResult processBulkResponse(BulkResponse bulkResponse) {
         List<InsertResult.MetricResult> items = new ArrayList<>();
         for (BulkItemResponse item : bulkResponse.getItems()) {
             String name = item.getIndex().replace(STATSD, "");
@@ -90,12 +99,91 @@ public class ElasticSearchDatasource implements MetricsDatasource {
             int successful;
             if (shardInfo != null) {
                 successful = shardInfo.getSuccessful();
-            } else  {
+            } else {
                 successful = 0;
             }
             items.add(new InsertResult.MetricResult(name, successful));
         }
 
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
+    }
+
+    public CompletionStage<LineChart> singleStat(Application application, String field, Instant from, Instant to) {
+        return singleStat(application, field, "", from, to);
+    }
+
+    public CompletionStage<LineChart> singleStat(Application application, String field, String queryStringValue, Instant from, Instant to) {
+        long gteEpochMillis = from.toEpochMilli();
+        long lteEpochMillis = to.toEpochMilli();
+
+        SearchQuery searchQuery = prepareSearchQuery(application, gteEpochMillis, lteEpochMillis, field, queryStringValue);
+
+        return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchResponse);
+    }
+
+    private LineChart processMSearchResponse(MSearchResponse mSearchResponse) {
+        List<String> keys = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+        for (SearchResponse searchResponse : mSearchResponse.getResponses()) {
+            for (JsonNode bucket : searchResponse.getAggregations().get("2").get("buckets")) {
+                keys.add(bucket.get("key").asText());
+                JsonNode value = bucket.get("1").get("value");
+                values.add(value instanceof NullNode ? null : value.asDouble());
+            }
+        }
+
+        return new LineChart(keys, values);
+    }
+
+    @NotNull
+    private SearchQuery prepareSearchQuery(Application application, long gteEpochMillis, long lteEpochMillis, String field, String queryStringValue) {
+        SearchQuery searchQuery = new SearchQuery();
+
+        SearchIndex searchIndex = new SearchIndex();
+        searchIndex.setIndex(indexName(application.getAppPackage()));
+        searchIndex.setIgnoreUnavailable(true);
+        searchIndex.setSearchType("count");
+        searchQuery.setSearchIndex(searchIndex);
+
+        SearchBody searchBody = new SearchBody();
+        searchBody.setSize(0);
+        SearchBodyQuery query = new SearchBodyQuery();
+        SearchBodyQueryFiltered filtered = new SearchBodyQueryFiltered();
+        SearchBodyQueryFilteredQuery filteredQuery = new SearchBodyQueryFilteredQuery();
+        QueryString queryString = new QueryString();
+        queryString.setAnalyzeWildcard(true);
+        queryString.setQuery("");
+        filteredQuery.setQueryString(queryString);
+        filtered.setQuery(filteredQuery);
+        ObjectNode filter = Json.newObject();
+        JsonNode range = Json.newObject()
+                .set("range", Json.newObject()
+                        .set("@timestamp", Json.newObject()
+                                .put("gte", gteEpochMillis)
+                                .put("lte", lteEpochMillis)
+                                .put("format", "epoch_millis")));
+        filter.set("bool", Json.newObject().set("must", Json.newArray().add(range)));
+        filtered.setFilter(filter);
+        query.setFiltered(filtered);
+        searchBody.setQuery(query);
+        ObjectNode aggsObject = Json.newObject();
+        JsonNode dateHistogram = Json.newObject()
+                .put("interval", "4m")
+                .put("field", "@timestamp")
+                .put("min_doc_count", 0)
+                .put("format", "epoch_millis")
+                .set("extended_bounds", Json.newObject().put("min", gteEpochMillis).put("max", lteEpochMillis));
+        aggsObject.set("date_histogram", dateHistogram);
+        JsonNode aggsNode = Json.newObject().set("1", Json.newObject().set("avg", Json.newObject().put("field", field)));
+        aggsObject.set("aggs", aggsNode);
+        JsonNode aggs = Json.newObject().set("2", aggsObject);
+        searchBody.setAggs(aggs);
+        searchQuery.setSearchBody(searchBody);
+        return searchQuery;
+    }
+
+    @NotNull
+    private String indexName(String appPackage) {
+        return FLOWUP + appPackage;
     }
 }

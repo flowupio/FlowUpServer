@@ -5,11 +5,13 @@ import datasources.database.ApplicationDatasource;
 import datasources.grafana.DashboardsClient;
 import models.ApiKey;
 import models.Application;
+import models.Organization;
 import org.jetbrains.annotations.NotNull;
 import play.cache.CacheApi;
 
 import javax.inject.Inject;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -64,5 +66,9 @@ public class ApplicationRepository {
             }).toCompletableFuture();
         }).toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(completionStages);
+    }
+
+    public Application findById(UUID id) {
+        return Application.find.byId(id);
     }
 }
