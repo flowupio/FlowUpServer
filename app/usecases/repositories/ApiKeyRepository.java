@@ -86,8 +86,10 @@ public class ApiKeyRepository {
 
     public void deleteOldAllowedUUIDs(String apiKeyValue) {
         ApiKey apiKey = getApiKey(apiKeyValue);
-        apiKeyDatasource.deleteAllowedUUIDs(apiKey);
-        flushAllowedUUIDCache(apiKey);
+        if (apiKey!=null) {
+            apiKeyDatasource.deleteAllowedUUIDs(apiKey);
+            flushAllowedUUIDCache(apiKey);
+        }
     }
 
     private void updateApiKeyCache(ApiKey apiKey) {
