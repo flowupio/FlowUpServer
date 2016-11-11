@@ -24,8 +24,9 @@
             <div class="row statcards">
                 @for(statCard <- statCards) {
                     <div class="col-sm-6 col-lg-3 m-b">
-                        <a href="@controllers.routes.CommandCenterController.grafana()"></a>
-                    @commandcenter.statcard("success", statCard.getDescription, statCard.getNumber, statCard.getUnit, statCard.getLineChart, statCard.getThreshold)
+                        <a href="@controllers.routes.CommandCenterController.grafana()">
+                        @commandcenter.statcard("success", statCard.getDescription, statCard.getNumber, statCard.getUnit, statCard.getLineChart, statCard.getThreshold)
+                        </a>
                     </div>
                 }
             </div>
