@@ -4,7 +4,6 @@ import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.user.AuthUser;
 import com.spotify.futures.CompletableFutures;
 import datasources.grafana.GrafanaProxy;
-import lombok.Data;
 import models.Application;
 import models.Organization;
 import models.User;
@@ -12,10 +11,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
-import usecases.GetApplicationById;
-import usecases.GetFramePerSecond;
-import usecases.GetPrimaryOrganization;
-import usecases.GetUserByAuthUserIdentity;
+import usecases.*;
 import usecases.models.StatCard;
 import views.html.commandcenter.home;
 import views.html.commandcenter.application;
@@ -38,16 +34,22 @@ public class CommandCenterController extends Controller {
     private final GetPrimaryOrganization getPrimaryOrganization;
     private final GetApplicationById getApplicationById;
     private final GetFramePerSecond getFramePerSecond;
+    private final GetInternalStorageUsage getInternalStorageUsage;
+    private final GetCpuUsage getCpuUsage;
+    private final GetMemoryUsage getMemoryUsage;
 
 
     @Inject
-    public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity, GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById, GetFramePerSecond getFramePerSecond) {
+    public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity, GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById, GetFramePerSecond getFramePerSecond, GetInternalStorageUsage getInternalStorageUsage, GetCpuUsage getCpuUsage, GetMemoryUsage getMemoryUsage) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
         this.getPrimaryOrganization = getPrimaryOrganization;
         this.getApplicationById = getApplicationById;
         this.getFramePerSecond = getFramePerSecond;
+        this.getInternalStorageUsage = getInternalStorageUsage;
+        this.getCpuUsage = getCpuUsage;
+        this.getMemoryUsage = getMemoryUsage;
     }
 
     public Result index() {
@@ -64,9 +66,9 @@ public class CommandCenterController extends Controller {
 
         Application applicationModel = getApplicationById.execute(UUID.fromString(applicationUUID));
         CompletableFuture<StatCard> framePerSecondCompletionStage = getFramePerSecond.execute(applicationModel).toCompletableFuture();
-        CompletableFuture<StatCard> internalStorageUsageCompletionStage = getFramePerSecond.execute(applicationModel).toCompletableFuture();
-        CompletableFuture<StatCard> cpuUsageCompletionStage = getFramePerSecond.execute(applicationModel).toCompletableFuture();
-        CompletableFuture<StatCard> memoryUsageCompletionStage = getFramePerSecond.execute(applicationModel).toCompletableFuture();
+        CompletableFuture<StatCard> internalStorageUsageCompletionStage = getInternalStorageUsage.execute(applicationModel).toCompletableFuture();
+        CompletableFuture<StatCard> cpuUsageCompletionStage = getCpuUsage.execute(applicationModel).toCompletableFuture();
+        CompletableFuture<StatCard> memoryUsageCompletionStage = getMemoryUsage.execute(applicationModel).toCompletableFuture();
 
         List<CompletableFuture<StatCard>> futures = asList(framePerSecondCompletionStage, internalStorageUsageCompletionStage, cpuUsageCompletionStage, memoryUsageCompletionStage);
         return CompletableFutures.allAsList(futures).thenApply(statCards ->  {

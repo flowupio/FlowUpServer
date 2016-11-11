@@ -3,8 +3,8 @@
 @(status: String, description: String, mainNumber: Double, unit: String, lineChart: LineChart)
 <div class="statcard statcard-@status">
     <div class="p-a">
-        <span class="statcard-desc">@description @unit</span>
-        <h2 class="statcard-number">@mainNumber</h2>
+        <span class="statcard-desc">@description</span>
+        <h2 class="statcard-number">@mainNumber @unit</h2>
         <hr class="statcard-hr m-b-0">
     </div>
     <canvas width="378" height="94" class="sparkline" data-chart="spark-line" data-value="[{data:@Json.toJson(lineChart.getValues).toString}]" data-labels="@lineChart.getLabels.map(label => "'" + label + "'").mkString(",")" style="width: 189px;

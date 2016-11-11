@@ -103,12 +103,15 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
     }
 
-    public CompletionStage<LineChart> singleStat(Application application) {
+    public CompletionStage<LineChart> singleStat(Application application, String field) {
+        return singleStat(application, field, "");
+    }
+
+    public CompletionStage<LineChart> singleStat(Application application, String field, String queryStringValue) {
         long gteEpochMillis = 1478386800000L;
         long lteEpochMillis = 1478773156290L;
-        String field = "FramesPerSecond.p10";
 
-        SearchQuery searchQuery = prepareSearchQuery(application, gteEpochMillis, lteEpochMillis, field);
+        SearchQuery searchQuery = prepareSearchQuery(application, gteEpochMillis, lteEpochMillis, field, queryStringValue);
 
         return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchResponse);
     }
@@ -118,8 +121,8 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         List<Double> values = new ArrayList<>();
         for (SearchResponse searchResponse : mSearchResponse.getResponses()) {
             for (JsonNode bucket : searchResponse.getAggregations().get("2").get("buckets")) {
-                keys.add(bucket.get("key_as_string").asText());
-                values.add(bucket.get("key").asDouble());
+                keys.add(bucket.get("key").asText());
+                values.add(bucket.get("1").get("value").asDouble());
             }
         }
 
@@ -127,7 +130,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     @NotNull
-    private SearchQuery prepareSearchQuery(Application application, long gteEpochMillis, long lteEpochMillis, String field) {
+    private SearchQuery prepareSearchQuery(Application application, long gteEpochMillis, long lteEpochMillis, String field, String queryStringValue) {
         SearchQuery searchQuery = new SearchQuery();
 
         SearchIndex searchIndex = new SearchIndex();
