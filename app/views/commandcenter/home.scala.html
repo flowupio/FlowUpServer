@@ -48,12 +48,12 @@
                                 Add the following dependency to your build.gradle file:
                             </p>
 
-                            <code>
+                            <pre><code class="language-groovy">
 dependencies {<br />
     compile &#039;io.flowup:android-sdk:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
     testCompile &#039;io.flowup:android-sdk-no-op:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
 }
-                            </code>
+                            </code></pre>
 
                             <hr class="m-t">
 
@@ -63,12 +63,12 @@ dependencies {<br />
                                 Initialize the FlowUp Android SDK in the your Application class onCreate() method.
                             </p>
 
-                            <code>
+                            <pre><code class="language-java">
 FlowUp.Builder.with(this)<br />
     .apiKey(&quot;@apiKey.getValue&quot;)<br />
     .forceReports(BuildConfig.DEBUG)<br />
     .start();
-                            </code>
+                            </code></pre>
 
                             <hr class="m-t">
 
