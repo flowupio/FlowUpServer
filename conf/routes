@@ -37,3 +37,6 @@ POST    /report                    controllers.ReportController.index
 
 # CONFIG
 GET     /config                    controllers.ConfigController.getConfig
+
+# ALLOWED UUIDS
+DELETE /:apiKey                    controllers.AllowedUUIDs.deleteOldAllowedUUIDs(apiKey)

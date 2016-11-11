@@ -25,13 +25,11 @@ public class ApiKeyRepository {
 
     private final CacheApi cache;
     private final ApiKeyDatasource apiKeyDatasource;
-    private final Time time;
 
     @Inject
-    public ApiKeyRepository(CacheApi cache, ApiKeyDatasource apiKeyDatasource, Time time) {
+    public ApiKeyRepository(CacheApi cache, ApiKeyDatasource apiKeyDatasource) {
         this.cache = cache;
         this.apiKeyDatasource = apiKeyDatasource;
-        this.time = time;
     }
 
     @NotNull
@@ -75,15 +73,21 @@ public class ApiKeyRepository {
 
     public int getTodayAllowedUUIDCount(ApiKey apiKey) {
         return cache.getOrElse(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey,
-                () -> getTodayAllowedUUIDQuery(apiKey).findRowCount(),
+                () -> apiKeyDatasource.getTodayAllowedUUIDsCount(apiKey),
                 API_KEY_TODAY_ALLOWED_UUID_COUNT_TTL);
     }
 
     public Set<AllowedUUID> getTodayAllowedUUIDS(ApiKey apiKey) {
         return cache.getOrElse(TODAY_ALLOWED_UUIDS + apiKey,
-                () -> getTodayAllowedUUIDQuery(apiKey).findSet(),
+                () -> apiKeyDatasource.getTodayAllowedUUIDs(apiKey),
                 ALLOWED_UUIDS_TTL);
 
+    }
+
+    public void deleteOldAllowedUUIDs(String apiKeyValue) {
+        ApiKey apiKey = getApiKey(apiKeyValue);
+        apiKeyDatasource.deleteAllowedUUIDs(apiKey);
+        flushAllowedUUIDCache(apiKey);
     }
 
     private void updateApiKeyCache(ApiKey apiKey) {
@@ -91,13 +95,11 @@ public class ApiKeyRepository {
     }
 
     private void flushAllowedUUIDCache(ApiKey apiKey) {
-        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey.getId());
-        cache.remove(TODAY_ALLOWED_UUIDS + apiKey.getId());
+        flushAllowedUUIDCache(apiKey.getId().toString());
     }
 
-    private ExpressionList<AllowedUUID> getTodayAllowedUUIDQuery(ApiKey apiKey) {
-        DateTime today = time.getTodayMidnightDate();
-        DateTime tomorrow = time.getTomorrowMidhtDate();
-        return AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("created_at", today, tomorrow);
+    private void flushAllowedUUIDCache(String apiKey) {
+        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey);
+        cache.remove(TODAY_ALLOWED_UUIDS + apiKey);
     }
 }

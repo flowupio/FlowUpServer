@@ -1,11 +1,23 @@
 package datasources.database;
 
+import com.avaje.ebean.ExpressionList;
 import models.AllowedUUID;
 import models.ApiKey;
+import org.joda.time.DateTime;
+import utils.Time;
 
+import javax.inject.Inject;
+import java.util.Set;
 import java.util.UUID;
 
 public class ApiKeyDatasource {
+
+    private final Time time;
+
+    @Inject
+    public ApiKeyDatasource(Time time) {
+        this.time = time;
+    }
 
     public ApiKey findByApiKeyValue(String apiKeyValue) {
         return ApiKey.find.fetch("organization").where().eq("value", apiKeyValue).findUnique();
@@ -38,5 +50,26 @@ public class ApiKeyDatasource {
         allowedUUID.setInstallationUUID(uuid);
         allowedUUID.setApiKey(apiKey);
         allowedUUID.save();
+    }
+
+    public int getTodayAllowedUUIDsCount(ApiKey apiKey) {
+        return getTodayAllowedUUIDQuery(apiKey).findRowCount();
+    }
+
+    public Set<AllowedUUID> getTodayAllowedUUIDs(ApiKey apiKey) {
+        return getTodayAllowedUUIDQuery(apiKey).findSet();
+    }
+
+    public void deleteAllowedUUIDs(ApiKey apiKey) {
+        DateTime yesterday = time.getYesterdayMidnightDate();
+        DateTime today = time.getTodayMidnightDate();
+        ExpressionList<AllowedUUID> uuidsToDelete = AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("created_at", yesterday, today);
+        uuidsToDelete.delete();
+    }
+
+    private ExpressionList<AllowedUUID> getTodayAllowedUUIDQuery(ApiKey apiKey) {
+        DateTime today = time.getTodayMidnightDate();
+        DateTime tomorrow = time.getTomorrowMidhtDate();
+        return AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("created_at", today, tomorrow);
     }
 }
