@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.PRECONDITION_FAILED;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
@@ -53,9 +54,7 @@ public class ConfigControllerTest extends WithFlowUpApplication implements WithR
 
         Result result = getConfig(API_KEY_VALUE);
 
-        assertEquals(OK, result.status());
-        String expect = "{\"enabled\":false}";
-        assertEqualsString(expect, result);
+        assertEquals(PRECONDITION_FAILED, result.status());
     }
 
     @Test
@@ -68,6 +67,7 @@ public class ConfigControllerTest extends WithFlowUpApplication implements WithR
     private Result getConfig(String apiKey) {
         Http.RequestBuilder requestBuilder = fakeRequest("GET", "/config")
                 .header("X-Api-Key", apiKey)
+                .header("X-UUID", "anyUUID")
                 .header("Content-Type", "application/json");
         return route(requestBuilder);
     }

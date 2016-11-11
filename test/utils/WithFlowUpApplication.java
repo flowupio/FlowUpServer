@@ -32,6 +32,7 @@ public class WithFlowUpApplication extends WithApplication {
             statement.addBatch("TRUNCATE user_permission;");
             statement.addBatch("TRUNCATE user_security_role;");
             statement.addBatch("TRUNCATE user_user_permission;");
+            statement.addBatch("TRUNCATE allowed_uuid;");
             statement.addBatch("SET FOREIGN_KEY_CHECKS = 1;");
             statement.executeBatch();
         } catch (SQLException e) {

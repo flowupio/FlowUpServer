@@ -10,6 +10,7 @@ object flowupapi extends Simulation {
     .acceptHeader("application/json")
     .header("Content-Type", "application/json")
     .header("X-Api-Key", "15207698c544f617e2c11151ada4972e1e7d6e8e")
+    .header("X-UUID", "a4972e1e7d6e8e-f617e2c11151ada4-152076")
     .header("Content-Encoding", "gzip")
     .userAgentHeader("FlowUpAndroidSDK/1.0.0")
 
