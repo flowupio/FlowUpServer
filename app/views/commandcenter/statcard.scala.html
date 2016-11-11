@@ -17,7 +17,7 @@
     <div class="p-a">
         <span class="statcard-desc">@description</span>
         @if(mainNumber != null) {
-            <h2 class="statcard-number">@mainNumber @unit</h2>
+            <h2 class="statcard-number">@("%.2f".format(mainNumber)) @unit</h2>
         } else {
             <h2 class="statcard-number">N/A</h2>
         }
