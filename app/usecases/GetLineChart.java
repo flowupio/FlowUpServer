@@ -8,6 +8,8 @@ import usecases.models.StatCard;
 import usecases.models.Threshold;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.OptionalDouble;
 import java.util.concurrent.CompletionStage;
 
@@ -20,11 +22,13 @@ abstract class GetLineChart {
     }
 
     CompletionStage<StatCard> execute(Application application, String field, String description, String unit) {
-        return elasticSearchDatasource.singleStat(application, field).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
+        Instant now = Instant.now();
+        return elasticSearchDatasource.singleStat(application, field, now.minus(6, ChronoUnit.HOURS), now).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
     }
 
     CompletionStage<StatCard> execute(Application application, String field, String queryStringValue, String description, String unit) {
-        return elasticSearchDatasource.singleStat(application, field, queryStringValue).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
+        Instant now = Instant.now();
+        return elasticSearchDatasource.singleStat(application, field, queryStringValue, now.minus(6, ChronoUnit.HOURS), now).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
     }
 
     @NotNull

@@ -11,6 +11,10 @@ import usecases.*;
 import usecases.models.*;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -104,13 +108,13 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
     }
 
-    public CompletionStage<LineChart> singleStat(Application application, String field) {
-        return singleStat(application, field, "");
+    public CompletionStage<LineChart> singleStat(Application application, String field, Instant from, Instant to) {
+        return singleStat(application, field, "", from, to);
     }
 
-    public CompletionStage<LineChart> singleStat(Application application, String field, String queryStringValue) {
-        long gteEpochMillis = 1478386800000L;
-        long lteEpochMillis = 1478773156290L;
+    public CompletionStage<LineChart> singleStat(Application application, String field, String queryStringValue, Instant from, Instant to) {
+        long gteEpochMillis = from.toEpochMilli();
+        long lteEpochMillis = to.toEpochMilli();
 
         SearchQuery searchQuery = prepareSearchQuery(application, gteEpochMillis, lteEpochMillis, field, queryStringValue);
 
