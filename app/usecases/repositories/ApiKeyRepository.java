@@ -1,10 +1,8 @@
 package usecases.repositories;
 
-import com.avaje.ebean.ExpressionList;
 import datasources.database.ApiKeyDatasource;
 import models.AllowedUUID;
 import models.ApiKey;
-import org.joda.time.DateTime;
 import play.cache.CacheApi;
 import utils.Time;
 
@@ -25,11 +23,13 @@ public class ApiKeyRepository {
 
     private final CacheApi cache;
     private final ApiKeyDatasource apiKeyDatasource;
+    private final Time time;
 
     @Inject
-    public ApiKeyRepository(CacheApi cache, ApiKeyDatasource apiKeyDatasource) {
+    public ApiKeyRepository(CacheApi cache, ApiKeyDatasource apiKeyDatasource, Time time) {
         this.cache = cache;
         this.apiKeyDatasource = apiKeyDatasource;
+        this.time = time;
     }
 
     @NotNull
@@ -72,24 +72,26 @@ public class ApiKeyRepository {
     }
 
     public int getTodayAllowedUUIDCount(ApiKey apiKey) {
-        return cache.getOrElse(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey,
+        int day = getNumericDay();
+        return cache.getOrElse(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey + day,
                 () -> apiKeyDatasource.getTodayAllowedUUIDsCount(apiKey),
                 API_KEY_TODAY_ALLOWED_UUID_COUNT_TTL);
     }
 
     public Set<AllowedUUID> getTodayAllowedUUIDS(ApiKey apiKey) {
-        return cache.getOrElse(TODAY_ALLOWED_UUIDS + apiKey,
+        int day = getNumericDay();
+        return cache.getOrElse(TODAY_ALLOWED_UUIDS + apiKey + day,
                 () -> apiKeyDatasource.getTodayAllowedUUIDs(apiKey),
                 ALLOWED_UUIDS_TTL);
 
     }
 
-    public void deleteOldAllowedUUIDs(String apiKeyValue) {
-        ApiKey apiKey = getApiKey(apiKeyValue);
-        if (apiKey!=null) {
-            apiKeyDatasource.deleteAllowedUUIDs(apiKey);
-            flushAllowedUUIDCache(apiKey);
-        }
+    public void deleteOldAllowedUUIDs() {
+        apiKeyDatasource.deleteAllowedUUIDs();
+    }
+
+    private int getNumericDay() {
+        return time.getTodayNumericDay();
     }
 
     private void updateApiKeyCache(ApiKey apiKey) {
@@ -101,7 +103,8 @@ public class ApiKeyRepository {
     }
 
     private void flushAllowedUUIDCache(String apiKey) {
-        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey);
-        cache.remove(TODAY_ALLOWED_UUIDS + apiKey);
+        int day = getNumericDay();
+        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey + day);
+        cache.remove(TODAY_ALLOWED_UUIDS + apiKey + day);
     }
 }

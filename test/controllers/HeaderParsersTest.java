@@ -37,7 +37,7 @@ public class HeaderParsersTest extends WithApplication {
     @Test
     public void whenHeaderParsersIsCalledTwiceWithTheSameAPIKeyItShouldItTheCache() {
         ApiKeyDatasource apiKeyDatasource = givenApiKeyDatasource();
-        HeaderParsers headerParsers = new HeaderParsers(new ApiKeyRepository(cacheApi, apiKeyDatasource));
+        HeaderParsers headerParsers = new HeaderParsers(new ApiKeyRepository(cacheApi, apiKeyDatasource, new Time()));
         Http.RequestHeader requestHeader = givenRequestHeaderWithValidApiKey();
 
         headerParsers.apply(requestHeader);

@@ -4,16 +4,16 @@ import usecases.repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
 
-public class DeleteOldAllowedUUIDs {
+public class DeleteYesterdayAllowedUUIDs {
 
     private final ApiKeyRepository apiKeyRepository;
 
     @Inject
-    public DeleteOldAllowedUUIDs(ApiKeyRepository apiKeyRepository) {
+    public DeleteYesterdayAllowedUUIDs(ApiKeyRepository apiKeyRepository) {
         this.apiKeyRepository = apiKeyRepository;
     }
 
-    public void execute(String apiKey) {
-        apiKeyRepository.deleteOldAllowedUUIDs(apiKey);
+    public void execute() {
+        apiKeyRepository.deleteOldAllowedUUIDs();
     }
 }

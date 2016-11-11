@@ -8,6 +8,7 @@ import utils.Time;
 
 import javax.inject.Inject;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -63,10 +64,10 @@ public class ApiKeyDatasource {
         return getTodayAllowedUUIDQuery(apiKey).findSet();
     }
 
-    public void deleteAllowedUUIDs(ApiKey apiKey) {
+    public void deleteAllowedUUIDs() {
         DateTime yesterday = time.getYesterdayMidnightDate();
         DateTime today = time.getTodayMidnightDate();
-        ExpressionList<AllowedUUID> uuidsToDelete = AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("created_at", yesterday, today);
+        ExpressionList<AllowedUUID> uuidsToDelete = AllowedUUID.find.where().between("created_at", yesterday, today);
         uuidsToDelete.delete();
     }
 

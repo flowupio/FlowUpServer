@@ -26,9 +26,13 @@ public class Time {
         return tomorrow.withTimeAtStartOfDay();
     }
 
+    public int getTodayNumericDay() {
+        int i = now().dayOfMonth().get();
+        System.out.println("-------> TODAY "+ i );
+        return i;
+    }
+
     private DateTimeZone getTimeZone() {
         return DateTimeZone.forID("Europe/Berlin");
     }
-
-
 }

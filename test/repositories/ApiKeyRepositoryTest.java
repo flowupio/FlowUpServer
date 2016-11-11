@@ -113,7 +113,7 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         givenTodayIsToday();
         apiKeyRepository.addAllowedUUID(apiKey, ANY_OTHER_UUID);
 
-        apiKeyRepository.deleteOldAllowedUUIDs(apiKey.getValue());
+        apiKeyRepository.deleteOldAllowedUUIDs();
 
         Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
         long numberOfAllowedUUIDs = allowedUUIDs.stream().filter(allowedUUID -> {
@@ -125,48 +125,17 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     }
 
     @Test
-    public void doesNotRemoveAnyAllowedUUIDsIfTheApiKeyDoesNotExist() {
-        ApiKey apiKey = givenAnApiKey(ANY_API_KEY);
+    public void doesNotCrashIfTheApiKeyDoesNotExist() {
         givenTodayIsToday();
-        apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
-        apiKeyRepository.addAllowedUUID(apiKey, ANY_OTHER_UUID);
 
-        apiKeyRepository.deleteOldAllowedUUIDs(ANY_OTHER_API_KEY);
-
-        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
-        long numberOfAllowedUUIDs = allowedUUIDs.stream().filter(allowedUUID -> {
-            String installationUUID = allowedUUID.getInstallationUUID();
-            return installationUUID.equals(ANY_OTHER_UUID);
-        }).count();
-        assertEquals(2, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
-        assertEquals(2, numberOfAllowedUUIDs);
+        apiKeyRepository.deleteOldAllowedUUIDs();
     }
 
     @Test
-    public void doesNotRemoveAnyAllowedUUIDsIfTheApiKeyIsDifferent() {
-        ApiKey apiKey = givenAnApiKey(ANY_API_KEY);
-        ApiKey otherApiKey = givenAnApiKey(ANY_OTHER_API_KEY);
-        givenTodayIsToday();
-        apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
-        apiKeyRepository.addAllowedUUID(apiKey, ANY_OTHER_UUID);
-
-        apiKeyRepository.deleteOldAllowedUUIDs(otherApiKey.getValue());
-
-        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
-        long numberOfAllowedUUIDs = allowedUUIDs.stream().filter(allowedUUID -> {
-            String installationUUID = allowedUUID.getInstallationUUID();
-            return installationUUID.equals(ANY_OTHER_UUID);
-        }).count();
-        assertEquals(2, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
-        assertEquals(2, numberOfAllowedUUIDs);
-        assertEquals(0, apiKeyRepository.getTodayAllowedUUIDCount(otherApiKey));
-    }
-
-    @Test
-    public void doesNotRemoveAnyAllowedUUIDsIfThereAreNoAllowedUUIds() {
+    public void doesNotCrashIfThereAreNoAllowedUUIDs() {
         ApiKey apiKey = givenAnApiKey();
 
-        apiKeyRepository.deleteOldAllowedUUIDs(apiKey.getValue());
+        apiKeyRepository.deleteOldAllowedUUIDs();
 
         assertEquals(0, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
     }
