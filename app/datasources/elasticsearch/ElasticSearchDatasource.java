@@ -1,6 +1,7 @@
 package datasources.elasticsearch;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Application;
 import org.jetbrains.annotations.NotNull;
@@ -122,7 +123,8 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         for (SearchResponse searchResponse : mSearchResponse.getResponses()) {
             for (JsonNode bucket : searchResponse.getAggregations().get("2").get("buckets")) {
                 keys.add(bucket.get("key").asText());
-                values.add(bucket.get("1").get("value").asDouble());
+                JsonNode value = bucket.get("1").get("value");
+                values.add(value instanceof NullNode ? null : value.asDouble());
             }
         }
 

@@ -2,8 +2,8 @@ package usecases;
 
 import datasources.elasticsearch.ElasticSearchDatasource;
 import models.Application;
-import usecases.models.LineChart;
 import usecases.models.StatCard;
+import usecases.models.Threshold;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
@@ -15,9 +15,23 @@ public class GetFramePerSecond extends GetLineChart {
     }
 
     public CompletionStage<StatCard> execute(Application application) {
-        return super.executeSingleStat(application, "FramesPerSecond.p10").thenApply(lineChart -> {
-            double average = lineChart.getValues().stream().mapToDouble(a -> a).average().orElseGet(() -> 0.0);
-            return new StatCard("Frame Per Second", average, null, lineChart);
-        });
+        return super.execute(application, "FramesPerSecond.p10", "CPU Usage", "%");
+    }
+
+    @Override
+    Threshold getThreshold(Double average) {
+        Threshold threshold;
+        if (average != null) {
+            if (average > 50) {
+                threshold = Threshold.OK;
+            } else if (average > 40) {
+                threshold = Threshold.WARNING;
+            } else {
+                threshold = Threshold.SEVERE;
+            }
+        } else {
+            threshold = Threshold.NO_DATA;
+        }
+        return threshold;
     }
 }

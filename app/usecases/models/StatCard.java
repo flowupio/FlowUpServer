@@ -5,12 +5,14 @@ public class StatCard {
     private final Double number;
     private final String unit;
     private final LineChart lineChart;
+    private final Threshold threshold;
 
-    public StatCard(String description, Double number, String unit, LineChart lineChart) {
+    public StatCard(String description, Double number, String unit, LineChart lineChart, Threshold threshold) {
         this.description = description;
         this.number = number;
         this.unit = unit;
         this.lineChart = lineChart;
+        this.threshold = threshold;
     }
 
     public String getDescription() {
@@ -28,4 +30,9 @@ public class StatCard {
     public String getUnit() {
         return unit;
     }
+
+    public Threshold getThreshold() {
+        return threshold;
+    }
 }
+
