@@ -118,3 +118,7 @@ code {
 .content {
     background-color: white;
 }
+
+.statcard-desc {
+    font-size: 78%;
+}

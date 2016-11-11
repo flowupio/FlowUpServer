@@ -1,40 +1,33 @@
-@import usecases.LineChart
+@import usecases.models.StatCard
 @import java.util
-@(user: models.User, application: models.Application, applications: util.List[Application], lineChart: LineChart)
+@(user: models.User, application: models.Application, applications: util.List[Application], statCards: util.List[StatCard])
 
 
-    @views.html.commandcenter.main("Command Center", user) {
+@views.html.commandcenter.main("Command Center", user) {
 
-            <div class="row">
+    <div class="row">
 
-                @commandcenter.sidebar(user, applications)
+        @commandcenter.sidebar(user, applications)
 
-                <div class="col-sm-9 col-sm-offset-3 main content">
+        <div class="col-sm-9 col-sm-offset-3 main content">
 
-                    <div class="dashhead">
-                        <div class="dashhead-titles">
-                            <h1 class="dashhead-title">@application.getAppPackage</h1>
-                            <h2 class="dashhead-subtitle">Summary</h2>
-                        </div>
-
-                    </div>
-
-                    <hr class="m-t">
-
-                    <div class="row statcards">
-                        <div class="col-sm-6 col-lg-3 m-b">
-                            @commandcenter.statcard(lineChart)
-                        </div>
-                        <div class="col-sm-6 col-lg-3 m-b">
-                        @commandcenter.statcard(lineChart)
-                        </div>
-                        <div class="col-sm-6 col-lg-3 m-b">
-                        @commandcenter.statcard(lineChart)
-                        </div>
-                        <div class="col-sm-6 col-lg-3 m-b">
-                        @commandcenter.statcard(lineChart)
-                        </div>
-                    </div>
+            <div class="dashhead">
+                <div class="dashhead-titles">
+                    <h1 class="dashhead-title">@application.getAppPackage</h1>
+                    <h2 class="dashhead-subtitle">Summary</h2>
                 </div>
+
             </div>
-    }
+
+            <hr class="m-t">
+
+            <div class="row statcards">
+                @for(statCard <- statCards) {
+                    <div class="col-sm-6 col-lg-3 m-b">
+                    @commandcenter.statcard("success", statCard.getDescription, statCard.getNumber, statCard.getUnit,statCard.getLineChart)
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

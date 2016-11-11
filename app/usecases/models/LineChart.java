@@ -1,6 +1,4 @@
-package usecases;
-
-import lombok.Data;
+package usecases.models;
 
 import java.util.List;
 
@@ -20,11 +18,4 @@ public class LineChart {
     public List<Double> getValues() {
         return values;
     }
-}
-
-@Data
-class StatCard {
-    private final String description;
-    private final Double number;
-    private final LineChart lineChart;
 }

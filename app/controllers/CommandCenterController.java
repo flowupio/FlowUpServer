@@ -2,6 +2,7 @@ package controllers;
 
 import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.user.AuthUser;
+import com.spotify.futures.CompletableFutures;
 import datasources.grafana.GrafanaProxy;
 import lombok.Data;
 import models.Application;
@@ -15,6 +16,7 @@ import usecases.GetApplicationById;
 import usecases.GetFramePerSecond;
 import usecases.GetPrimaryOrganization;
 import usecases.GetUserByAuthUserIdentity;
+import usecases.models.StatCard;
 import views.html.commandcenter.home;
 import views.html.commandcenter.application;
 
@@ -22,7 +24,10 @@ import views.html.commandcenter.application;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import static java.util.Arrays.asList;
 
 @Security.Authenticated(Secured.class)
 public class CommandCenterController extends Controller {
@@ -58,8 +63,14 @@ public class CommandCenterController extends Controller {
         Organization organization = getPrimaryOrganization.execute(user);
 
         Application applicationModel = getApplicationById.execute(UUID.fromString(applicationUUID));
-        return getFramePerSecond.execute(applicationModel).thenApply(lineChart -> {
-            return ok(application.render(user, applicationModel, organization.getApplications(), lineChart));
+        CompletableFuture<StatCard> framePerSecondCompletionStage = getFramePerSecond.execute(applicationModel).toCompletableFuture();
+        CompletableFuture<StatCard> internalStorageUsageCompletionStage = getFramePerSecond.execute(applicationModel).toCompletableFuture();
+        CompletableFuture<StatCard> cpuUsageCompletionStage = getFramePerSecond.execute(applicationModel).toCompletableFuture();
+        CompletableFuture<StatCard> memoryUsageCompletionStage = getFramePerSecond.execute(applicationModel).toCompletableFuture();
+
+        List<CompletableFuture<StatCard>> futures = asList(framePerSecondCompletionStage, internalStorageUsageCompletionStage, cpuUsageCompletionStage, memoryUsageCompletionStage);
+        return CompletableFutures.allAsList(futures).thenApply(statCards ->  {
+            return ok(application.render(user, applicationModel, organization.getApplications(), statCards));
         });
     }
 
