@@ -23,6 +23,7 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.test.WithServer;
 import usecases.repositories.ApiKeyRepository;
+import utils.Time;
 import utils.WithResources;
 
 import java.io.ByteArrayInputStream;
@@ -71,7 +72,8 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
 
     @Before
     public void setupDatabaseWithApiKey() {
-        ApiKeyRepository apiKeyRepository = new ApiKeyRepository(app.injector().instanceOf(CacheApi.class), new ApiKeyDatasource());
+        ApiKeyRepository apiKeyRepository = new ApiKeyRepository(app.injector().instanceOf(CacheApi.class),
+                new ApiKeyDatasource(), new Time());
         this.apiKey = apiKeyRepository.create(API_KEY_VALUE);
         this.organization = new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey);
     }

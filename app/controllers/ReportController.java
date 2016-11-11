@@ -8,6 +8,7 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import sampling.SamplingGroup;
 import usecases.*;
 import usecases.models.DataPoint;
 import usecases.models.Metric;
@@ -18,14 +19,16 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class ReportController extends Controller {
     @Inject
     InsertDataPoints insertDataPoints;
-
     @Inject
     DataPointMapper dataPointMapper;
+    @Inject
+    SamplingGroup samplingGroup;
 
     @BodyParser.Of(ReportRequestBodyParser.class)
     public CompletionStage<Result> index() {
@@ -34,6 +37,10 @@ public class ReportController extends Controller {
         ReportRequest reportRequest = body.as(ReportRequest.class);
 
         String apiKey = request().getHeader(HeaderParsers.X_API_KEY);
+        String uuid = request().getHeader(HeaderParsers.X_UUID);
+        if (!samplingGroup.isIn(apiKey, uuid)) {
+            return CompletableFuture.completedFuture(status(PRECONDITION_FAILED));
+        }
 
         List<Metric> metrics = new ArrayList<>();
         metrics.add(new Metric("network_data", dataPointMapper.mapNetwork(reportRequest)));
