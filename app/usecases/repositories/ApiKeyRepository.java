@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class ApiKeyRepository {
 
@@ -83,7 +84,6 @@ public class ApiKeyRepository {
         return cache.getOrElse(TODAY_ALLOWED_UUIDS + apiKey + day,
                 () -> apiKeyDatasource.getTodayAllowedUUIDs(apiKey),
                 ALLOWED_UUIDS_TTL);
-
     }
 
     public void deleteOldAllowedUUIDs() {
@@ -99,7 +99,7 @@ public class ApiKeyRepository {
     }
 
     private void flushAllowedUUIDCache(ApiKey apiKey) {
-        flushAllowedUUIDCache(apiKey.getId().toString());
+        flushAllowedUUIDCache(apiKey.getValue());
     }
 
     private void flushAllowedUUIDCache(String apiKey) {

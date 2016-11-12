@@ -32,7 +32,6 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     private static final String ANY_UUID = "abcd";
     private static final String ANY_OTHER_UUID = "efgh";
     private static final String ANY_API_KEY = "12345";
-    private static final String ANY_OTHER_API_KEY = "abcd";
 
     private ApiKeyRepository apiKeyRepository;
     private CacheApi cache;
@@ -106,22 +105,23 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         assertEquals(2, numberOfAllowedUUIDs);
     }
 
-    @Test public void removesTheAllowedUUIDsCreatedYesterday() {
+    @Test
+    public void removesTheAllowedUUIDsCreatedYesterday() {
         ApiKey apiKey = givenAnApiKey();
-        givenTodayIsYesterday();
-        apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
         givenTodayIsToday();
+        apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
         apiKeyRepository.addAllowedUUID(apiKey, ANY_OTHER_UUID);
 
+        givenTodayIsTomorrow();
         apiKeyRepository.deleteOldAllowedUUIDs();
 
         Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
         long numberOfAllowedUUIDs = allowedUUIDs.stream().filter(allowedUUID -> {
             String installationUUID = allowedUUID.getInstallationUUID();
-            return installationUUID.equals(ANY_OTHER_UUID);
+            return installationUUID.equals(ANY_UUID) || installationUUID.equals(ANY_OTHER_UUID);
         }).count();
-        assertEquals(1, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
-        assertEquals(1, numberOfAllowedUUIDs);
+        assertEquals(0, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
+        assertEquals(0, numberOfAllowedUUIDs);
     }
 
     @Test
@@ -133,6 +133,7 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
 
     @Test
     public void doesNotCrashIfThereAreNoAllowedUUIDs() {
+        givenTodayIsToday();
         ApiKey apiKey = givenAnApiKey();
 
         apiKeyRepository.deleteOldAllowedUUIDs();
@@ -141,15 +142,27 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     }
 
     private void givenTodayIsYesterday() {
-        when(time.now()).thenReturn(defaultTime.getYesterdayMidnightDate().minusDays(1));
-        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate());
-        when(time.getTomorrowMidhtDate()).thenReturn(defaultTime.getTodayMidnightDate());
+        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().minusDays(1).getDayOfMonth());
+        when(time.now()).thenReturn(defaultTime.now().minusDays(1));
+        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().minusDays(1));
+        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate().minusDays(1));
+        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().minusDays(1));
+    }
+
+    private void givenTodayIsTomorrow() {
+        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().plusDays(1).getDayOfMonth());
+        when(time.now()).thenReturn(defaultTime.now().plusDays(1));
+        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().plusDays(1));
+        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate().plusDays(1));
+        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().plusDays(1));
     }
 
     private void givenTodayIsToday() {
+        when(time.getTodayNumericDay()).thenReturn(defaultTime.getTodayNumericDay());
         when(time.now()).thenReturn(defaultTime.now());
+        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate());
         when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate());
-        when(time.getTomorrowMidhtDate()).thenReturn(defaultTime.getTomorrowMidhtDate());
+        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate());
     }
 
     private ApiKey givenAnApiKey() {

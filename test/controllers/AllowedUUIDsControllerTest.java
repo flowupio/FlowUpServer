@@ -36,7 +36,7 @@ public class AllowedUUIDsControllerTest extends WithFlowUpApplication implements
     }
 
     @Test
-    public void returnsOkIfTheApiKeyDoesNotExist() {
+    public void returnsOkIfThereAreApiKeys() {
         givenAnApiKey(API_KEY_VALUE, true);
 
         Result result = deleteYesterdayAllowedUUIDs();
@@ -45,19 +45,10 @@ public class AllowedUUIDsControllerTest extends WithFlowUpApplication implements
     }
 
     @Test
-    public void returnsTheConfigAsDisabledIfTheApiKeyIsDisabled() {
-        givenAnApiKey(API_KEY_VALUE, false);
-
+    public void returnsOkIfThereAreNoApiKeys() {
         Result result = deleteYesterdayAllowedUUIDs();
 
-        assertEquals(PRECONDITION_FAILED, result.status());
-    }
-
-    @Test
-    public void returnsUnauthorizedIfThereIsNoApiKeyWithTheValueSpecified() {
-        Result result = deleteYesterdayAllowedUUIDs();
-
-        assertEquals(UNAUTHORIZED, result.status());
+        assertEquals(OK, result.status());
     }
 
     private Result deleteYesterdayAllowedUUIDs() {
