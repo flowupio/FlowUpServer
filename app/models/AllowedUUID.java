@@ -2,13 +2,10 @@ package models;
 
 import com.avaje.ebean.Model;
 import com.avaje.ebean.annotation.CreatedTimestamp;
-import play.data.format.Formats;
 import play.data.validation.Constraints;
-import utils.Time;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.sql.Date;
 import java.util.UUID;
 
 @Entity
@@ -20,7 +17,6 @@ public class AllowedUUID extends Model {
     private UUID id;
     private String installationUUID;
     @CreatedTimestamp
-    @Column(columnDefinition = "datetime")
     private Timestamp createdAt;
     @Constraints.Required
     @ManyToOne

@@ -11,7 +11,7 @@ public class Time {
 
     public DateTime getYesterdayMidnightDate() {
         DateTimeZone timeZone = getTimeZone();
-        DateTime tomorrow = new DateTime(timeZone).minusDays(-1);
+        DateTime tomorrow = new DateTime(timeZone).minusDays(1);
         return tomorrow.withTimeAtStartOfDay();
     }
 
