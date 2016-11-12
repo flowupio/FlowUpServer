@@ -14,19 +14,17 @@
         left: 0;
         z-index: 1000;
         display: block;
-        padding: 20px;
         overflow-x: hidden;
         overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
         background-color: #1E1E24;
-        border-right: 1px solid #eee;
+        margin-left: auto;
+        padding: 40px 20px 20px 15px;
     }
 }
 
 /* Sidebar navigation */
 .nav-sidebar {
-    margin-right: -21px; /* 20px padding + 1px border */
-    margin-bottom: 20px;
-    margin-left: -20px;
+    margin-left: 20px;
 }
 .nav-sidebar > li > a {
     padding-right: 20px;
@@ -39,6 +37,21 @@
     background-color: #428bca;
 }
 
+.nav-toggleable-sm {
+    padding-top: 95px;
+}
+
+.nav>li>a:focus, .nav>li>a:hover {
+    color: #555;
+    background-color: #F4F4F4;
+    width: 285px;
+}
+
+.nav-pills>li>a {
+    border-radius: 0px;
+    color: #ffffff;
+    font-family: "Proxima Nova","Arial Black", Verdana, "Droid Sans", sans-serif;
+}
 
 /*
  * Main content
