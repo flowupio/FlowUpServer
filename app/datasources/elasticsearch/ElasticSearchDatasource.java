@@ -109,7 +109,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     public CompletionStage<LineChart> singleStat(Application application, String field, Instant from, Instant to) {
-        return singleStat(application, field, "", from, to);
+        return singleStat(application, field, "*", from, to);
     }
 
     public CompletionStage<LineChart> singleStat(Application application, String field, String queryStringValue, Instant from, Instant to) {
@@ -152,7 +152,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         SearchBodyQueryFilteredQuery filteredQuery = new SearchBodyQueryFilteredQuery();
         QueryString queryString = new QueryString();
         queryString.setAnalyzeWildcard(true);
-        queryString.setQuery("");
+        queryString.setQuery(queryStringValue);
         filteredQuery.setQueryString(queryString);
         filtered.setQuery(filteredQuery);
         ObjectNode filter = Json.newObject();
