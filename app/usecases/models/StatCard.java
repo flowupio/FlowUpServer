@@ -3,11 +3,11 @@ package usecases.models;
 public class StatCard {
     private final String description;
     private final Double number;
-    private final String unit;
+    private final Unit unit;
     private final LineChart lineChart;
     private final Threshold threshold;
 
-    public StatCard(String description, Double number, String unit, LineChart lineChart, Threshold threshold) {
+    public StatCard(String description, Double number, Unit unit, LineChart lineChart, Threshold threshold) {
         this.description = description;
         this.number = number;
         this.unit = unit;
@@ -27,7 +27,7 @@ public class StatCard {
         return lineChart;
     }
 
-    public String getUnit() {
+    public Unit getUnit() {
         return unit;
     }
 

@@ -4,6 +4,7 @@ import datasources.elasticsearch.ElasticSearchDatasource;
 import models.Application;
 import usecases.models.StatCard;
 import usecases.models.Threshold;
+import usecases.models.Unit;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
@@ -15,7 +16,7 @@ public class GetFramePerSecond extends GetLineChart {
     }
 
     public CompletionStage<StatCard> execute(Application application) {
-        return super.execute(application, "FramesPerSecond.p10", "Frames per second", "%");
+        return super.execute(application, "FramesPerSecond.p10", "Frames per second", Unit.NONE);
     }
 
     @Override

@@ -5,6 +5,7 @@ import models.Application;
 import org.jetbrains.annotations.NotNull;
 import usecases.models.StatCard;
 import usecases.models.Threshold;
+import usecases.models.Unit;
 
 import javax.inject.Inject;
 import java.util.OptionalDouble;
@@ -17,7 +18,7 @@ public class GetCpuUsage extends GetLineChart {
     }
 
     public CompletionStage<StatCard> execute(Application application) {
-        return super.execute(application, "Consumption", "_type:cpu_data", "CPU Usage", "%");
+        return super.execute(application, "Consumption", "_type:cpu_data", "CPU Usage", Unit.PERCENTAGE);
     }
 
     @Override
