@@ -16,7 +16,7 @@ public class UserDatasource {
 
     public User create(AuthUser authUser, boolean active) {
         final User user = new User();
-        user.setActive(true);
+        user.setActive(active);
         user.setLinkedAccounts(Collections.singletonList(LinkedAccount
                 .create(authUser)));
 
