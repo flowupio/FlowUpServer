@@ -75,7 +75,6 @@ public class ReportRequest {
         private final boolean batterySaverOn;
         private final String screen;
         private final StatisticalValue frameTime;
-        private final StatisticalValue framesPerSecond;
         private final StatisticalValue onActivityCreatedTime;
         private final StatisticalValue onActivityStartedTime;
         private final StatisticalValue onActivityResumedTime;
