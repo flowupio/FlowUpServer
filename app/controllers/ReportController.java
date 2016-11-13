@@ -156,6 +156,7 @@ class DataPointMapper {
     }
 
     private double frameTimeToFramePerSecond(double value) {
+        if (value == 0.0) return 1000.0;
         return (1.0 / value) * 1000.0;
     }
 
