@@ -15,6 +15,7 @@ public class ApplicationDatasource {
                 .fetch("organization.apiKey")
                 .where()
                 .eq("appPackage", appPackage)
+                .and()
                 .eq("organization_id", organizationId)
                 .findUnique();
     }

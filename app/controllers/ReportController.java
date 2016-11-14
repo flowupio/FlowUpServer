@@ -137,6 +137,9 @@ class DataPointMapper {
     }
 
     private StatisticalValue computeFramesPerSecond(StatisticalValue frameTime) {
+        if(frameTime == null) {
+            return null;
+        }
         return new StatisticalValue(
                 frameTime.getCount(),
                 frameTimeToFramePerSecond(frameTime.getMin()),
