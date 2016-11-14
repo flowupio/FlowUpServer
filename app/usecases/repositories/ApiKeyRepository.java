@@ -53,7 +53,7 @@ public class ApiKeyRepository {
 
     @Nullable
     public ApiKey getApiKey(String apiKey) {
-        return cache.getOrElse(API_KEY_CACHE_KEY + apiKey,
+        return cache.getOrElse(getApiKeyCacheKey(apiKey),
                 () -> apiKeyDatasource.findByApiKeyValue(apiKey),
                 API_KEY_CACHE_TTL);
     }
@@ -72,15 +72,13 @@ public class ApiKeyRepository {
     }
 
     public int getTodayAllowedUUIDCount(ApiKey apiKey) {
-        int day = getNumericDay();
-        return cache.getOrElse(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey + day,
+        return cache.getOrElse(getAllowedUUIDCountCacheKey(apiKey.getValue()),
                 () -> apiKeyDatasource.getTodayAllowedUUIDsCount(apiKey),
                 API_KEY_TODAY_ALLOWED_UUID_COUNT_TTL);
     }
 
     public Set<AllowedUUID> getTodayAllowedUUIDS(ApiKey apiKey) {
-        int day = getNumericDay();
-        return cache.getOrElse(TODAY_ALLOWED_UUIDS + apiKey + day,
+        return cache.getOrElse(getAllowedUUIDsCacheKey(apiKey.getValue()),
                 () -> apiKeyDatasource.getTodayAllowedUUIDs(apiKey),
                 ALLOWED_UUIDS_TTL);
     }
@@ -89,12 +87,8 @@ public class ApiKeyRepository {
         apiKeyDatasource.deleteAllowedUUIDs();
     }
 
-    private int getNumericDay() {
-        return time.getTodayNumericDay();
-    }
-
     private void updateApiKeyCache(ApiKey apiKey) {
-        cache.set(API_KEY_CACHE_KEY + apiKey, apiKey, API_KEY_CACHE_TTL);
+        cache.set(getApiKeyCacheKey(apiKey.getValue()), apiKey, API_KEY_CACHE_TTL);
     }
 
     private void flushAllowedUUIDCache(ApiKey apiKey) {
@@ -102,8 +96,24 @@ public class ApiKeyRepository {
     }
 
     private void flushAllowedUUIDCache(String apiKey) {
-        int day = getNumericDay();
-        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey + day);
-        cache.remove(TODAY_ALLOWED_UUIDS + apiKey + day);
+        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey + getNumericDay());
+        cache.remove(TODAY_ALLOWED_UUIDS + apiKey + getNumericDay());
     }
+
+    private String getApiKeyCacheKey(String apiKey) {
+        return API_KEY_CACHE_KEY + apiKey;
+    }
+
+    private String getAllowedUUIDCountCacheKey(String apiKey) {
+        return TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey + "." + getNumericDay();
+    }
+
+    private String getAllowedUUIDsCacheKey(String apiKey) {
+        return TODAY_ALLOWED_UUIDS + apiKey + "." + getNumericDay();
+    }
+
+    private int getNumericDay() {
+        return time.getTodayNumericDay();
+    }
+
 }

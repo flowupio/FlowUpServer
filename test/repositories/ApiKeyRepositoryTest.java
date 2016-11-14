@@ -96,13 +96,9 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
         apiKeyRepository.addAllowedUUID(apiKey, ANY_OTHER_UUID);
 
-        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
-        long numberOfAllowedUUIDs = allowedUUIDs.stream().filter(allowedUUID -> {
-            String installationUUID = allowedUUID.getInstallationUUID();
-            return installationUUID.equals(ANY_UUID) || installationUUID.equals(ANY_OTHER_UUID);
-        }).count();
         assertEquals(2, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
-        assertEquals(2, numberOfAllowedUUIDs);
+        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
+        assertEquals(2, allowedUUIDs.size());
     }
 
     @Test
@@ -115,13 +111,9 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         givenTodayIsTomorrow();
         apiKeyRepository.deleteOldAllowedUUIDs();
 
-        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
-        long numberOfAllowedUUIDs = allowedUUIDs.stream().filter(allowedUUID -> {
-            String installationUUID = allowedUUID.getInstallationUUID();
-            return installationUUID.equals(ANY_UUID) || installationUUID.equals(ANY_OTHER_UUID);
-        }).count();
         assertEquals(0, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
-        assertEquals(0, numberOfAllowedUUIDs);
+        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
+        assertEquals(0, allowedUUIDs.size());
     }
 
     @Test

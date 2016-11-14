@@ -62,7 +62,7 @@ public class ApiKeyDatasource {
 
     public void deleteAllowedUUIDs() {
         DateTime today = time.getTodayMidnightDate();
-        AllowedUUID.find.where().lt("created_at", today).delete();
+        AllowedUUID.find.where().le("created_at", today).delete();
     }
 
     private ExpressionList<AllowedUUID> getTodayAllowedUUIDQuery(ApiKey apiKey) {
