@@ -4,9 +4,7 @@ import com.avaje.ebean.Model;
 import com.avaje.ebean.annotation.CreatedTimestamp;
 import play.data.validation.Constraints;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.UUID;
 
@@ -55,4 +53,5 @@ public class AllowedUUID extends Model {
     public void setApiKey(ApiKey apiKey) {
         this.apiKey = apiKey;
     }
+
 }

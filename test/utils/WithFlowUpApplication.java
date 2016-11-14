@@ -1,6 +1,7 @@
 package utils;
 
 import org.junit.After;
+import org.junit.Before;
 import play.Logger;
 import play.db.Database;
 import play.test.WithApplication;
@@ -10,11 +11,11 @@ import java.sql.Statement;
 
 public class WithFlowUpApplication extends WithApplication {
 
-    @After
+    @Before
     @Override
-    public void stopPlay() {
+    public void startPlay() {
+        super.startPlay();
         cleanDatabase();
-        super.stopPlay();
     }
 
     private void cleanDatabase() {

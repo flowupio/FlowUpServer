@@ -31,7 +31,7 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
 
     private static final String ANY_UUID = "abcd";
     private static final String ANY_OTHER_UUID = "efgh";
-    private static final java.lang.String ANY_API_KEY = "12345";
+    private static final String ANY_API_KEY = "12345";
 
     private ApiKeyRepository apiKeyRepository;
     private CacheApi cache;
@@ -51,8 +51,7 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     }
 
     private void configureDefaultTime() {
-        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate());
-        when(time.getTomorrowMidhtDate()).thenReturn(defaultTime.getTomorrowMidhtDate());
+        givenTodayIsToday();
     }
 
     @After
@@ -97,22 +96,73 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
         apiKeyRepository.addAllowedUUID(apiKey, ANY_OTHER_UUID);
 
-        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
-        long numberOfAllowedUUIDs = allowedUUIDs.stream().filter(allowedUUID -> {
-            String installationUUID = allowedUUID.getInstallationUUID();
-            return installationUUID.equals(ANY_UUID) || installationUUID.equals(ANY_OTHER_UUID);
-        }).count();
         assertEquals(2, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
-        assertEquals(2, numberOfAllowedUUIDs);
+        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
+        assertEquals(2, allowedUUIDs.size());
+    }
+
+    @Test
+    public void removesTheAllowedUUIDsCreatedYesterday() {
+        ApiKey apiKey = givenAnApiKey();
+        givenTodayIsToday();
+        apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
+        apiKeyRepository.addAllowedUUID(apiKey, ANY_OTHER_UUID);
+
+        givenTodayIsTomorrow();
+        apiKeyRepository.deleteOldAllowedUUIDs();
+
+        assertEquals(0, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
+        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
+        assertEquals(0, allowedUUIDs.size());
+    }
+
+    @Test
+    public void doesNotCrashIfTheApiKeyDoesNotExist() {
+        givenTodayIsToday();
+
+        apiKeyRepository.deleteOldAllowedUUIDs();
+    }
+
+    @Test
+    public void doesNotCrashIfThereAreNoAllowedUUIDs() {
+        givenTodayIsToday();
+        ApiKey apiKey = givenAnApiKey();
+
+        apiKeyRepository.deleteOldAllowedUUIDs();
+
+        assertEquals(0, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
     }
 
     private void givenTodayIsYesterday() {
-        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate());
-        when(time.getTomorrowMidhtDate()).thenReturn(defaultTime.getTodayMidnightDate());
+        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().minusDays(1).getDayOfMonth());
+        when(time.now()).thenReturn(defaultTime.now().minusDays(1));
+        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().minusDays(1));
+        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate().minusDays(1));
+        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().minusDays(1));
+    }
+
+    private void givenTodayIsTomorrow() {
+        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().plusDays(1).getDayOfMonth());
+        when(time.now()).thenReturn(defaultTime.now().plusDays(1));
+        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().plusDays(1));
+        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate().plusDays(1));
+        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().plusDays(1));
+    }
+
+    private void givenTodayIsToday() {
+        when(time.getTodayNumericDay()).thenReturn(defaultTime.getTodayNumericDay());
+        when(time.now()).thenReturn(defaultTime.now());
+        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate());
+        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate());
+        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate());
     }
 
     private ApiKey givenAnApiKey() {
-        ApiKey apiKey = apiKeyRepository.create(ANY_API_KEY);
+        return givenAnApiKey(ANY_API_KEY);
+    }
+
+    private ApiKey givenAnApiKey(String apiKeyValue) {
+        ApiKey apiKey = apiKeyRepository.create(apiKeyValue);
         apiKeyId = apiKey.getId();
         return apiKey;
     }

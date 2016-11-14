@@ -1,10 +1,8 @@
 package usecases.repositories;
 
-import com.avaje.ebean.ExpressionList;
 import datasources.database.ApiKeyDatasource;
 import models.AllowedUUID;
 import models.ApiKey;
-import org.joda.time.DateTime;
 import play.cache.CacheApi;
 import utils.Time;
 
@@ -55,7 +53,7 @@ public class ApiKeyRepository {
 
     @Nullable
     public ApiKey getApiKey(String apiKey) {
-        return cache.getOrElse(API_KEY_CACHE_KEY + apiKey,
+        return cache.getOrElse(getApiKeyCacheKey(apiKey),
                 () -> apiKeyDatasource.findByApiKeyValue(apiKey),
                 API_KEY_CACHE_TTL);
     }
@@ -74,30 +72,48 @@ public class ApiKeyRepository {
     }
 
     public int getTodayAllowedUUIDCount(ApiKey apiKey) {
-        return cache.getOrElse(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey,
-                () -> getTodayAllowedUUIDQuery(apiKey).findRowCount(),
+        return cache.getOrElse(getAllowedUUIDCountCacheKey(apiKey.getValue()),
+                () -> apiKeyDatasource.getTodayAllowedUUIDsCount(apiKey),
                 API_KEY_TODAY_ALLOWED_UUID_COUNT_TTL);
     }
 
     public Set<AllowedUUID> getTodayAllowedUUIDS(ApiKey apiKey) {
-        return cache.getOrElse(TODAY_ALLOWED_UUIDS + apiKey,
-                () -> getTodayAllowedUUIDQuery(apiKey).findSet(),
+        return cache.getOrElse(getAllowedUUIDsCacheKey(apiKey.getValue()),
+                () -> apiKeyDatasource.getTodayAllowedUUIDs(apiKey),
                 ALLOWED_UUIDS_TTL);
+    }
 
+    public void deleteOldAllowedUUIDs() {
+        apiKeyDatasource.deleteAllowedUUIDs();
     }
 
     private void updateApiKeyCache(ApiKey apiKey) {
-        cache.set(API_KEY_CACHE_KEY + apiKey, apiKey, API_KEY_CACHE_TTL);
+        cache.set(getApiKeyCacheKey(apiKey.getValue()), apiKey, API_KEY_CACHE_TTL);
     }
 
     private void flushAllowedUUIDCache(ApiKey apiKey) {
-        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey.getId());
-        cache.remove(TODAY_ALLOWED_UUIDS + apiKey.getId());
+        flushAllowedUUIDCache(apiKey.getValue());
     }
 
-    private ExpressionList<AllowedUUID> getTodayAllowedUUIDQuery(ApiKey apiKey) {
-        DateTime today = time.getTodayMidnightDate();
-        DateTime tomorrow = time.getTomorrowMidhtDate();
-        return AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("created_at", today, tomorrow);
+    private void flushAllowedUUIDCache(String apiKey) {
+        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey + getNumericDay());
+        cache.remove(TODAY_ALLOWED_UUIDS + apiKey + getNumericDay());
     }
+
+    private String getApiKeyCacheKey(String apiKey) {
+        return API_KEY_CACHE_KEY + apiKey;
+    }
+
+    private String getAllowedUUIDCountCacheKey(String apiKey) {
+        return TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey + "." + getNumericDay();
+    }
+
+    private String getAllowedUUIDsCacheKey(String apiKey) {
+        return TODAY_ALLOWED_UUIDS + apiKey + "." + getNumericDay();
+    }
+
+    private int getNumericDay() {
+        return time.getTodayNumericDay();
+    }
+
 }
