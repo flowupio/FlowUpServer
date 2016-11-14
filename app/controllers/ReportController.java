@@ -10,10 +10,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import sampling.SamplingGroup;
 import usecases.*;
-import usecases.models.DataPoint;
-import usecases.models.Metric;
-import usecases.models.Report;
-import usecases.models.Value;
+import usecases.models.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -120,7 +117,7 @@ class DataPointMapper {
         reportRequest.getUi().forEach((ui) -> {
             List<F.Tuple<String, Value>> measurements = new ArrayList<>();
             measurements.add(new F.Tuple<>(FRAME_TIME, ui.getFrameTime()));
-            measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, ui.getFramesPerSecond()));
+            measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, computeFramesPerSecond(ui.getFrameTime())));
             measurements.add(new F.Tuple<>(ON_ACTIVITY_CREATED_TIME, ui.getOnActivityCreatedTime()));
             measurements.add(new F.Tuple<>(ON_ACTIVITY_STARTED_TIME, ui.getOnActivityStartedTime()));
             measurements.add(new F.Tuple<>(ON_ACTIVITY_RESUMED_TIME, ui.getOnActivityResumedTime()));
@@ -137,6 +134,30 @@ class DataPointMapper {
         });
 
         return dataPoints;
+    }
+
+    private StatisticalValue computeFramesPerSecond(StatisticalValue frameTime) {
+        return new StatisticalValue(
+                frameTime.getCount(),
+                frameTimeToFramePerSecond(frameTime.getMin()),
+                frameTimeToFramePerSecond(frameTime.getMax()),
+                frameTimeToFramePerSecond(frameTime.getMean()),
+                frameTimeToFramePerSecond(frameTime.getStandardDev()),
+                frameTimeToFramePerSecond(frameTime.getMedian()),
+                frameTimeToFramePerSecond(frameTime.getP1()),
+                frameTimeToFramePerSecond(frameTime.getP2()),
+                frameTimeToFramePerSecond(frameTime.getP5()),
+                frameTimeToFramePerSecond(frameTime.getP10()),
+                frameTimeToFramePerSecond(frameTime.getP90()),
+                frameTimeToFramePerSecond(frameTime.getP95()),
+                frameTimeToFramePerSecond(frameTime.getP98()),
+                frameTimeToFramePerSecond(frameTime.getP99())
+        );
+    }
+
+    private double frameTimeToFramePerSecond(double value) {
+        if (value == 0.0) return 1000.0;
+        return (1.0 / value) * 1000.0;
     }
 
     List<DataPoint> mapCpu(ReportRequest reportRequest) {
