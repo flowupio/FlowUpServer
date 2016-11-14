@@ -162,7 +162,6 @@ object Report {
         anyStatisticalValue,
         anyStatisticalValue,
         anyStatisticalValue,
-        anyStatisticalValue,
         anyStatisticalValue)
     }
   }

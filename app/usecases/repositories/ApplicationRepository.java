@@ -1,6 +1,5 @@
 package usecases.repositories;
 
-import datasources.database.ApiKeyDatasource;
 import datasources.database.ApplicationDatasource;
 import datasources.grafana.DashboardsClient;
 import models.ApiKey;
@@ -16,22 +15,31 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class ApplicationRepository {
-    private final ApiKeyDatasource apiKeyDatasource;
+    private final ApiKeyRepository apiKeyRepository;
     private final ApplicationDatasource applicationDatasource;
     private final DashboardsClient dashboardsClient;
     private final CacheApi cacheApi;
 
     @Inject
-    ApplicationRepository(ApiKeyDatasource apiKeyDatasource, ApplicationDatasource applicationDatasource, DashboardsClient dashboardsClient, CacheApi cacheApi) {
-        this.apiKeyDatasource = apiKeyDatasource;
+    ApplicationRepository(ApiKeyRepository apiKeyRepository, ApplicationDatasource applicationDatasource, DashboardsClient dashboardsClient, CacheApi cacheApi) {
+        this.apiKeyRepository = apiKeyRepository;
         this.applicationDatasource = applicationDatasource;
         this.dashboardsClient = dashboardsClient;
         this.cacheApi = cacheApi;
     }
 
-    public boolean exist(String apiKey, String appPackage) {
-        String cacheKey = getCacheKey(apiKey, appPackage);
-        return cacheApi.getOrElse(cacheKey, () -> applicationDatasource.existByApiKeyAndAppPackage(apiKey, appPackage));
+    public boolean exist(String apiKeyValue, String appPackage) {
+        ApiKey apiKey = apiKeyRepository.getApiKey(apiKeyValue);
+        if (apiKey == null) {
+            return false;
+        }
+        Organization organization = apiKey.getOrganization();
+        if (organization == null) {
+            return false;
+        }
+        String organizationId = organization.getId().toString();
+        String cacheKey = getCacheKey(apiKeyValue, appPackage);
+        return cacheApi.getOrElse(cacheKey, () -> applicationDatasource.existByApiKeyAndAppPackage(apiKeyValue, appPackage, organizationId));
     }
 
     private String getCacheKey(String apiKey, String appPackage) {
@@ -39,7 +47,7 @@ public class ApplicationRepository {
     }
 
     public CompletionStage<Application> create(String apiKeyValue, String appPackage) {
-        ApiKey apiKey = apiKeyDatasource.findByApiKeyValue(apiKeyValue);
+        ApiKey apiKey = apiKeyRepository.getApiKey(apiKeyValue);
         if (apiKey == null) {
             return null;
         }
