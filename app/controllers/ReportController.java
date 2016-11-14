@@ -156,8 +156,8 @@ class DataPointMapper {
     }
 
     private double frameTimeToFramePerSecond(double value) {
-        if (value == 0.0) return 1000.0;
-        return (1.0 / value) * 1000.0;
+        if (value == 0.0) return 1000000000.0;
+        return (1.0 / value) * 1000000000.0;
     }
 
     List<DataPoint> mapCpu(ReportRequest reportRequest) {
