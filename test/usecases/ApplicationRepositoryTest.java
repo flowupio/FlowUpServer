@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.Injector;
 import play.inject.guice.GuiceApplicationBuilder;
-import usecases.repositories.ApiKeyRepository;
 import usecases.repositories.ApplicationRepository;
 import usecases.repositories.UserRepository;
 import utils.WithFlowUpApplication;
@@ -38,77 +37,54 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
 
     private static final String JOHN_GMAIL_COM = "john@gmail.com";
     private static final String ANY_APP_PACKAGE = "io.flowup.example";
-    private static final String ANY_ORG_NAME = "Karumi";
-    private static final String ANY_OTHER_ORG_NAME = "FlowUp";
+    private static final String KARUMI_ORG = "Karumi";
+    private static final String ANY_KARUMI_EMAIL = "davide@karumi.com";
+    private static final String FLOW_UP_ORG = "FlowUp";
+    private static final String ANY_FLOWUP_EMAIL = "sergio@flowup.com";
 
-    private User user;
     @Mock
     private DashboardsClient dashboardsClient;
-    private ApiKeyRepository apiKeyRepository;
     private ApplicationRepository applicationRepository;
     private OrganizationDatasource organizationDatasource;
 
     @Override
     protected play.Application provideApplication() {
-        when(dashboardsClient.createUser(any())).then(invocation -> {
-            User user = invocation.getArgumentAt(0, User.class);
-            user.setGrafanaUserId("2");
-            user.setGrafanaPassword("GrafanaPassword");
-            user.save();
-            return CompletableFuture.completedFuture(user);
-        });
-        when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, Application.class)));
-        when(dashboardsClient.addUserToOrganisation(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, Application.class)));
-        when(dashboardsClient.deleteUserInDefaultOrganisation(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, User.class)));
-        when(dashboardsClient.createOrg(any())).then(invocation -> {
-            Application application = invocation.getArgumentAt(0, Application.class);
-            application.setGrafanaOrgId("2");
-            application.setOrganization(user.getOrganizations().get(0));
-            application.save();
-            return CompletableFuture.completedFuture(application);
-        });
-
         return new GuiceApplicationBuilder()
                 .overrides(bind(DashboardsClient.class).toInstance(dashboardsClient))
                 .build();
     }
-
 
     @Override
     @Before
     public void startPlay() {
         super.startPlay();
         Injector injector = app.injector();
-        apiKeyRepository = injector.instanceOf(ApiKeyRepository.class);
         applicationRepository = injector.instanceOf(ApplicationRepository.class);
         organizationDatasource = injector.instanceOf(OrganizationDatasource.class);
-        UserRepository userRepository = injector.instanceOf(UserRepository.class);
-        DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
-        when(authUser.getEmail()).thenReturn(JOHN_GMAIL_COM);
-        try {
-            this.user = userRepository.create(authUser).toCompletableFuture().get();
-        } catch (InterruptedException | ExecutionException e) {
-            this.user = null;
-        }
     }
+
 
     @Test
     public void whenApplicationIsCreatedGrafanaClientIsCalled() throws ExecutionException, InterruptedException {
+        User user = givenAUserAlreadyCreated();
         String apiKeyValue = user.getOrganizations().get(0).getApiKey().getValue();
 
-        CompletionStage<Application> applicationCompletionStage = applicationRepository.create(apiKeyValue, "com.example.app");
+        CompletionStage<Application> applicationCompletionStage = applicationRepository.create(apiKeyValue, ANY_APP_PACKAGE);
 
         assertThat(applicationCompletionStage.toCompletableFuture().get(), not(nullValue()));
     }
 
-    @Test public void anApplicationNotPreviouslyCreatedDoesNotExist() {
-        boolean exist = applicationRepository.exist(ANY_ORG_NAME, ANY_APP_PACKAGE);
+    @Test
+    public void anApplicationNotPreviouslyCreatedDoesNotExist() {
+        boolean exist = applicationRepository.exist(KARUMI_ORG, ANY_APP_PACKAGE);
 
         assertFalse(exist);
     }
 
-    @Test public void anApplicationPreviouslyCreatedExist() throws Exception {
-        ApiKey apiKey = givenAnApplication(ANY_ORG_NAME, ANY_APP_PACKAGE);
+    @Test
+    public void anApplicationPreviouslyCreatedExist() throws Exception {
+        givenAUserAlreadyCreated(ANY_KARUMI_EMAIL);
+        ApiKey apiKey = givenAnApplication(KARUMI_ORG, ANY_APP_PACKAGE);
 
         boolean exist = applicationRepository.exist(apiKey.getValue(), ANY_APP_PACKAGE);
 
@@ -117,8 +93,10 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
 
     @Test
     public void supportsTwoApplicationsWithTheSamePackageNameButDifferentOrgs() throws Exception {
-        ApiKey anyApiKey = givenAnApplication(ANY_ORG_NAME, ANY_APP_PACKAGE);
-        ApiKey anyOtherApiKey = givenAnApplication(ANY_OTHER_ORG_NAME, ANY_APP_PACKAGE);
+        givenAUserAlreadyCreated(ANY_KARUMI_EMAIL);
+        ApiKey anyApiKey = givenAnApplication(KARUMI_ORG, ANY_APP_PACKAGE);
+        givenAUserAlreadyCreated(ANY_FLOWUP_EMAIL);
+        ApiKey anyOtherApiKey = givenAnApplication(FLOW_UP_ORG, ANY_APP_PACKAGE);
 
         boolean existFirstOrg = applicationRepository.exist(anyApiKey.getValue(), ANY_APP_PACKAGE);
         boolean existSecondOrg = applicationRepository.exist(anyOtherApiKey.getValue(), ANY_APP_PACKAGE);
@@ -132,6 +110,33 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
         ApiKey apiKey = organization.getApiKey();
         applicationRepository.create(apiKey.getValue(), packageName).toCompletableFuture().get();
         return apiKey;
+    }
+
+    private User givenAUserAlreadyCreated() {
+        return givenAUserAlreadyCreated(JOHN_GMAIL_COM);
+    }
+
+    private User givenAUserAlreadyCreated(String email) {
+        when(dashboardsClient.createUser(any())).then(invocation -> {
+            User user = invocation.getArgumentAt(0, User.class);
+            return CompletableFuture.completedFuture(user);
+        });
+        when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, Application.class)));
+        when(dashboardsClient.addUserToOrganisation(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, Application.class)));
+        when(dashboardsClient.deleteUserInDefaultOrganisation(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, User.class)));
+        when(dashboardsClient.createOrg(any())).then(invocation -> {
+            Application application = invocation.getArgumentAt(0, Application.class);
+            return CompletableFuture.completedFuture(application);
+        });
+        UserRepository userRepository = app.injector().instanceOf(UserRepository.class);
+        DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
+        when(authUser.getId()).thenReturn(email);
+        when(authUser.getEmail()).thenReturn(email);
+        try {
+            return userRepository.create(authUser).toCompletableFuture().get();
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
+        }
     }
 
 }
