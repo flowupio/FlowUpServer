@@ -35,7 +35,7 @@ public class ApiKeyRepository {
     @NotNull
     public ApiKey create() {
         ApiKey apiKey = apiKeyDatasource.create();
-        updateApiKeyCache(apiKey);
+        flushApiKeyCache(apiKey);
         return apiKey;
     }
 
@@ -47,7 +47,7 @@ public class ApiKeyRepository {
     @NotNull
     public ApiKey create(String value, boolean enabled) {
         ApiKey apiKey = apiKeyDatasource.create(value, enabled);
-        updateApiKeyCache(apiKey);
+        flushApiKeyCache(apiKey);
         return apiKey;
     }
 
@@ -87,8 +87,8 @@ public class ApiKeyRepository {
         apiKeyDatasource.deleteAllowedUUIDs();
     }
 
-    private void updateApiKeyCache(ApiKey apiKey) {
-        cache.set(getApiKeyCacheKey(apiKey.getValue()), apiKey, API_KEY_CACHE_TTL);
+    private void flushApiKeyCache(ApiKey apiKey) {
+        cache.remove(getApiKeyCacheKey(apiKey.getValue()));
     }
 
     private void flushAllowedUUIDCache(ApiKey apiKey) {

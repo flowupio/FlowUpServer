@@ -7,9 +7,11 @@ import play.data.validation.Constraints;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.UniqueConstraint;
 import java.util.UUID;
 
 @Entity
+@UniqueConstraint(columnNames = {"app_package", "organization_id"})
 public class Application extends Model {
 
     @Id

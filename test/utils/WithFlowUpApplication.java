@@ -1,6 +1,5 @@
 package utils;
 
-import org.junit.After;
 import org.junit.Before;
 import play.Logger;
 import play.db.Database;
