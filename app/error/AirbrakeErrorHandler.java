@@ -30,7 +30,7 @@ public class AirbrakeErrorHandler {
 
     public void logServerError(Http.RequestHeader request, UsefulException usefulException, play.Environment environment) {
         String apiKey = getAirbrakeApiKey();
-        if (apiKey != null) {
+        if (apiKey != null && environment.isProd()) {
             AirbrakeNotice notice = new AirbrakeNoticeBuilderForRequest(apiKey, usefulException.getCause(), environment.mode().name(), request).newNotice();
             AirbrakeNotifier notifier = new AirbrakeNotifier();
             notifier.notify(notice);
