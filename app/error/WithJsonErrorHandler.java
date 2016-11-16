@@ -1,3 +1,5 @@
+package error;
+
 import datasources.grafana.HttpClientErrorHandler;
 import datasources.grafana.HttpServerErrorHandler;
 import play.api.UsefulException;
@@ -9,7 +11,7 @@ import play.mvc.Results;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-interface WithJsonErrorHandlerHandler {
+public interface WithJsonErrorHandler {
 
     default CompletionStage<Result> onClientError(Http.RequestHeader request, int statusCode, String message, HttpClientErrorHandler httpClientErrorHandler) {
         if (isContentTypeJson(request)) {

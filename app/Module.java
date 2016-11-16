@@ -31,6 +31,11 @@ public class Module extends AbstractModule {
                 .annotatedWith(Names.named("grafana"))
                 .toInstance(grafanaConf);
 
+        Configuration airbrakeConf = configuration.getConfig("airbrake");
+        bind(Configuration.class)
+                .annotatedWith(Names.named("airbrake"))
+                .toInstance(airbrakeConf);
+
         bind(MetricsDatasource.class)
                 .to(ElasticSearchDatasource.class)
                 .asEagerSingleton();

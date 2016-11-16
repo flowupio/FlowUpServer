@@ -1,5 +1,7 @@
 import com.google.inject.Inject;
 import datasources.grafana.HttpServerErrorHandler;
+import error.AirbrakeErrorHandler;
+import error.WithJsonErrorHandler;
 import play.Configuration;
 import play.Environment;
 import play.api.OptionalSourceMapper;
@@ -12,10 +14,16 @@ import play.mvc.Result;
 import javax.inject.Provider;
 import java.util.concurrent.CompletionStage;
 
-public class ErrorHandler extends DefaultHttpErrorHandler implements WithJsonErrorHandlerHandler {
+public class ErrorHandler extends DefaultHttpErrorHandler implements WithJsonErrorHandler {
+
+    private final Environment environment;
+    private final AirbrakeErrorHandler airbrakeErrorHandler;
+
     @Inject
-    public ErrorHandler(Configuration configuration, Environment environment, OptionalSourceMapper sourceMapper, Provider<Router> routes) {
+    public ErrorHandler(Configuration configuration, Environment environment, OptionalSourceMapper sourceMapper, Provider<Router> routes, AirbrakeErrorHandler airbrakeErrorHandler) {
         super(configuration, environment, sourceMapper, routes);
+        this.environment = environment;
+        this.airbrakeErrorHandler = airbrakeErrorHandler;
     }
 
     @Override
@@ -29,7 +37,13 @@ public class ErrorHandler extends DefaultHttpErrorHandler implements WithJsonErr
     }
 
     @Override
-    public CompletionStage<Result> onProdServerError(Http.RequestHeader request, UsefulException exception, HttpServerErrorHandler httpServerErrorHandler) {
+    public CompletionStage<Result> onProdServerError(Http.RequestHeader request, UsefulException exception) {
         return this.onProdServerError(request, exception, (requestHeader, usefulException) -> super.onProdServerError(requestHeader, usefulException));
+    }
+
+    @Override
+    protected void logServerError(Http.RequestHeader request, UsefulException usefulException) {
+        airbrakeErrorHandler.logServerError(request, usefulException, environment);
+        super.logServerError(request, usefulException);
     }
 }
