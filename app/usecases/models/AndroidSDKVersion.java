@@ -11,6 +11,9 @@ public class AndroidSDKVersion {
     private MavenRepositoryResponse response;
 
     public String getLatestVersion() {
+        if(response.getDocs().isEmpty()){
+            return null;
+        }
         return response.getDocs().get(0).getLatestVersion();
     }
 
