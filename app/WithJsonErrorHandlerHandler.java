@@ -9,51 +9,35 @@ import play.mvc.Results;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public interface JsonErrorHandlerHandler {
+interface WithJsonErrorHandlerHandler {
 
     default CompletionStage<Result> onClientError(Http.RequestHeader request, int statusCode, String message, HttpClientErrorHandler httpClientErrorHandler) {
         if (isContentTypeJson(request)) {
             if (statusCode == 400) {
-                return onBadRequest(request, message);
+                return CompletableFuture.completedFuture(Results.badRequest(Json.newObject()
+                        .put("method", request.method())
+                        .put("uri", request.uri())
+                        .put("message", message)
+                ));
             } else if (statusCode == 403) {
-                return onForbidden(request, message);
+                return CompletableFuture.completedFuture(Results.forbidden(Json.newObject()
+                        .put("message", "You must be authenticated to access this page.")));
             } else if (statusCode == 404) {
-                return onNotFound(request, message);
+                return CompletableFuture.completedFuture(Results.notFound(Json.newObject()
+                        .put("method", request.method())
+                        .put("uri", request.uri())));
             } else if (statusCode >= 400 && statusCode < 500) {
-                return onOtherClientError(request, statusCode, message);
+                return CompletableFuture.completedFuture(Results.status(statusCode, Json.newObject()
+                        .put("method", request.method())
+                        .put("uri", request.uri())
+                        .put("message", message)
+                ));
             } else {
                 throw new IllegalArgumentException("onClientError invoked with non client error status code " + statusCode + ": " + message);
             }
         } else {
             return httpClientErrorHandler.onClientError(request, statusCode, message);
         }
-    }
-
-    default CompletionStage<Result> onBadRequest(Http.RequestHeader request, String message) {
-        return CompletableFuture.completedFuture(Results.badRequest(Json.newObject()
-                .put("method", request.method())
-                .put("uri", request.uri())
-                .put("message", message)
-        ));
-    }
-
-    default CompletionStage<Result> onForbidden(Http.RequestHeader request, String message) {
-        return CompletableFuture.completedFuture(Results.forbidden(Json.newObject()
-                .put("message", "You must be authenticated to access this page.")));
-    }
-
-    default CompletionStage<Result> onNotFound(Http.RequestHeader request, String message) {
-        return CompletableFuture.completedFuture(Results.notFound(Json.newObject()
-                .put("method", request.method())
-                .put("uri", request.uri())));
-    }
-
-    default CompletionStage<Result> onOtherClientError(Http.RequestHeader request, int statusCode, String message) {
-        return CompletableFuture.completedFuture(Results.status(statusCode, Json.newObject()
-                .put("method", request.method())
-                .put("uri", request.uri())
-                .put("message", message)
-        ));
     }
 
     default CompletionStage<Result> onDevServerError(Http.RequestHeader request, UsefulException exception, HttpServerErrorHandler httpServerErrorHandler) {
