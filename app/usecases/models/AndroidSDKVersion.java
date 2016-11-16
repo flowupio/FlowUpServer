@@ -10,9 +10,6 @@ public class AndroidSDKVersion {
     private MavenRepositoryResponse response;
 
     public String getLatestVersion() {
-        if (response == null || response.getDocs() == null || response.getDocs().size() != 1) {
-            return "<LATEST_VERSION>";
-        }
         return response.getDocs().get(0).getLatestVersion();
     }
 

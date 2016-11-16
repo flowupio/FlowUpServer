@@ -1,5 +1,5 @@
 @import java.util
-@(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User, apiKey: ApiKey, applications: util.List[Application])
+@(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User, apiKey: ApiKey, applications: util.List[Application], sdkVersion: String)
 
 
 
@@ -51,8 +51,8 @@
 
                             <pre><code class="language-groovy">
 dependencies {<br />
-    compile &#039;io.flowup:android-sdk:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
-    testCompile &#039;io.flowup:android-sdk-no-op:&lt;LAST_VERSION_RELEASED&gt;&#039;<br />
+    compile &#039;io.flowup:android-sdk:@sdkVersion;&#039;<br />
+    testCompile &#039;io.flowup:android-sdk-no-op:@sdkVersion;&#039;<br />
 }
                             </code></pre>
 
