@@ -69,7 +69,7 @@ public class User extends Model implements Subject {
 
     private static ExpressionList<User> getAuthUserFind(
             final AuthUserIdentity identity) {
-        return find.where().eq("active", true)
+        return find.where()
                 .eq("linkedAccounts.providerUserId", identity.getId())
                 .eq("linkedAccounts.providerKey", identity.getProvider());
     }

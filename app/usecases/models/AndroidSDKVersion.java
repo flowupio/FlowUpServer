@@ -1,5 +1,6 @@
 package usecases.models;
 
+
 import lombok.Data;
 
 import java.util.List;
@@ -13,14 +14,22 @@ public class AndroidSDKVersion {
         return response.getDocs().get(0).getLatestVersion();
     }
 
-    @Data
-    private class MavenRepositoryResponse {
-        private List<MavenRepositoryDocument> docs;
-    }
 
-    @Data
-    private class MavenRepositoryDocument {
-        private String latestVersion;
-    }
+}
 
+@Data
+class MavenRepositoryResponse {
+
+    private List<MavenRepositoryDocument> docs;
+
+}
+
+@Data
+class MavenRepositoryDocument {
+
+    private String latestVersion;
+
+    public void setLatestVersion(String latestVersion) {
+        this.latestVersion = latestVersion;
+    }
 }

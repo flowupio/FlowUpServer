@@ -64,7 +64,8 @@ public class CommandCenterController extends Controller {
         User user = getUserByAuthUserIdentity.execute(authUser);
         Organization organization = getPrimaryOrganization.execute(user);
         return getLatestAndroidSDKVersionName.execute()
-                .thenApply(sdkVersion -> ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersion)));
+                .thenApply(sdkVersion -> ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersion)))
+                .toCompletableFuture();
 
     }
 
