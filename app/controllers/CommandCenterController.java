@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 
@@ -60,12 +61,13 @@ public class CommandCenterController extends Controller {
     }
 
     public CompletionStage<Result> index() {
-        AuthUser authUser = this.auth.getUser(session());
+        AuthUser authUser = auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
-        Organization organization = getPrimaryOrganization.execute(user);
-        return getLatestAndroidSDKVersionName.execute()
-                .thenApply(sdkVersion -> ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersion)))
-                .toCompletableFuture();
+        CompletableFuture<Organization> organizationFuture = CompletableFuture.supplyAsync(() -> getPrimaryOrganization.execute(user));
+        CompletableFuture<String> sdkVersionFuture = getLatestAndroidSDKVersionName.execute().toCompletableFuture();
+        return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
+                ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName))
+        );
 
     }
 
