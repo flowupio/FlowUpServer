@@ -69,8 +69,10 @@ public class ApplicationRepository {
     @NotNull
     private CompletionStage<Void> addUsersToApplicationDashboards(Application application) {
         CompletableFuture[] completionStages = application.getOrganization().getMembers().stream().map(user -> {
-            return dashboardsClient.addUserToOrganisation(user, application).thenCompose(grafanaResponse1 -> {
-                return dashboardsClient.deleteUserInDefaultOrganisation(user);
+            return dashboardsClient.addUserToOrganisation(user, application).thenCompose(application1 -> {
+                return dashboardsClient.switchUserContext(user, application).thenCompose(application2 -> {
+                    return dashboardsClient.deleteUserInDefaultOrganisation(user);
+                });
             }).toCompletableFuture();
         }).toArray(CompletableFuture[]::new);
         return CompletableFuture.allOf(completionStages);

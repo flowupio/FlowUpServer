@@ -15,4 +15,6 @@ public interface DashboardsClient {
     CompletionStage<User> deleteUserInDefaultOrganisation(User user);
 
     CompletionStage<Application> createDatasource(Application application);
+
+    CompletionStage<Application> switchUserContext(User user, Application application);
 }
