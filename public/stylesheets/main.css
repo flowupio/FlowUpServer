@@ -44,7 +44,6 @@
 .nav>li>a:focus, .nav>li>a:hover {
     color: #555;
     background-color: #F4F4F4;
-    width: 285px;
 }
 
 .nav-pills>li>a {
