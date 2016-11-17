@@ -12,6 +12,7 @@ import play.mvc.Http;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -21,13 +22,14 @@ public class GrafanaProxy {
     private final WSClient ws;
     private final String baseUrl;
     private final String cookieDomain;
+    private final String host;
 
     @Inject
     public GrafanaProxy(WSClient ws, @Named("grafana") Configuration grafanaConf) {
         this.ws = ws;
 
         String scheme = grafanaConf.getString("scheme");
-        String host = grafanaConf.getString("host");
+        this.host = grafanaConf.getString("host");
         String port = grafanaConf.getString("port");
         this.baseUrl = scheme + "://" + host + ":" + port;
 
@@ -51,6 +53,23 @@ public class GrafanaProxy {
         return new Http.Cookie(wsCookie.getName(), wsCookie.getValue(), wsCookie.getMaxAge().intValue(), wsCookie.getPath(),
                 domain, wsCookie.isSecure(), true);
     }
+
+    public List<Http.Cookie> logoutCookies() {
+        List<Http.Cookie> cookies = new ArrayList<>();
+        cookies.add(discardingCookie("grafana_remember", "/", cookieDomain, false));
+        cookies.add(discardingCookie("grafana_sess", "/", cookieDomain, false));
+        cookies.add(discardingCookie("grafana_user", "/", cookieDomain, false));
+        cookies.add(discardingCookie("grafana_remember", "/", host, false));
+        cookies.add(discardingCookie("grafana_sess", "/", host, false));
+        cookies.add(discardingCookie("grafana_user", "/", host, false));
+        return cookies;
+    }
+
+    private Http.Cookie discardingCookie(String name, String path,
+                                         String domain, boolean secure) {
+        return new Http.Cookie(name, "", -86400, path, domain, secure, false);
+    }
+
 
     public String getHomeUrl() {
         return this.baseUrl;
