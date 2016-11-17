@@ -1,0 +1,38 @@
+{
+  "response": {
+    "docs": [],
+    "numFound": 0,
+    "start": 0
+  },
+  "responseHeader": {
+    "QTime": 27,
+    "params": {
+      "fl": "id,g,a,latestVersion,p,ec,repositoryId,text,timestamp,versionCount",
+      "indent": "off",
+      "q": "g:\"io.flowup\" AND a:\"androiasdfd-sdk\"",
+      "sort": "score desc,timestamp desc,g asc,a asc",
+      "spellcheck": "true",
+      "spellcheck.count": "5",
+      "version": "2.2",
+      "wt": "json"
+    },
+    "status": 0
+  },
+  "spellcheck": {
+    "suggestions": [
+      "androiasdfd",
+      {
+        "endOffset": 36,
+        "numFound": 5,
+        "startOffset": 21,
+        "suggestion": [
+          "androidsdk",
+          "androidasync",
+          "android",
+          "androidop",
+          "androidfred"
+        ]
+      }
+    ]
+  }
+}

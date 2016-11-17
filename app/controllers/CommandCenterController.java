@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 
@@ -37,10 +39,15 @@ public class CommandCenterController extends Controller {
     private final GetInternalStorageUsage getInternalStorageUsage;
     private final GetCpuUsage getCpuUsage;
     private final GetMemoryUsage getMemoryUsage;
+    private final GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName;
 
 
     @Inject
-    public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity, GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById, GetFramePerSecond getFramePerSecond, GetInternalStorageUsage getInternalStorageUsage, GetCpuUsage getCpuUsage, GetMemoryUsage getMemoryUsage) {
+    public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity,
+                                   GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById,
+                                   GetFramePerSecond getFramePerSecond, GetInternalStorageUsage getInternalStorageUsage,
+                                   GetCpuUsage getCpuUsage, GetMemoryUsage getMemoryUsage,
+                                   GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
@@ -50,13 +57,18 @@ public class CommandCenterController extends Controller {
         this.getInternalStorageUsage = getInternalStorageUsage;
         this.getCpuUsage = getCpuUsage;
         this.getMemoryUsage = getMemoryUsage;
+        this.getLatestAndroidSDKVersionName = getLatestAndroidSDKVersionName;
     }
 
-    public Result index() {
-        AuthUser authUser = this.auth.getUser(session());
+    public CompletionStage<Result> index() {
+        AuthUser authUser = auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
-        Organization organization = getPrimaryOrganization.execute(user);
-        return ok(home.render(this.auth, user, organization.getApiKey(), organization.getApplications()));
+        CompletableFuture<Organization> organizationFuture = CompletableFuture.supplyAsync(() -> getPrimaryOrganization.execute(user));
+        CompletableFuture<String> sdkVersionFuture = getLatestAndroidSDKVersionName.execute().toCompletableFuture();
+        return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
+                ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName))
+        );
+
     }
 
     public CompletionStage<Result> application(String applicationUUID) {
@@ -71,13 +83,13 @@ public class CommandCenterController extends Controller {
         CompletableFuture<StatCard> memoryUsageCompletionStage = getMemoryUsage.execute(applicationModel).toCompletableFuture();
 
         List<CompletableFuture<StatCard>> futures = asList(framePerSecondCompletionStage, internalStorageUsageCompletionStage, cpuUsageCompletionStage, memoryUsageCompletionStage);
-        return CompletableFutures.allAsList(futures).thenApply(statCards ->  {
+        return CompletableFutures.allAsList(futures).thenApply(statCards -> {
             return ok(application.render(user, applicationModel, organization.getApplications(), statCards));
         });
     }
 
     public CompletionStage<Result> grafana() {
-        final User localUser =  User.findByAuthUserIdentity(this.auth.getUser(session()));
+        final User localUser = User.findByAuthUserIdentity(this.auth.getUser(session()));
 
         return grafanaProxy.retreiveSessionCookies(localUser).thenApply(cookies -> {
             return redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()]));
