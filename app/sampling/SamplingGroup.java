@@ -35,7 +35,9 @@ public class SamplingGroup {
         if (hasExceededTheNumberOfAllowedUUIDs(apiKey)) {
             return apiKeyRepository.containsAllowedUUID(apiKey, uuid);
         } else {
-            apiKeyRepository.addAllowedUUID(apiKey, uuid);
+            if (!apiKeyRepository.containsAllowedUUID(apiKey,uuid)) {
+                apiKeyRepository.addAllowedUUID(apiKey, uuid);
+            }
             return true;
         }
     }
