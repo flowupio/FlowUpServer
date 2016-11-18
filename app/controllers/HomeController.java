@@ -1,12 +1,15 @@
 package controllers;
 
 import com.feth.play.module.pa.PlayAuthenticate;
+import datasources.grafana.GrafanaProxy;
 import play.mvc.Controller;
+import play.mvc.Http.Cookie;
 import play.mvc.Result;
-import views.html.index;
 import views.html.login;
 
 import javax.inject.Inject;
+
+import static com.feth.play.module.pa.controllers.AuthenticateBase.noCache;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -17,10 +20,12 @@ public class HomeController extends Controller {
     static final String FLASH_MESSAGE_KEY = "message";
     static final String FLASH_ERROR_KEY = "error";
     private final PlayAuthenticate auth;
+    private final GrafanaProxy grafanaProxy;
 
     @Inject
-    public HomeController(PlayAuthenticate auth) {
+    public HomeController(PlayAuthenticate auth, GrafanaProxy grafanaProxy) {
         this.auth = auth;
+        this.grafanaProxy = grafanaProxy;
     }
     public Result index() {
         return redirect(routes.HomeController.login());
@@ -34,8 +39,14 @@ public class HomeController extends Controller {
         return ok(login.render(this.auth));
     }
 
+    public Result logout() {
+        noCache(response());
+        return this.auth.logout(session())
+                .withCookies(grafanaProxy.logoutCookies().toArray(new Cookie[0]));
+    }
+
     public Result oAuthDenied(final String providerKey) {
-        com.feth.play.module.pa.controllers.Authenticate.noCache(response());
+        noCache(response());
         flash(FLASH_ERROR_KEY,
                 "You need to accept the OAuth connection in order to use this website!");
         return redirect(routes.HomeController.login());

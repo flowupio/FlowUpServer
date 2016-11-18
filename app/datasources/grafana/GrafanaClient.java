@@ -159,6 +159,13 @@ public class GrafanaClient implements DashboardsClient {
         return user;
     }
 
+    public CompletionStage<Application> switchUserContext(User user, Application application) {
+        String adminUserEndpoint = API_USER_USING_ORGANISATION_ID.replaceFirst(":orgId", application.getGrafanaOrgId());
+        ObjectNode request = Json.newObject();
+
+        return getWsRequestForUser(user.getEmail(), user.getGrafanaPassword(), adminUserEndpoint).post(request).thenApply(this::parseWsResponse).thenApply(grafanaResponse -> application);
+    }
+
     private CompletionStage<Application> switchUserContext(Application application) {
         String adminUserEndpoint = API_USER_USING_ORGANISATION_ID.replaceFirst(":orgId", application.getGrafanaOrgId());
         ObjectNode request = Json.newObject();
@@ -175,8 +182,12 @@ public class GrafanaClient implements DashboardsClient {
     }
 
     private WSRequest getWsRequestForAdminUser(String adminUserEndpoint) {
+        return getWsRequestForUser(this.adminUser, this.adminPassword, adminUserEndpoint);
+    }
+
+    private WSRequest getWsRequestForUser(String username, String password, String adminUserEndpoint) {
         WSRequest wsRequest = ws.url(baseUrl + adminUserEndpoint).setHeader("Accept", "application/json").setContentType("application/json")
-                .setAuth(this.adminUser, this.adminPassword);
+                .setAuth(username, password);
         Logger.debug(wsRequest.getHeaders().toString());
         return wsRequest;
     }

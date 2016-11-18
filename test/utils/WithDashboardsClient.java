@@ -29,6 +29,7 @@ public interface WithDashboardsClient {
             application.save();
             return CompletableFuture.completedFuture(application);
         });
+        when(dashboardsClient.switchUserContext(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, Application.class)));
         return dashboardsClient;
     }
 }
