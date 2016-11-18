@@ -4,13 +4,13 @@ import airbrake.AirbrakeNotice;
 import airbrake.AirbrakeNoticeBuilder;
 import airbrake.AirbrakeNotifier;
 import airbrake.Backtrace;
-import org.apache.commons.lang3.StringUtils;
 import play.Configuration;
 import play.api.UsefulException;
 import play.mvc.Http;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +45,7 @@ class AirbrakeNoticeBuilderForRequest extends AirbrakeNoticeBuilder {
         mapRequest(request);
         Map<String, Object> data = new HashMap<>();
         for (Map.Entry<String, String[]> entry : request.headers().entrySet()) {
-            data.put(entry.getKey(), StringUtils.join(entry.getValue(), ";"));
+            data.put(entry.getKey(), String.join(";", Arrays.asList(entry.getValue())));
         }
 
         super.request(data);
@@ -53,10 +53,8 @@ class AirbrakeNoticeBuilderForRequest extends AirbrakeNoticeBuilder {
 
     private void mapRequest(Http.RequestHeader request) {
         List<String> components = request.queryString().entrySet().stream()
-                .map(entry -> {
-                    return entry.getKey() + "=" + StringUtils.join(entry.getValue(), ",");
-                })
+                .map(entry -> entry.getKey() + "=" + String.join(",", Arrays.asList(entry.getValue())))
                 .collect(Collectors.toList());
-        super.setRequest(request.path(), StringUtils.join(components, "&"));
+        super.setRequest(request.path(), String.join("&", components));
     }
 }

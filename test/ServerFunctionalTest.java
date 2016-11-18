@@ -5,6 +5,7 @@ import datasources.elasticsearch.BulkItemResponse;
 import datasources.elasticsearch.BulkResponse;
 import datasources.elasticsearch.ElasticsearchClient;
 import datasources.elasticsearch.IndexRequest;
+import datasources.grafana.DashboardsClient;
 import models.ApiKey;
 import models.Organization;
 import org.junit.After;
@@ -24,6 +25,7 @@ import play.libs.ws.WSResponse;
 import play.test.WithServer;
 import usecases.repositories.ApiKeyRepository;
 import utils.Time;
+import utils.WithDashboardsClient;
 import utils.WithResources;
 
 import java.io.ByteArrayInputStream;
@@ -43,7 +45,7 @@ import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.REQUEST_ENTITY_TOO_LARGE;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ServerFunctionalTest extends WithServer implements WithResources {
+public class ServerFunctionalTest extends WithServer implements WithResources, WithDashboardsClient {
 
     @Mock
     private ElasticsearchClient elasticsearchClient;
@@ -66,6 +68,7 @@ public class ServerFunctionalTest extends WithServer implements WithResources {
         setupElasticsearchClient();
 
         return new GuiceApplicationBuilder()
+                .overrides(bind(DashboardsClient.class).toInstance(getMockDashboardsClient()))
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
                 .build();
     }

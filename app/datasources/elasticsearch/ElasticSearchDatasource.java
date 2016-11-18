@@ -7,14 +7,12 @@ import models.Application;
 import org.jetbrains.annotations.NotNull;
 import play.libs.F;
 import play.libs.Json;
-import usecases.*;
+import usecases.InsertResult;
+import usecases.MetricsDatasource;
 import usecases.models.*;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,8 +20,8 @@ import java.util.concurrent.CompletionStage;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
 
-    private static final String STATSD = "statsd-";
-    public static final String FLOWUP = "flowup-";
+    private static final String FLOWUP = "flowup";
+    private static final String DELIMITER = "-";
     private final ElasticsearchClient elasticsearchClient;
 
     @Inject
@@ -32,9 +30,9 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     @Override
-    public CompletionStage<InsertResult> writeDataPoints(Report report) {
+    public CompletionStage<InsertResult> writeDataPoints(Report report, Application application) {
         List<IndexRequest> indexRequestList = new ArrayList<>();
-        populateIndexRequest(report, indexRequestList);
+        populateIndexRequest(report, indexRequestList, application);
 
         return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processBulkResponse);
     }
@@ -77,11 +75,11 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return source;
     }
 
-    private void populateIndexRequest(Report report, List<IndexRequest> indexRequestList) {
+    private void populateIndexRequest(Report report, List<IndexRequest> indexRequestList, Application application) {
         report.getMetrics().forEach(metric -> {
 
             metric.getDataPoints().forEach(datapoint -> {
-                IndexRequest indexRequest = new IndexRequest(indexName(report.getAppPackage()), metric.getName());
+                IndexRequest indexRequest = new IndexRequest(indexName(report.getAppPackage(), application.getOrganization().getId().toString()), metric.getName());
 
                 ObjectNode source = mapSource(datapoint);
 
@@ -94,7 +92,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     private InsertResult processBulkResponse(BulkResponse bulkResponse) {
         List<InsertResult.MetricResult> items = new ArrayList<>();
         for (BulkItemResponse item : bulkResponse.getItems()) {
-            String name = item.getIndex().replace(STATSD, "");
+            String name = item.getIndex().replace(FLOWUP + DELIMITER, "");
             ActionWriteResponse.ShardInfo shardInfo = item.getResponse().getShardInfo();
             int successful;
             if (shardInfo != null) {
@@ -140,7 +138,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         SearchQuery searchQuery = new SearchQuery();
 
         SearchIndex searchIndex = new SearchIndex();
-        searchIndex.setIndex(indexName(application.getAppPackage()));
+        searchIndex.setIndex(indexName(application.getAppPackage(), application.getOrganization().getId().toString()));
         searchIndex.setIgnoreUnavailable(true);
         searchIndex.setSearchType("count");
         searchQuery.setSearchIndex(searchIndex);
@@ -183,7 +181,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     @NotNull
-    private String indexName(String appPackage) {
-        return FLOWUP + appPackage;
+    public static String indexName(String appPackage, String organizationId) {
+        return String.join(DELIMITER, FLOWUP, organizationId, appPackage);
     }
 }

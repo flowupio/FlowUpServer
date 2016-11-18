@@ -1,5 +1,6 @@
 package usecases;
 
+import models.Application;
 import usecases.models.Report;
 import usecases.repositories.ApplicationRepository;
 
@@ -20,9 +21,12 @@ public class InsertDataPoints {
 
     public CompletionStage<InsertResult> execute(Report report) {
 
-        if (!applicationRepository.exist(report.getApiKey(), report.getAppPackage())) {
-            applicationRepository.create(report.getApiKey(), report.getAppPackage());
+        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
+        if (application == null) {
+            return applicationRepository.create(report.getApiKey(), report.getAppPackage()).thenCompose(application1 -> {
+                return metricsDatasource.writeDataPoints(report, application1);
+            });
         }
-        return metricsDatasource.writeDataPoints(report);
+        return metricsDatasource.writeDataPoints(report, application);
     }
 }
