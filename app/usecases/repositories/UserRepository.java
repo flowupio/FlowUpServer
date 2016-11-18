@@ -10,6 +10,7 @@ import models.User;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class UserRepository {
@@ -38,12 +39,22 @@ public class UserRepository {
     }
 
     private CompletionStage<User> joinApplicationDashboards(User user, Organization organization) {
-        organization.getApplications().forEach(application -> {
-            dashboardsClient.addUserToOrganisation(user, application);
+        if (organization.getApplications().isEmpty()) {
+            return CompletableFuture.completedFuture(user);
+        }
+        return addUserToApplications(user, organization).thenCompose(aVoid -> {
+            return dashboardsClient.switchUserContext(user, organization.getApplications().get(0)).thenCompose(application -> {
+                return dashboardsClient.deleteUserInDefaultOrganisation(user);
+            });
         });
-        return dashboardsClient.deleteUserInDefaultOrganisation(user);
     }
 
+    private CompletableFuture<Void> addUserToApplications(User user, Organization organization) {
+        CompletableFuture[] completionStages = organization.getApplications().stream().map(application -> {
+            return dashboardsClient.addUserToOrganisation(user, application);
+        }).toArray(CompletableFuture[]::new);
+        return CompletableFuture.allOf(completionStages);
+    }
 
     private Organization findOrCreateOrganization(User user) {
         String email = user.getEmail();

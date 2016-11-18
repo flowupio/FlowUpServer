@@ -128,6 +128,7 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
             Application application = invocation.getArgumentAt(0, Application.class);
             return CompletableFuture.completedFuture(application);
         });
+        when(dashboardsClient.switchUserContext(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, Application.class)));
         UserRepository userRepository = app.injector().instanceOf(UserRepository.class);
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getId()).thenReturn(email);
