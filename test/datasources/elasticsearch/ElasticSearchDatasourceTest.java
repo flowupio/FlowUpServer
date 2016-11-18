@@ -2,6 +2,7 @@ package datasources.elasticsearch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Application;
+import models.Organization;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -65,7 +67,11 @@ public class ElasticSearchDatasourceTest implements WithResources {
     }
 
     private Application givenAnyApplication() {
-        return mock(Application.class);
+        Application application = mock(Application.class);
+        Organization organization = mock(Organization.class);
+        when(application.getOrganization()).thenReturn(organization);
+        when(organization.getId()).thenReturn(UUID.randomUUID());
+        return application;
     }
 
     @NotNull
