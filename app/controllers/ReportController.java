@@ -141,20 +141,9 @@ class DataPointMapper {
             return null;
         }
         return new StatisticalValue(
-                frameTime.getCount(),
-                frameTimeToFramePerSecond(frameTime.getMin()),
-                frameTimeToFramePerSecond(frameTime.getMax()),
                 frameTimeToFramePerSecond(frameTime.getMean()),
-                frameTimeToFramePerSecond(frameTime.getStandardDev()),
-                frameTimeToFramePerSecond(frameTime.getMedian()),
-                frameTimeToFramePerSecond(frameTime.getP1()),
-                frameTimeToFramePerSecond(frameTime.getP2()),
-                frameTimeToFramePerSecond(frameTime.getP5()),
                 frameTimeToFramePerSecond(frameTime.getP10()),
-                frameTimeToFramePerSecond(frameTime.getP90()),
-                frameTimeToFramePerSecond(frameTime.getP95()),
-                frameTimeToFramePerSecond(frameTime.getP98()),
-                frameTimeToFramePerSecond(frameTime.getP99())
+                frameTimeToFramePerSecond(frameTime.getP90())
         );
     }
 
