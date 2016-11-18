@@ -25,7 +25,7 @@ POST    /admin/users/:id/delete       controllers.admin.UserController.delete(id
 
 # Authentication
 GET     /login                      controllers.HomeController.login
-GET     /logout                     com.feth.play.module.pa.controllers.Authenticate.logout
+GET     /logout                     controllers.HomeController.logout
 GET     /authenticate/:provider     com.feth.play.module.pa.controllers.Authenticate.authenticate(provider: String)
 GET     /authenticate/:provider/denied     controllers.HomeController.oAuthDenied(provider: String)
 
