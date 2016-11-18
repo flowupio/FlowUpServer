@@ -39,6 +39,9 @@ public class UserRepository {
     }
 
     private CompletionStage<User> joinApplicationDashboards(User user, Organization organization) {
+        if (organization.getApplications().isEmpty()) {
+            return CompletableFuture.completedFuture(user);
+        }
         return addUserToApplications(user, organization).thenCompose(aVoid -> {
             return dashboardsClient.switchUserContext(user, organization.getApplications().get(0)).thenCompose(application -> {
                 return dashboardsClient.deleteUserInDefaultOrganisation(user);

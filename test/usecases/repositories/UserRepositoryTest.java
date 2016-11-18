@@ -49,6 +49,7 @@ public class UserRepositoryTest extends WithFlowUpApplication {
             application.save();
             return CompletableFuture.completedFuture(application);
         });
+        when(dashboardsClient.switchUserContext(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, models.Application.class)));
 
         return new GuiceApplicationBuilder()
                 .overrides(bind(DashboardsClient.class).toInstance(dashboardsClient))
