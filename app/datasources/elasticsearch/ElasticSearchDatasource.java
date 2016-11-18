@@ -50,20 +50,9 @@ public class ElasticSearchDatasource implements MetricsDatasource {
                 } else if (measurement._2 instanceof StatisticalValue) {
                     StatisticalValue basicValue = (StatisticalValue) measurement._2;
                     ObjectNode statisticalValue = Json.newObject()
-                            .put("count", basicValue.getCount())
-                            .put("min", basicValue.getMin())
-                            .put("max", basicValue.getMax())
                             .put("mean", basicValue.getMean())
-                            .put("median", basicValue.getMedian())
-                            .put("standardDev", basicValue.getStandardDev())
-                            .put("p1", basicValue.getP1())
-                            .put("p2", basicValue.getP2())
-                            .put("p5", basicValue.getP5())
                             .put("p10", basicValue.getP10())
-                            .put("p90", basicValue.getP90())
-                            .put("p95", basicValue.getP95())
-                            .put("p98", basicValue.getP98())
-                            .put("p99", basicValue.getP99());
+                            .put("p90", basicValue.getP90());
                     source.set(measurement._1, statisticalValue);
                 }
             }
