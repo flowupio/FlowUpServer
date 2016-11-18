@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class ApplicationRepository {
+    public static final String APPLICATION_APP_PACKAGE_ORGANIZATION_ID_CACHE_KEY = "application.appPackage:%s.organizationId:%s";
     private final ApiKeyRepository apiKeyRepository;
     private final ApplicationDatasource applicationDatasource;
     private final DashboardsClient dashboardsClient;
@@ -28,22 +29,27 @@ public class ApplicationRepository {
         this.cacheApi = cacheApi;
     }
 
-    public boolean exist(String apiKeyValue, String appPackage) {
+    public Application getApplicationByApiKeyValueAndAppPackage(String apiKeyValue, String appPackage) {
         ApiKey apiKey = apiKeyRepository.getApiKey(apiKeyValue);
         if (apiKey == null) {
-            return false;
+            return null;
         }
         Organization organization = apiKey.getOrganization();
         if (organization == null) {
-            return false;
+            return null;
         }
         String organizationId = organization.getId().toString();
-        String cacheKey = getCacheKey(apiKeyValue, appPackage);
-        return cacheApi.getOrElse(cacheKey, () -> applicationDatasource.existByApiKeyAndAppPackage(apiKeyValue, appPackage, organizationId));
+
+        return getApplicationByPackageAndOrgId(appPackage, organizationId);
     }
 
-    private String getCacheKey(String apiKey, String appPackage) {
-        return "exist-" + apiKey + "-" + appPackage;
+    private Application getApplicationByPackageAndOrgId(String appPackage, String organizationId) {
+        return cacheApi.getOrElse(getCacheKey(appPackage, organizationId), () ->
+                applicationDatasource.findApplicationByPackageAndOrgId(appPackage, organizationId));
+    }
+
+    private String getCacheKey(String appPackage, String organizationId) {
+        return String.format(APPLICATION_APP_PACKAGE_ORGANIZATION_ID_CACHE_KEY, appPackage, organizationId);
     }
 
     public CompletionStage<Application> create(String apiKeyValue, String appPackage) {

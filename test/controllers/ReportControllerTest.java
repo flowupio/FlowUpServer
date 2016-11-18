@@ -2,9 +2,10 @@ package controllers;
 
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;
+import datasources.grafana.DashboardsClient;
+import datasources.grafana.GrafanaClient;
 import models.ApiKey;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -16,6 +17,7 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
 import usecases.repositories.ApiKeyRepository;
+import utils.WithDashboardsClient;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 
@@ -26,7 +28,6 @@ import java.util.concurrent.CompletableFuture;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,7 +37,7 @@ import static play.mvc.Http.Status.CREATED;
 import static play.test.Helpers.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReportControllerTest extends WithFlowUpApplication implements WithResources {
+public class ReportControllerTest extends WithFlowUpApplication implements WithResources, WithDashboardsClient {
 
     private static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
 
@@ -51,6 +52,7 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+                .overrides(bind(DashboardsClient.class).toInstance(getMockDashboardsClient()))
                 .build();
     }
 
@@ -193,7 +195,7 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
 
 
     private void setupSuccessfulElasticsearchClient() {
-        ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
+        ActionWriteResponse networkDataResponse = new IndexResponse("flowup-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
         networkDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
         BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse)};
         BulkResponse bulkResponse = new BulkResponse(responses, 67);
@@ -214,7 +216,7 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
     }
 
     private void setupElasticsearchClientWithFailures() {
-        ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, null, 429);
+        ActionWriteResponse networkDataResponse = new IndexResponse("flowup-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, null, 429);
         BulkError error = new BulkError();
         error.setType("es_rejected_execution_exception");
         error.setReason("rejected execution of org.elasticsearch.transport.TransportService$4@525ba0d5 on EsThreadPoolExecutor[bulk, queue capacity = 50, org.elasticsearch.common.util.concurrent.EsThreadPoolExecutor@65d320c9[Running, pool size = 1, active threads = 1, queued tasks = 50, completed tasks = 18719]]");

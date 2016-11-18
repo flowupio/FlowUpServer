@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
+import utils.WithDashboardsClient;
 import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;
@@ -26,32 +27,12 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserRepositoryTest extends WithFlowUpApplication {
-
-    @Mock
-    private DashboardsClient dashboardsClient;
+public class UserRepositoryTest extends WithFlowUpApplication implements WithDashboardsClient {
 
     @Override
     protected Application provideApplication() {
-        when(dashboardsClient.createUser(any())).then(invocation -> {
-            User user = invocation.getArgumentAt(0, User.class);
-            user.setGrafanaUserId("2");
-            user.setGrafanaPassword("GrafanaPassword");
-            user.save();
-            return CompletableFuture.completedFuture(user);
-        });
-        when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, models.Application.class)));
-        when(dashboardsClient.addUserToOrganisation(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, models.Application.class)));
-        when(dashboardsClient.deleteUserInDefaultOrganisation(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, User.class)));
-        when(dashboardsClient.createOrg(any())).then(invocation -> {
-            models.Application application = invocation.getArgumentAt(0, models.Application.class);
-            application.setGrafanaOrgId("2");
-            application.save();
-            return CompletableFuture.completedFuture(application);
-        });
-
         return new GuiceApplicationBuilder()
-                .overrides(bind(DashboardsClient.class).toInstance(dashboardsClient))
+                .overrides(bind(DashboardsClient.class).toInstance(getMockDashboardsClient()))
                 .build();
     }
 

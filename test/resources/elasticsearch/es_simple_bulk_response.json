@@ -4,7 +4,7 @@
   "items": [
     {
       "create": {
-        "_index": "statsd-network_data",
+        "_index": "flowup-network_data",
         "_type": "counter",
         "_id": "AVe4CB89xL5tw_jvDTTd",
         "_version": 1,

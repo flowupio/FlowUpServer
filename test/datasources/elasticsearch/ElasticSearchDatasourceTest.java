@@ -16,7 +16,6 @@ import utils.WithResources;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -40,8 +39,9 @@ public class ElasticSearchDatasourceTest implements WithResources {
     public void parsingElasticSearchClientBulkResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnTwoItems();
         Report report = givenAnEmptyReport();
+        Application application = givenAnyApplication();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
@@ -88,8 +88,9 @@ public class ElasticSearchDatasourceTest implements WithResources {
     public void parsingElasticSearchClientSimpleResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnOneItem();
         Report report = givenAnEmptyReport();
+        Application application = givenAnyApplication();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
@@ -101,8 +102,9 @@ public class ElasticSearchDatasourceTest implements WithResources {
     public void parsingElasticSearchClientError() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnError();
         Report report = givenAnEmptyReport();
+        Application application = givenAnyApplication();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
@@ -113,8 +115,9 @@ public class ElasticSearchDatasourceTest implements WithResources {
     public void parsingElasticSearchClientErrorParseException() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnErrorParseException();
         Report report = givenAnEmptyReport();
+        Application application = givenAnyApplication();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
@@ -125,8 +128,9 @@ public class ElasticSearchDatasourceTest implements WithResources {
     public void parsingElasticSearchClientFailuresResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnFailure();
         Report report = givenAnEmptyReport();
+        Application application = givenAnyApplication();
 
-        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report);
+        CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
@@ -136,9 +140,9 @@ public class ElasticSearchDatasourceTest implements WithResources {
 
     @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnTwoItems() {
-        ActionWriteResponse networkDataResponse = new IndexResponse("statsd-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
+        ActionWriteResponse networkDataResponse = new IndexResponse("flowup-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
         networkDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
-        ActionWriteResponse uiDataResponse = new IndexResponse("statsd-ui_data", "counter", "AVe4CB8-xL5tw_jvDTey", 1, true);
+        ActionWriteResponse uiDataResponse = new IndexResponse("flowup-ui_data", "counter", "AVe4CB8-xL5tw_jvDTey", 1, true);
         uiDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
         BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse), new BulkItemResponse(0, "index", uiDataResponse)};
         BulkResponse bulkResponse = new BulkResponse(responses, 67);

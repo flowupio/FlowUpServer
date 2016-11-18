@@ -4,12 +4,7 @@ import models.ApiKey;
 import models.Application;
 
 public class ApplicationDatasource {
-    public boolean existByApiKeyAndAppPackage(String apiKey, String appPackage, String organizationId) {
-        Application application = findApplicationByPackageAndOrgId(appPackage, organizationId);
-        return application != null && apiKey.equals(application.getOrganization().getApiKey().getValue());
-    }
-
-    private Application findApplicationByPackageAndOrgId(String appPackage, String organizationId) {
+    public Application findApplicationByPackageAndOrgId(String appPackage, String organizationId) {
         return Application.find
                 .fetch("organization")
                 .fetch("organization.apiKey")

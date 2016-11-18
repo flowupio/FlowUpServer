@@ -16,6 +16,7 @@ import play.inject.Injector;
 import play.inject.guice.GuiceApplicationBuilder;
 import usecases.repositories.ApplicationRepository;
 import usecases.repositories.UserRepository;
+import utils.WithDashboardsClient;
 import utils.WithFlowUpApplication;
 
 import java.util.concurrent.CompletableFuture;
@@ -24,16 +25,14 @@ import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApplicationRepositoryTest extends WithFlowUpApplication {
+public class ApplicationRepositoryTest extends WithFlowUpApplication implements WithDashboardsClient {
 
     private static final String JOHN_GMAIL_COM = "john@gmail.com";
     private static final String ANY_APP_PACKAGE = "io.flowup.example";
@@ -42,15 +41,13 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
     private static final String FLOW_UP_ORG = "FlowUp";
     private static final String ANY_FLOWUP_EMAIL = "sergio@flowup.com";
 
-    @Mock
-    private DashboardsClient dashboardsClient;
     private ApplicationRepository applicationRepository;
     private OrganizationDatasource organizationDatasource;
 
     @Override
     protected play.Application provideApplication() {
         return new GuiceApplicationBuilder()
-                .overrides(bind(DashboardsClient.class).toInstance(dashboardsClient))
+                .overrides(bind(DashboardsClient.class).toInstance(getMockDashboardsClient()))
                 .build();
     }
 
@@ -76,9 +73,9 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
 
     @Test
     public void anApplicationNotPreviouslyCreatedDoesNotExist() {
-        boolean exist = applicationRepository.exist(KARUMI_ORG, ANY_APP_PACKAGE);
+        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(KARUMI_ORG, ANY_APP_PACKAGE);
 
-        assertFalse(exist);
+        assertNull(application);
     }
 
     @Test
@@ -86,9 +83,9 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
         givenAUserAlreadyCreated(ANY_KARUMI_EMAIL);
         ApiKey apiKey = givenAnApplication(KARUMI_ORG, ANY_APP_PACKAGE);
 
-        boolean exist = applicationRepository.exist(apiKey.getValue(), ANY_APP_PACKAGE);
+        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(apiKey.getValue(), ANY_APP_PACKAGE);
 
-        assertTrue(exist);
+        assertNotNull(application);
     }
 
     @Test
@@ -98,11 +95,11 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
         givenAUserAlreadyCreated(ANY_FLOWUP_EMAIL);
         ApiKey anyOtherApiKey = givenAnApplication(FLOW_UP_ORG, ANY_APP_PACKAGE);
 
-        boolean existFirstOrg = applicationRepository.exist(anyApiKey.getValue(), ANY_APP_PACKAGE);
-        boolean existSecondOrg = applicationRepository.exist(anyOtherApiKey.getValue(), ANY_APP_PACKAGE);
+        Application existFirstOrg = applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyApiKey.getValue(), ANY_APP_PACKAGE);
+        Application existSecondOrg = applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyOtherApiKey.getValue(), ANY_APP_PACKAGE);
 
-        assertTrue(existFirstOrg);
-        assertTrue(existSecondOrg);
+        assertNotNull(existFirstOrg);
+        assertNotNull(existSecondOrg);
     }
 
     private ApiKey givenAnApplication(String orgName, String packageName) throws InterruptedException, ExecutionException {
@@ -117,17 +114,6 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication {
     }
 
     private User givenAUserAlreadyCreated(String email) {
-        when(dashboardsClient.createUser(any())).then(invocation -> {
-            User user = invocation.getArgumentAt(0, User.class);
-            return CompletableFuture.completedFuture(user);
-        });
-        when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, Application.class)));
-        when(dashboardsClient.addUserToOrganisation(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, Application.class)));
-        when(dashboardsClient.deleteUserInDefaultOrganisation(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, User.class)));
-        when(dashboardsClient.createOrg(any())).then(invocation -> {
-            Application application = invocation.getArgumentAt(0, Application.class);
-            return CompletableFuture.completedFuture(application);
-        });
         UserRepository userRepository = app.injector().instanceOf(UserRepository.class);
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getId()).thenReturn(email);
