@@ -49,33 +49,3 @@ public class MandrillClient {
         );
     }
 }
-
-@Data
-class Message {
-    private final String subject;
-    private final String fromEmail;
-    private final String fromName;
-    private final Recipient to;
-    private final Var[] globalMergeVars;
-}
-
-@Data
-class Var {
-    private final String name;
-    private final String content;
-}
-
-@Data
-class Recipient {
-    private final String email;
-    private final String name;
-    private final String type;
-}
-
-@Data
-class MessagesSendTemplateResponse {
-    private final String status;
-    private final int code;
-    private final String name;
-    private final String message;
-}

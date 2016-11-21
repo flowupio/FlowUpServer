@@ -6,6 +6,7 @@ import models.User;
 import play.Configuration;
 import usecases.EmailDatasource;
 
+import java.util.Collections;
 import java.util.concurrent.CompletionStage;
 
 public class MandrillDatasource implements EmailDatasource {
@@ -38,7 +39,7 @@ public class MandrillDatasource implements EmailDatasource {
                 this.signing_up_disabled_subject,
                 this.fromEmail,
                 this.fromName,
-                recipient,
+                Collections.singletonList(recipient),
                 globalMergeVars);
         return this.client.sendMessageWithTemplate(this.signing_up_disabled_template, message).thenApply(response -> response.getCode() == 200);
     }
