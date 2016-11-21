@@ -1,10 +1,13 @@
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import datasources.elasticsearch.ElasticSearchDatasource;
+import datasources.mandrill.MandrillClient;
+import datasources.mandrill.MandrillDatasource;
 import usecases.DashboardsClient;
 import datasources.grafana.GrafanaClient;
 import play.Configuration;
 import play.Environment;
+import usecases.EmailDatasource;
 import usecases.MetricsDatasource;
 
 public class Module extends AbstractModule {
@@ -36,12 +39,21 @@ public class Module extends AbstractModule {
                 .annotatedWith(Names.named("airbrake"))
                 .toInstance(airbrakeConf);
 
+        Configuration mandrillConf = configuration.getConfig("mandrill");
+        bind(Configuration.class)
+                .annotatedWith(Names.named("mandrill"))
+                .toInstance(mandrillConf);
+
         bind(MetricsDatasource.class)
                 .to(ElasticSearchDatasource.class)
                 .asEagerSingleton();
 
         bind(DashboardsClient.class)
                 .to(GrafanaClient.class)
+                .asEagerSingleton();
+
+        bind(EmailDatasource.class)
+                .to(MandrillDatasource.class)
                 .asEagerSingleton();
     }
 }

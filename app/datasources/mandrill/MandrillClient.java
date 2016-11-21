@@ -1,6 +1,8 @@
 package datasources.mandrill;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import lombok.Data;
 import play.Configuration;
 import play.Logger;
@@ -8,13 +10,11 @@ import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.mvc.Http;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.concurrent.CompletionStage;
 
 public class MandrillClient {
 
-    public static final String MESSAGES_SEND_TEMPLATE_ENDPOINT = "/api/1.0/messages/send-template.json";
+    private static final String MESSAGES_SEND_TEMPLATE_ENDPOINT = "/api/1.0/messages/send-template.json";
 
     private final WSClient ws;
     private final String baseUrl;
@@ -26,8 +26,7 @@ public class MandrillClient {
 
         String scheme = configuration.getString("scheme");
         String host = configuration.getString("host");
-        String port = configuration.getString("port");
-        this.baseUrl = scheme + "://" + host + ":" + port;
+        this.baseUrl = scheme + "://" + host;
 
         this.apiKey = configuration.getString("api_key");
     }

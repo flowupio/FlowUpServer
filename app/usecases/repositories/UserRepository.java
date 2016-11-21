@@ -7,6 +7,7 @@ import datasources.database.UserDatasource;
 import usecases.DashboardsClient;
 import models.Organization;
 import models.User;
+import usecases.EmailDatasource;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -17,24 +18,33 @@ public class UserRepository {
     private final UserDatasource userDatasource;
     private final OrganizationDatasource organizationDatasource;
     private final DashboardsClient dashboardsClient;
+    private final EmailDatasource emailDatasource;
 
     @Inject
-    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, DashboardsClient dashboardsClient) {
+    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, DashboardsClient dashboardsClient, EmailDatasource emailDatasource) {
         this.userDatasource = userDatasource;
         this.organizationDatasource = organizationDatasource;
         this.dashboardsClient = dashboardsClient;
+        this.emailDatasource = emailDatasource;
     }
 
     public CompletionStage<User> create(AuthUser authUser) {
         boolean isActive = this.existsOrganizationByEmail(authUser);
         User user = userDatasource.create(authUser, isActive);
+        CompletionStage<Boolean> completionStage = CompletableFuture.completedFuture(true);
+        if (!isActive) {
+            completionStage = emailDatasource.sendSigningUpDisabledMessage(user);
+        }
         Organization organization = findOrCreateOrganization(user);
         if (organization != null) {
             user = joinOrganization(user, organization);
         }
 
-        return dashboardsClient.createUser(user).thenCompose(userWithGrafana -> {
-            return joinApplicationDashboards(userWithGrafana, organization);
+        final User finalUser = user;
+        return completionStage.thenCompose(emailSuccess -> {
+            return dashboardsClient.createUser(finalUser).thenCompose(userWithGrafana -> {
+                return joinApplicationDashboards(userWithGrafana, organization);
+            });
         });
     }
 

@@ -4,10 +4,11 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import models.User;
 import play.Configuration;
+import usecases.EmailDatasource;
 
 import java.util.concurrent.CompletionStage;
 
-public class MandrillDatasource {
+public class MandrillDatasource implements EmailDatasource {
     private static final String COMPANY = "COMPANY";
     private static final String TO = "to";
     private final MandrillClient client;
@@ -17,7 +18,6 @@ public class MandrillDatasource {
     private final String companyName;
     private final String signing_up_disabled_subject;
 
-    //    {"email":"davide@gokarumi.com","name":"Davide Mendolia","type":"to"}
     @Inject
     public MandrillDatasource(MandrillClient client, @Named("mandrill") Configuration configuration) {
         this.client = client;
@@ -29,6 +29,7 @@ public class MandrillDatasource {
         this.signing_up_disabled_subject = configuration.getString("signing_up_disabled.subject");
     }
 
+    @Override
     public CompletionStage<Boolean> sendSigningUpDisabledMessage(User user) {
 
         Recipient recipient = new Recipient(user.getEmail(), user.getName(), TO);
