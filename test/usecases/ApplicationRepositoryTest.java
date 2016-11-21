@@ -2,7 +2,6 @@ package usecases;
 
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
 import datasources.database.OrganizationDatasource;
-import datasources.grafana.DashboardsClient;
 import models.ApiKey;
 import models.Application;
 import models.Organization;
@@ -10,7 +9,6 @@ import models.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.Injector;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -19,7 +17,6 @@ import usecases.repositories.UserRepository;
 import utils.WithDashboardsClient;
 import utils.WithFlowUpApplication;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 

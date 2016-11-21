@@ -1,6 +1,6 @@
 package utils;
 
-import datasources.grafana.DashboardsClient;
+import usecases.DashboardsClient;
 import models.Application;
 import models.User;
 

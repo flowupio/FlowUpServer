@@ -1,7 +1,7 @@
 package usecases.repositories;
 
 import datasources.database.ApplicationDatasource;
-import datasources.grafana.DashboardsClient;
+import usecases.DashboardsClient;
 import models.ApiKey;
 import models.Application;
 import models.Organization;

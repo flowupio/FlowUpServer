@@ -14,6 +14,7 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
+import usecases.DashboardsClient;
 
 import javax.inject.Inject;
 import javax.inject.Named;

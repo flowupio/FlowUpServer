@@ -4,7 +4,7 @@ import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.EmailIdentity;
 import datasources.database.OrganizationDatasource;
 import datasources.database.UserDatasource;
-import datasources.grafana.DashboardsClient;
+import usecases.DashboardsClient;
 import models.Organization;
 import models.User;
 

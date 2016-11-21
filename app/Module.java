@@ -1,7 +1,7 @@
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import datasources.elasticsearch.ElasticSearchDatasource;
-import datasources.grafana.DashboardsClient;
+import usecases.DashboardsClient;
 import datasources.grafana.GrafanaClient;
 import play.Configuration;
 import play.Environment;

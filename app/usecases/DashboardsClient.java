@@ -1,4 +1,4 @@
-package datasources.grafana;
+package usecases;
 
 import models.Application;
 import models.User;

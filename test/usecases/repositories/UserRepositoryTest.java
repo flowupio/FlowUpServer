@@ -3,20 +3,18 @@ package usecases.repositories;
 import com.avaje.ebean.Model;
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
 import datasources.database.OrganizationDatasource;
-import datasources.grafana.DashboardsClient;
+import usecases.DashboardsClient;
 import models.Organization;
 import models.User;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import utils.WithDashboardsClient;
 import utils.WithFlowUpApplication;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
