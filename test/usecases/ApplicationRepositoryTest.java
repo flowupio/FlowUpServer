@@ -111,12 +111,12 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication implements 
     }
 
     private User givenAUserAlreadyCreated(String email) {
-        UserRepository userRepository = app.injector().instanceOf(UserRepository.class);
+        CreateUser createUser = app.injector().instanceOf(CreateUser.class);
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getId()).thenReturn(email);
         when(authUser.getEmail()).thenReturn(email);
         try {
-            return userRepository.create(authUser).toCompletableFuture().get();
+            return createUser.execute(authUser).toCompletableFuture().get();
         } catch (InterruptedException | ExecutionException e) {
             return null;
         }

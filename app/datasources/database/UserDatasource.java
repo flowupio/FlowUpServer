@@ -7,6 +7,7 @@ import models.LinkedAccount;
 import models.User;
 
 import java.util.Collections;
+import java.util.UUID;
 
 public class UserDatasource {
 
@@ -36,5 +37,14 @@ public class UserDatasource {
 
         user.save();
         return user;
+    }
+
+    public User findById(UUID userId) {
+        return User.find.byId(userId);
+    }
+
+    public void setActive(User user) {
+        user.setActive(true);
+        user.save();
     }
 }
