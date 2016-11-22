@@ -31,21 +31,38 @@ public class UserRepository {
     public CompletionStage<User> create(AuthUser authUser) {
         boolean isActive = this.existsOrganizationByEmail(authUser);
         User user = userDatasource.create(authUser, isActive);
-        CompletionStage<Boolean> completionStage = CompletableFuture.completedFuture(true);
-        if (!isActive) {
-            completionStage = emailSender.sendSigningUpDisabledMessage(user);
-        }
-        Organization organization = findOrCreateOrganization(user);
-        if (organization != null) {
-            user = joinOrganization(user, organization);
-        }
+        CompletionStage<Boolean> sendEmailCompletionStage = sendSigningUpEmail(user);
 
-        final User finalUser = user;
-        return completionStage.thenCompose(emailSuccess -> {
-            return dashboardsClient.createUser(finalUser).thenCompose(userWithGrafana -> {
-                return joinApplicationDashboards(userWithGrafana, organization);
-            });
+        CompletionStage<User> dashboardsCompletionStage = joinOrganization(user).thenCompose(this::setupDashboards);
+
+        return CompletableFuture.allOf(
+                sendEmailCompletionStage.toCompletableFuture(),
+                dashboardsCompletionStage.toCompletableFuture()
+        ).thenApply(aVoid -> user);
+    }
+
+    private CompletionStage<User> joinOrganization(final User user) {
+        return CompletableFuture.supplyAsync(() -> {
+            Organization organization = findOrCreateOrganization(user);
+            if (organization != null) {
+                return joinOrganization(user, organization);
+            }
+            return user;
         });
+    }
+
+    private CompletionStage<User> setupDashboards(User user) {
+        return dashboardsClient.createUser(user).thenCompose(userWithGrafana -> {
+                return joinApplicationDashboards(userWithGrafana, userWithGrafana.getOrganizations().get(0));
+            });
+    }
+
+    private CompletionStage<Boolean> sendSigningUpEmail(User user) {
+        CompletionStage<Boolean> sendEmailCompletionStage = CompletableFuture.completedFuture(true);
+        if (!user.isActive()) {
+            sendEmailCompletionStage = emailSender.sendSigningUpDisabledMessage(user);
+        }
+        return sendEmailCompletionStage;
     }
 
     private CompletionStage<User> joinApplicationDashboards(User user, Organization organization) {
