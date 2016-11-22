@@ -7,7 +7,7 @@ import datasources.database.UserDatasource;
 import usecases.DashboardsClient;
 import models.Organization;
 import models.User;
-import usecases.EmailDatasource;
+import usecases.EmailSender;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -18,14 +18,14 @@ public class UserRepository {
     private final UserDatasource userDatasource;
     private final OrganizationDatasource organizationDatasource;
     private final DashboardsClient dashboardsClient;
-    private final EmailDatasource emailDatasource;
+    private final EmailSender emailSender;
 
     @Inject
-    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, DashboardsClient dashboardsClient, EmailDatasource emailDatasource) {
+    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, DashboardsClient dashboardsClient, EmailSender emailSender) {
         this.userDatasource = userDatasource;
         this.organizationDatasource = organizationDatasource;
         this.dashboardsClient = dashboardsClient;
-        this.emailDatasource = emailDatasource;
+        this.emailSender = emailSender;
     }
 
     public CompletionStage<User> create(AuthUser authUser) {
@@ -33,7 +33,7 @@ public class UserRepository {
         User user = userDatasource.create(authUser, isActive);
         CompletionStage<Boolean> completionStage = CompletableFuture.completedFuture(true);
         if (!isActive) {
-            completionStage = emailDatasource.sendSigningUpDisabledMessage(user);
+            completionStage = emailSender.sendSigningUpDisabledMessage(user);
         }
         Organization organization = findOrCreateOrganization(user);
         if (organization != null) {

@@ -4,6 +4,6 @@ import models.User;
 
 import java.util.concurrent.CompletionStage;
 
-public interface EmailDatasource {
+public interface EmailSender {
     CompletionStage<Boolean> sendSigningUpDisabledMessage(User user);
 }
