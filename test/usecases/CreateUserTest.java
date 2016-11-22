@@ -1,9 +1,8 @@
-package usecases.repositories;
+package usecases;
 
 import com.avaje.ebean.Model;
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
 import datasources.database.OrganizationDatasource;
-import usecases.DashboardsClient;
 import models.Organization;
 import models.User;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
+import usecases.repositories.ApplicationRepository;
+import usecases.repositories.UserRepository;
 import utils.WithDashboardsClient;
 import utils.WithFlowUpApplication;
 
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserRepositoryTest extends WithFlowUpApplication implements WithDashboardsClient {
+public class CreateUserTest extends WithFlowUpApplication implements WithDashboardsClient {
 
     @Override
     protected Application provideApplication() {
@@ -36,11 +37,11 @@ public class UserRepositoryTest extends WithFlowUpApplication implements WithDas
 
     @Test
     public void whenUserWithGmailAccountIsCreatedNewOrgIsCreated() throws ExecutionException, InterruptedException {
-        UserRepository userRepository = givenUserRepository();
+        CreateUser createUser = givenCreateUser();
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getEmail()).thenReturn("john@gmail.com");
 
-        User user = userRepository.create(authUser).toCompletableFuture().get();
+        User user = createUser.execute(authUser).toCompletableFuture().get();
 
         assertThat(user.getOrganizations(), hasSize(1));
         user.getOrganizations().forEach(Model::delete);
@@ -49,11 +50,11 @@ public class UserRepositoryTest extends WithFlowUpApplication implements WithDas
 
     @Test
     public void whenUserWithGoogleAppsAccountIsCreatedNewOrgIsCreated() throws ExecutionException, InterruptedException {
-        UserRepository userRepository = givenUserRepository();
+        CreateUser createUser = givenCreateUser();
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getEmail()).thenReturn("john@example.com");
 
-        User user = userRepository.create(authUser).toCompletableFuture().get();
+        User user = createUser.execute(authUser).toCompletableFuture().get();
 
         assertThat(user.getOrganizations(), hasSize(1));
         user.getOrganizations().forEach(Model::delete);
@@ -62,11 +63,11 @@ public class UserRepositoryTest extends WithFlowUpApplication implements WithDas
 
     @Test
     public void whenUserWithGoogleAppsAccountIsCreatedWithAnAlreadyExistingOrg() throws ExecutionException, InterruptedException {
-        UserRepository userRepository = givenUserRepositoryWithOneOrganization("Example", "@example.com");
+        CreateUser createUser = givenCreateUserWithOneOrganization("Example", "@example.com");
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getEmail()).thenReturn("john@example.com");
 
-        User user = userRepository.create(authUser).toCompletableFuture().get();
+        User user = createUser.execute(authUser).toCompletableFuture().get();
 
         assertThat(user.getOrganizations(), hasSize(1));
         user.getOrganizations().forEach(Model::delete);
@@ -75,11 +76,11 @@ public class UserRepositoryTest extends WithFlowUpApplication implements WithDas
 
     @Test
     public void whenUserWithGoogleAppsAccountIsCreatedWithAnAlreadyExistingOrgWithApplications() throws ExecutionException, InterruptedException {
-        UserRepository userRepository = givenUserRepositoryWithOneOrganizationAndMoreThanOneApp("Example", "@example.com");
+        CreateUser createUser = givenCreateUserWithOneOrganizationAndMoreThanOneApp("Example", "@example.com");
         DefaultUsernamePasswordAuthUser authUser = mock(DefaultUsernamePasswordAuthUser.class);
         when(authUser.getEmail()).thenReturn("john@example.com");
 
-        User user = userRepository.create(authUser).toCompletableFuture().get();
+        User user = createUser.execute(authUser).toCompletableFuture().get();
 
         assertThat(user.getOrganizations(), hasSize(1));
         user.getOrganizations().forEach(Model::delete);
@@ -88,19 +89,19 @@ public class UserRepositoryTest extends WithFlowUpApplication implements WithDas
 
 
     @NotNull
-    private UserRepository givenUserRepository() {
-        return this.app.injector().instanceOf(UserRepository.class);
+    private CreateUser givenCreateUser() {
+        return this.app.injector().instanceOf(CreateUser.class);
     }
 
     @NotNull
-    private UserRepository givenUserRepositoryWithOneOrganization(String name, String gooogleAccount) {
+    private CreateUser givenCreateUserWithOneOrganization(String name, String gooogleAccount) {
         OrganizationDatasource organizationDatasource = this.app.injector().instanceOf(OrganizationDatasource.class);
         organizationDatasource.create(name, gooogleAccount);
-        return this.app.injector().instanceOf(UserRepository.class);
+        return this.app.injector().instanceOf(CreateUser.class);
     }
 
     @NotNull
-    private UserRepository givenUserRepositoryWithOneOrganizationAndMoreThanOneApp(String name, String gooogleAccount) {
+    private CreateUser givenCreateUserWithOneOrganizationAndMoreThanOneApp(String name, String gooogleAccount) {
         OrganizationDatasource organizationDatasource = this.app.injector().instanceOf(OrganizationDatasource.class);
         Organization organization = organizationDatasource.create(name, gooogleAccount);
 
@@ -108,6 +109,6 @@ public class UserRepositoryTest extends WithFlowUpApplication implements WithDas
         applicationRepository.create(organization.getApiKey().getValue(), "com.example.app1");
         applicationRepository.create(organization.getApiKey().getValue(), "com.example.app2");
 
-        return this.app.injector().instanceOf(UserRepository.class);
+        return this.app.injector().instanceOf(CreateUser.class);
     }
 }

@@ -6,6 +6,7 @@ import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
 import models.User;
 import play.Logger;
+import usecases.CreateUser;
 import usecases.repositories.UserRepository;
 
 import javax.inject.Inject;
@@ -15,17 +16,17 @@ import java.util.concurrent.ExecutionException;
 @Singleton
 public class FlowUpUserService extends AbstractUserService {
 
-    private final UserRepository userRepository;
+    private final CreateUser createUser;
 
     @Inject
-    public FlowUpUserService(PlayAuthenticate auth, UserRepository userRepository) {
+    public FlowUpUserService(PlayAuthenticate auth, UserRepository userRepository, CreateUser createUser) {
         super(auth);
-        this.userRepository = userRepository;
+        this.createUser = createUser;
     }
 
     private Object createUserSync(AuthUser authUser) {
         try {
-            User user = userRepository.create(authUser).toCompletableFuture().get();
+            User user = createUser.execute(authUser).toCompletableFuture().get();
             return user.getId();
         } catch (InterruptedException | ExecutionException e) {
             Logger.error(e.getMessage());
