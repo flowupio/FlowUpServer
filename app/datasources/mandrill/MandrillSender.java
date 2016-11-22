@@ -18,6 +18,8 @@ public class MandrillSender implements EmailSender {
     private final String fromName;
     private final String companyName;
     private final String signing_up_disabled_subject;
+    private final String sign_up_approved_template;
+    private final String sign_up_approved_subject;
 
     @Inject
     public MandrillSender(MandrillClient client, @Named("mandrill") Configuration configuration) {
@@ -28,11 +30,13 @@ public class MandrillSender implements EmailSender {
 
         this.signing_up_disabled_template = configuration.getString("signing_up_disabled.template");
         this.signing_up_disabled_subject = configuration.getString("signing_up_disabled.subject");
+
+        this.sign_up_approved_template = configuration.getString("sign_up_approved.template");
+        this.sign_up_approved_subject = configuration.getString("sign_up_approved.subject");
     }
 
     @Override
     public CompletionStage<Boolean> sendSigningUpDisabledMessage(User user) {
-
         Recipient recipient = new Recipient(user.getEmail(), user.getName(), TO);
         Var[] globalMergeVars = new Var[] { new Var(COMPANY, companyName)};
         Message message = new Message(
@@ -42,5 +46,18 @@ public class MandrillSender implements EmailSender {
                 Collections.singletonList(recipient),
                 globalMergeVars);
         return this.client.sendMessageWithTemplate(this.signing_up_disabled_template, message).thenApply(response -> response.getCode() == 200);
+    }
+
+    @Override
+    public CompletionStage<Boolean> sendSignUpApprovedMessage(User user) {
+        Recipient recipient = new Recipient(user.getEmail(), user.getName(), TO);
+        Var[] globalMergeVars = new Var[] { new Var(COMPANY, companyName)};
+        Message message = new Message(
+                this.sign_up_approved_subject,
+                this.fromEmail,
+                this.fromName,
+                Collections.singletonList(recipient),
+                globalMergeVars);
+        return this.client.sendMessageWithTemplate(this.sign_up_approved_template, message).thenApply(response -> response.getCode() == 200);
     }
 }
