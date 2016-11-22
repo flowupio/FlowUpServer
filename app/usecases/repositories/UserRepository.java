@@ -130,10 +130,13 @@ public class UserRepository {
     public CompletionStage<Boolean> activateByUserId(UUID userId) {
         User user = User.find.byId(userId);
         if (user != null) {
-            user.setActive(true);
-            user.save();
-
-            return emailSender.sendSignUpApprovedMessage(user);
+            return emailSender.sendSignUpApprovedMessage(user).thenApply(emailSent -> {
+                if (emailSent) {
+                    user.setActive(true);
+                    user.save();
+                }
+                return emailSent;
+            });
         }
         return CompletableFuture.completedFuture(false);
     }

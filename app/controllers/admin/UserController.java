@@ -67,9 +67,9 @@ public class UserController extends Controller {
     }
 
     /**
-     * Display the 'edit form' of a existing Computer.
+     * Display the 'edit form' of a existing User.
      *
-     * @param id Id of the computer to edit
+     * @param id Id of the User to edit
      */
     public Result edit(String id) {
         UUID uuid = UUID.fromString(id);
@@ -104,7 +104,7 @@ public class UserController extends Controller {
                 savedUser.setEmailValidated(newUserData.isEmailValidated());
 
                 savedUser.update();
-                flash("success", "Computer " + userForm.get().getName() + " has been updated");
+                flash("success", "User " + userForm.get().getName() + " has been updated");
                 txn.commit();
             }
         } finally {
@@ -143,7 +143,7 @@ public class UserController extends Controller {
     public Result delete(String id) {
         UUID uuid = UUID.fromString(id);
         User.find.ref(uuid).delete();
-        flash("success", "Computer has been deleted");
+        flash("success", "User has been deleted");
         return GO_HOME;
     }
 
