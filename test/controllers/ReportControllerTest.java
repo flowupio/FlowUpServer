@@ -2,8 +2,7 @@ package controllers;
 
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;
-import datasources.grafana.DashboardsClient;
-import datasources.grafana.GrafanaClient;
+import usecases.DashboardsClient;
 import models.ApiKey;
 import org.junit.Before;
 import org.junit.Test;

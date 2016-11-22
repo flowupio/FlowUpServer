@@ -4,9 +4,10 @@ import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.EmailIdentity;
 import datasources.database.OrganizationDatasource;
 import datasources.database.UserDatasource;
-import datasources.grafana.DashboardsClient;
+import usecases.DashboardsClient;
 import models.Organization;
 import models.User;
+import usecases.EmailSender;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -17,25 +18,51 @@ public class UserRepository {
     private final UserDatasource userDatasource;
     private final OrganizationDatasource organizationDatasource;
     private final DashboardsClient dashboardsClient;
+    private final EmailSender emailSender;
 
     @Inject
-    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, DashboardsClient dashboardsClient) {
+    public UserRepository(UserDatasource userDatasource, OrganizationDatasource organizationDatasource, DashboardsClient dashboardsClient, EmailSender emailSender) {
         this.userDatasource = userDatasource;
         this.organizationDatasource = organizationDatasource;
         this.dashboardsClient = dashboardsClient;
+        this.emailSender = emailSender;
     }
 
     public CompletionStage<User> create(AuthUser authUser) {
         boolean isActive = this.existsOrganizationByEmail(authUser);
         User user = userDatasource.create(authUser, isActive);
-        Organization organization = findOrCreateOrganization(user);
-        if (organization != null) {
-            user = joinOrganization(user, organization);
-        }
+        CompletionStage<Boolean> sendEmailCompletionStage = sendSigningUpEmail(user);
 
-        return dashboardsClient.createUser(user).thenCompose(userWithGrafana -> {
-            return joinApplicationDashboards(userWithGrafana, organization);
+        CompletionStage<User> dashboardsCompletionStage = joinOrganization(user).thenCompose(this::setupDashboards);
+
+        return CompletableFuture.allOf(
+                sendEmailCompletionStage.toCompletableFuture(),
+                dashboardsCompletionStage.toCompletableFuture()
+        ).thenApply(aVoid -> user);
+    }
+
+    private CompletionStage<User> joinOrganization(final User user) {
+        return CompletableFuture.supplyAsync(() -> {
+            Organization organization = findOrCreateOrganization(user);
+            if (organization != null) {
+                return joinOrganization(user, organization);
+            }
+            return user;
         });
+    }
+
+    private CompletionStage<User> setupDashboards(User user) {
+        return dashboardsClient.createUser(user).thenCompose(userWithGrafana -> {
+                return joinApplicationDashboards(userWithGrafana, userWithGrafana.getOrganizations().get(0));
+            });
+    }
+
+    private CompletionStage<Boolean> sendSigningUpEmail(User user) {
+        CompletionStage<Boolean> sendEmailCompletionStage = CompletableFuture.completedFuture(true);
+        if (!user.isActive()) {
+            sendEmailCompletionStage = emailSender.sendSigningUpDisabledMessage(user);
+        }
+        return sendEmailCompletionStage;
     }
 
     private CompletionStage<User> joinApplicationDashboards(User user, Organization organization) {

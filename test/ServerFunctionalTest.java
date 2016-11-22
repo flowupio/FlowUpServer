@@ -5,7 +5,7 @@ import datasources.elasticsearch.BulkItemResponse;
 import datasources.elasticsearch.BulkResponse;
 import datasources.elasticsearch.ElasticsearchClient;
 import datasources.elasticsearch.IndexRequest;
-import datasources.grafana.DashboardsClient;
+import usecases.DashboardsClient;
 import models.ApiKey;
 import models.Organization;
 import org.junit.After;
