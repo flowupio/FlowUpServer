@@ -4,8 +4,8 @@ import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPOutputStream
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import controllers.ReportRequest
 import controllers.ReportRequest._
+import controllers.api.ReportRequest
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import usecases.models.StatisticalValue

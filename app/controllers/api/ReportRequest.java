@@ -1,5 +1,7 @@
-package controllers;
+package controllers.api;
 
+import controllers.api.DatapointTags;
+import controllers.api.ProcessingUnit;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import usecases.models.StatisticalValue;

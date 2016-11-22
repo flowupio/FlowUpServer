@@ -1,4 +1,4 @@
-package controllers;
+package controllers.api;
 
 import play.mvc.Result;
 import usecases.DeleteYesterdayAllowedUUIDs;

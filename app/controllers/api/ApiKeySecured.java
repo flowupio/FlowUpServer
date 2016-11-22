@@ -1,4 +1,4 @@
-package controllers;
+package controllers.api;
 
 import models.ApiKey;
 import play.mvc.Http;

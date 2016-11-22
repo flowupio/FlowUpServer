@@ -1,4 +1,4 @@
-package controllers;
+package controllers.api;
 
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
