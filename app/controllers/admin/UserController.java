@@ -8,24 +8,31 @@ import controllers.Secured;
 import models.User;
 import play.data.Form;
 import play.data.FormFactory;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Results;
 import play.mvc.Security;
+import usecases.ActivateUser;
 
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 
 @Security.Authenticated(Secured.class)
 @Restrict(@Group("admin"))
 public class UserController extends Controller {
 
     private FormFactory formFactory;
+    private final ActivateUser activateUser;
+    private final HttpExecutionContext ec;
 
     @Inject
-    public UserController(FormFactory formFactory) {
+    public UserController(FormFactory formFactory, ActivateUser activateUser, HttpExecutionContext ec) {
         this.formFactory = formFactory;
+        this.activateUser = activateUser;
+        this.ec = ec;
     }
 
     /**
@@ -138,5 +145,17 @@ public class UserController extends Controller {
         User.find.ref(uuid).delete();
         flash("success", "Computer has been deleted");
         return GO_HOME;
+    }
+
+    public CompletionStage<Result> activate(String id) {
+        UUID uuid = UUID.fromString(id);
+        return activateUser.execute(uuid).thenApplyAsync(isActive -> {
+            if (isActive) {
+                flash("success", "User has been activated");
+            } else {
+                flash("failure", "Something wrong happen!");
+            }
+            return GO_HOME;
+        }, ec.current());
     }
 }

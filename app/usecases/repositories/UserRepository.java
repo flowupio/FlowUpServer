@@ -11,6 +11,7 @@ import usecases.EmailSender;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -58,11 +59,11 @@ public class UserRepository {
     }
 
     private CompletionStage<Boolean> sendSigningUpEmail(User user) {
-        CompletionStage<Boolean> sendEmailCompletionStage = CompletableFuture.completedFuture(true);
         if (!user.isActive()) {
-            sendEmailCompletionStage = emailSender.sendSigningUpDisabledMessage(user);
+            return emailSender.sendSigningUpDisabledMessage(user);
+        } else {
+            return emailSender.sendSignUpApprovedMessage(user);
         }
-        return sendEmailCompletionStage;
     }
 
     private CompletionStage<User> joinApplicationDashboards(User user, Organization organization) {
@@ -124,5 +125,16 @@ public class UserRepository {
         user.setOrganizations(Collections.singletonList(organization));
         user.update();
         return user;
+    }
+
+    public CompletionStage<Boolean> activateByUserId(UUID userId) {
+        User user = User.find.byId(userId);
+        if (user != null) {
+            user.setActive(true);
+            user.save();
+
+            return emailSender.sendSignUpApprovedMessage(user);
+        }
+        return CompletableFuture.completedFuture(false);
     }
 }
