@@ -1,4 +1,4 @@
-package controllers;
+package controllers.api;
 
 import controllers.api.HeaderParsers;
 import datasources.database.ApiKeyDatasource;
