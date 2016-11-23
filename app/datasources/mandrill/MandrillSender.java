@@ -7,7 +7,9 @@ import play.Configuration;
 import usecases.EmailSender;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 public class MandrillSender implements EmailSender {
     private static final String COMPANY = "COMPANY";
@@ -57,6 +59,20 @@ public class MandrillSender implements EmailSender {
                 this.fromEmail,
                 this.fromName,
                 Collections.singletonList(recipient),
+                globalMergeVars);
+        return this.client.sendMessageWithTemplate(this.signUpApprovedTemplate, message).thenApply(response -> response.getCode() == 200);
+    }
+
+    @Override
+    public CompletionStage<Boolean> sendKeyMetricsMessage(List<User> users) {
+        List<Recipient> recipients = users.stream().map(user -> new Recipient(user.getEmail(), user.getName(), TO)).collect(Collectors.toList());
+
+        Var[] globalMergeVars = new Var[] { new Var(COMPANY, companyName)};
+        Message message = new Message(
+                this.signUpApprovedSubject,
+                this.fromEmail,
+                this.fromName,
+                recipients,
                 globalMergeVars);
         return this.client.sendMessageWithTemplate(this.signUpApprovedTemplate, message).thenApply(response -> response.getCode() == 200);
     }
