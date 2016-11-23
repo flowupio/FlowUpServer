@@ -1,9 +1,11 @@
 package usecases;
 
+import models.Application;
 import usecases.models.StatCard;
 
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
 public interface EmailTemplateRenderer {
-    String findbugs(models.Application application, List<StatCard> statCards);
+    CompletionStage<String> findbugs(Application application, List<StatCard> statCards);
 }

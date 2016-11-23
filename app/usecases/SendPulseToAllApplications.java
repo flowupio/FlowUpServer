@@ -46,9 +46,10 @@ public class SendPulseToAllApplications {
             return CompletableFuture.completedFuture(false);
         }
 
-        String content = emailTemplateRenderer.findbugs(application, statCards);
-        List<User> members = application.getOrganization().getMembers();
-        return emailSender.sendKeyMetricsMessage(members, application.getAppPackage(), ZonedDateTime.now(),content);
+        return emailTemplateRenderer.findbugs(application, statCards).thenCompose(content -> {
+            List<User> members = application.getOrganization().getMembers();
+            return emailSender.sendKeyMetricsMessage(members, application.getAppPackage(), ZonedDateTime.now(),content);
+        });
     }
 
     private boolean isStatsCardThresholdWarningOrWorse(List<StatCard> statCards) {
