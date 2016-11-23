@@ -36,9 +36,8 @@ GET     /webjars/*file        controllers.WebJarAssets.at(file)
 
 # API
 POST    /report               controllers.api.ReportController.index
-
-# CONFIG
 GET     /config               controllers.api.ConfigController.getConfig
+POST     /pulse               controllers.api.FindBugsController.index
 
 # ALLOWED UUIDS
 DELETE /allowedUUIDs          controllers.api.AllowedUUIDsController.deleteOldAllowedUUIDs()

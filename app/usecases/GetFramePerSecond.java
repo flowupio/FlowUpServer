@@ -16,7 +16,7 @@ public class GetFramePerSecond extends GetLineChart {
     }
 
     public CompletionStage<StatCard> execute(Application application) {
-        return super.execute(application, "FramesPerSecond.p10", "Frames per second", Unit.NONE);
+        return super.execute(application, "FramesPerSecond.p90", "Frames per second", Unit.NONE);
     }
 
     @Override

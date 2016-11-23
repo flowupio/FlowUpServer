@@ -6,6 +6,9 @@ import models.User;
 import play.Configuration;
 import usecases.EmailSender;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -14,6 +17,7 @@ import java.util.stream.Collectors;
 public class MandrillSender implements EmailSender {
     private static final String COMPANY = "COMPANY";
     private static final String TO = "to";
+    public static final String MAIN = "main";
     private final MandrillClient client;
     private final String fromEmail;
     private final String fromName;
@@ -22,6 +26,8 @@ public class MandrillSender implements EmailSender {
     private final String signingUpDisabledSubject;
     private final String signUpApprovedTemplate;
     private final String signUpApprovedSubject;
+    private final String pulseTemplate;
+    private final String pulseSubject;
 
     @Inject
     public MandrillSender(MandrillClient client, @Named("mandrill") Configuration configuration) {
@@ -35,6 +41,9 @@ public class MandrillSender implements EmailSender {
 
         this.signUpApprovedTemplate = configuration.getString("sign_up_approved.template");
         this.signUpApprovedSubject = configuration.getString("sign_up_approved.subject");
+
+        this.pulseTemplate = configuration.getString("pulse.template");
+        this.pulseSubject = configuration.getString("pulse.subject");
     }
 
     @Override
@@ -64,16 +73,18 @@ public class MandrillSender implements EmailSender {
     }
 
     @Override
-    public CompletionStage<Boolean> sendKeyMetricsMessage(List<User> users) {
+    public CompletionStage<Boolean> sendKeyMetricsMessage(List<User> users, String appPackage, ZonedDateTime dateTime, String topMetricsHtml) {
         List<Recipient> recipients = users.stream().map(user -> new Recipient(user.getEmail(), user.getName(), TO)).collect(Collectors.toList());
-
         Var[] globalMergeVars = new Var[] { new Var(COMPANY, companyName)};
+        DateTimeFormatter format = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
+
         Message message = new Message(
-                this.signUpApprovedSubject,
+                String.format(this.pulseSubject, appPackage, dateTime.format(format)),
                 this.fromEmail,
                 this.fromName,
                 recipients,
                 globalMergeVars);
-        return this.client.sendMessageWithTemplate(this.signUpApprovedTemplate, message).thenApply(response -> response.getCode() == 200);
+        TemplateContent main = new TemplateContent(MAIN, topMetricsHtml);
+        return this.client.sendMessageWithTemplate(this.pulseTemplate, Collections.singletonList(main), message).thenApply(response -> response.getCode() == 200);
     }
 }

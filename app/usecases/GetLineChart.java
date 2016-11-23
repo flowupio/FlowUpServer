@@ -11,6 +11,7 @@ import usecases.models.Unit;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.concurrent.CompletionStage;
 
@@ -34,7 +35,7 @@ abstract class GetLineChart {
 
     @NotNull
     private StatCard formatStatCard(String description, Unit unit, LineChart lineChart) {
-        OptionalDouble optionalAverage = lineChart.getValues().stream().filter(value -> value != null).mapToDouble(value -> value).average();
+        OptionalDouble optionalAverage = lineChart.getValues().stream().filter(Objects::nonNull).mapToDouble(value -> value).average();
         Double average = optionalAverage.isPresent() ? optionalAverage.getAsDouble(): null;
         Threshold threshold = getThreshold(average);
         return new StatCard(description, average, unit, lineChart, threshold);

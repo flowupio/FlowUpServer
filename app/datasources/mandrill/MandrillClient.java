@@ -10,6 +10,8 @@ import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.mvc.Http;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public class MandrillClient {
@@ -30,14 +32,18 @@ public class MandrillClient {
 
         this.apiKey = configuration.getString("api_key");
     }
-
     public CompletionStage<MessagesSendTemplateResponse> sendMessageWithTemplate(String templateName, Message message) {
+        return this.sendMessageWithTemplate(templateName, Collections.emptyList(), message);
+    }
+
+    public CompletionStage<MessagesSendTemplateResponse> sendMessageWithTemplate(String templateName, List<TemplateContent> templateContents, Message message) {
         ObjectNode payload = Json.newObject();
         payload.put("key", this.apiKey)
                 .put("template_name", templateName);
-        payload.set("template_content", Json.newArray().add(Json.newObject()));// Required By API
+        payload.set("template_content", Json.toJson(templateContents));
         payload.set("message", Json.toJson(message));
 
+        Logger.debug(payload.toString());
         return this.ws.url(baseUrl + MESSAGES_SEND_TEMPLATE_ENDPOINT).post(payload).thenApply(response -> {
                     Logger.debug(response.getBody());
                     if (response.getStatus() != Http.Status.OK) {

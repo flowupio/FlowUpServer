@@ -5,12 +5,17 @@ import com.spotify.futures.CompletableFutures;
 import datasources.database.ApplicationDatasource;
 import models.Application;
 import models.User;
+import play.Logger;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.twirl.api.Html;
 import usecases.EmailSender;
 import usecases.GetKeyMetrics;
 import usecases.models.StatCard;
+import views.html.api.findbugs;
+import views.html.commandcenter.application;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -46,8 +51,9 @@ public class FindBugsController extends Controller {
                     if (!sendEmail) {
                         return CompletableFuture.completedFuture(false);
                     }
+                    Html content = findbugs.render(application, statCards);
                     List<User> members = application.getOrganization().getMembers();
-                    return emailSender.sendKeyMetricsMessage(members);
+                    return emailSender.sendKeyMetricsMessage(members, application.getAppPackage(), ZonedDateTime.now(),content.body());
                 });
                 completableFutures.add(completionStage.toCompletableFuture());
             }
