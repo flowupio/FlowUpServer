@@ -2,7 +2,7 @@
 @import usecases.models.LineChart
 @import usecases.models.Threshold
 @import usecases.models.Unit
-@(status: String, description: String, mainNumber: Double, unit: Unit, lineChart: LineChart, threshold: Threshold)
+@(description: String, mainNumber: Double, unit: Unit, lineChart: LineChart, threshold: Threshold)
 
 @statcardClass(threshold: Threshold) = @{
     if(threshold == Threshold.NO_DATA) {

@@ -3,12 +3,7 @@
 @(user: models.User, application: models.Application, applications: util.List[Application], statCards: util.List[StatCard])
 
 
-@views.html.commandcenter.main("Command Center", user) {
-
     <div class="row">
-
-        @commandcenter.sidebar(user, applications)
-
         <div class="col-sm-9 col-sm-offset-3 main content">
 
             <div class="dashhead">
@@ -32,4 +27,3 @@
             </div>
         </div>
     </div>
-}
