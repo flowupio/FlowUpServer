@@ -27,8 +27,13 @@ public class HomeController extends Controller {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
     }
+
     public Result index() {
-        return redirect(routes.HomeController.login());
+        if (auth.isLoggedIn(session())) {
+            return redirect(routes.CommandCenterController.index());
+        } else {
+            return redirect(routes.HomeController.login());
+        }
     }
 
     public Result health() {
