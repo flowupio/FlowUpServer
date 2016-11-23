@@ -83,6 +83,20 @@ FlowUp.Builder.with(this)<br />
 
                             <p>Within seconds you will see data in your FlowUp Dashboards.</p>
 
+                            <p>If your project uses lint remember to add this configuration to your project as follows.</p>
+
+                            <pre><code class="language-groovy">
+android {
+...
+lintOptions {
+    abortOnError true
+    disable 'InvalidPackage'
+    }
+}
+                            </code></pre>
+
+                            <p>If you have any problem integrating the Android SDK remember you can send an email to support@@flowup.io or use the customer care chat integrated in the platform.</p>
+
                         </div>
                     </div>
 

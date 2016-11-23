@@ -16,7 +16,7 @@
         display: block;
         overflow-x: hidden;
         overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-        background-color: #1E1E24;
+        background-color: #333743;
         margin-left: auto;
         padding: 40px 20px 20px 15px;
     }

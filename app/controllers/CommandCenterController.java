@@ -68,16 +68,14 @@ public class CommandCenterController extends Controller {
 
         Application applicationModel = getApplicationById.execute(UUID.fromString(applicationUUID));
 
-        return getKeyMetrics.execute(applicationModel).thenApply(statCards -> {
-            return ok(application.render(user, applicationModel, organization.getApplications(), statCards));
-        });
+        return getKeyMetrics.execute(applicationModel).thenApply(statCards ->
+                ok(application.render(user, applicationModel, organization.getApplications(), statCards)));
     }
 
     public CompletionStage<Result> grafana() {
         final User localUser = User.findByAuthUserIdentity(this.auth.getUser(session()));
 
-        return grafanaProxy.retreiveSessionCookies(localUser).thenApply(cookies -> {
-            return redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()]));
-        });
+        return grafanaProxy.retreiveSessionCookies(localUser).thenApply(cookies ->
+                redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()])));
     }
 }
