@@ -10,6 +10,7 @@ import play.cache.CacheApi;
 
 import javax.inject.Inject;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -86,5 +87,9 @@ public class ApplicationRepository {
 
     public Application findById(UUID id) {
         return Application.find.byId(id);
+    }
+
+    public CompletableFuture<List<Application>> findAll() {
+        return applicationDatasource.findAll();
     }
 }
