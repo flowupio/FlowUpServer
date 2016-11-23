@@ -21,6 +21,7 @@ GET     /admin/users/:id              controllers.admin.UserController.edit(id)
 POST    /admin/users/:id              controllers.admin.UserController.update(id)
 # Delete a computer
 POST    /admin/users/:id/delete       controllers.admin.UserController.delete(id)
+POST    /admin/users/:id/activate     controllers.admin.UserController.activate(id)
 
 
 # Authentication

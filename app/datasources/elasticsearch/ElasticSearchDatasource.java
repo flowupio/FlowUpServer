@@ -112,10 +112,12 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         List<String> keys = new ArrayList<>();
         List<Double> values = new ArrayList<>();
         for (SearchResponse searchResponse : mSearchResponse.getResponses()) {
-            for (JsonNode bucket : searchResponse.getAggregations().get("2").get("buckets")) {
-                keys.add(bucket.get("key").asText());
-                JsonNode value = bucket.get("1").get("value");
-                values.add(value instanceof NullNode ? null : value.asDouble());
+            if (searchResponse.getAggregations() != null) {
+                for (JsonNode bucket : searchResponse.getAggregations().get("2").get("buckets")) {
+                    keys.add(bucket.get("key").asText());
+                    JsonNode value = bucket.get("1").get("value");
+                    values.add(value instanceof NullNode ? null : value.asDouble());
+                }
             }
         }
 

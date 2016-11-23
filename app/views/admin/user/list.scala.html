@@ -73,13 +73,15 @@
 
     } else {
 
-        <table class="computers zebra-striped">
+        <div class="table-responsive">
+        <table class="table" data-sort="table">
             <thead>
                 <tr>
                     @header("name", "name")
                     @header("email", "email")
-                    @header("active", "active")
                     @header("emailValidated", "emailValidated")
+                    @header("active", "active")
+                    @header("activate.user", "activate user")
                 </tr>
             </thead>
             <tbody>
@@ -95,17 +97,26 @@
                     }
                     </td>
                     <td>
+                    @user.isEmailValidated
+                    </td>
+                    <td>
                     @user.isActive
                     </td>
                     <td>
-                    @user.isEmailValidated
+                        @if(user.isActive) {
+                            <input type="submit" disabled="disabled" value="Already active" class="btn btn-primary-outline">
+                        } else {
+                            <form method="post" action="@controllers.admin.routes.UserController.activate(user.getId.toString)">
+                                <input type="submit" id="activatesubmit" value="Activate" class="btn btn-primary-outline">
+                            </form>
+                        }
                     </td>
                 </tr>
             }
 
             </tbody>
         </table>
-
+</div>
         <div id="pagination" class="pagination">
             <ul>
                 @if(currentPage.hasPrev) {
