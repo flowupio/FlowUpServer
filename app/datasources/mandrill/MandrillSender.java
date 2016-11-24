@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class MandrillSender implements EmailSender {
     private static final String COMPANY = "COMPANY";
     private static final String TO = "to";
-    public static final String MAIN = "main";
+    private static final String MAIN = "main";
     private final MandrillClient client;
     private final String fromEmail;
     private final String fromName;
