@@ -23,13 +23,14 @@ import java.util.concurrent.Executor;
 
 class SNSMessageBodyParser implements BodyParser<SNSMessage> {
 
-    private TolerantJson jsonParser;
-    private Executor executor;
     private static final String NOTIFICATION = "Notification";
     private static final String SUBSCRIPTION_CONFIRMATION = "SubscriptionConfirmation";
     private static final String UNSUBSCRIBE_CONFIRMATION = "UnsubscribeConfirmation";
     private static final String X_AMZ_SNS_MESSAGE_TYPE = "x-amz-sns-message-type";
     private static final String SIGNATURE_VERSION_1 = "1";
+
+    private final TolerantJson jsonParser;
+    private final Executor executor;
     private final WSClient wsClient;
     private final IsMessageSignatureValid isMessageSignatureValid;
 
