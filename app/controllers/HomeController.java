@@ -29,7 +29,7 @@ public class HomeController extends Controller {
     }
 
     public Result index() {
-        if (auth.isLoggedIn(session())) {
+        if (isUserLoggedIn()) {
             return redirect(routes.CommandCenterController.index());
         } else {
             return redirect(routes.HomeController.login());
@@ -41,7 +41,11 @@ public class HomeController extends Controller {
     }
 
     public Result login() {
-        return ok(login.render(this.auth));
+        if (isUserLoggedIn()) {
+            return redirect(routes.CommandCenterController.index());
+        } else {
+            return ok(login.render(auth));
+        }
     }
 
     public Result logout() {
@@ -55,5 +59,9 @@ public class HomeController extends Controller {
         flash(FLASH_ERROR_KEY,
                 "You need to accept the OAuth connection in order to use this website!");
         return redirect(routes.HomeController.login());
+    }
+
+    private boolean isUserLoggedIn() {
+        return auth.isLoggedIn(session());
     }
 }
