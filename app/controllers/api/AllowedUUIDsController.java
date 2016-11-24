@@ -1,16 +1,13 @@
 package controllers.api;
 
+import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import usecases.DeleteYesterdayAllowedUUIDs;
 
 import javax.inject.Inject;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Supplier;
-
-import static play.mvc.Results.ok;
 
 public class AllowedUUIDsController extends Controller {
 
@@ -21,7 +18,9 @@ public class AllowedUUIDsController extends Controller {
         this.deleteOldAllowedUUIDs = deleteOldAllowedUUIDs;
     }
 
+    @BodyParser.Of(SNSMessageBodyParser.class)
     public CompletionStage<Result> deleteOldAllowedUUIDs() {
+
         return CompletableFuture.supplyAsync(() -> {
             deleteOldAllowedUUIDs.execute();
             return ok();

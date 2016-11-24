@@ -1,6 +1,7 @@
 package controllers.api;
 
 import com.google.inject.Inject;
+import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import usecases.SendPulseToAllApplications;
@@ -16,6 +17,7 @@ public class FindBugsController extends Controller {
         this.sendPulseToAllApplications = sendPulseToAllApplications;
     }
 
+    @BodyParser.Of(SNSMessageBodyParser.class)
     public CompletionStage<Result> index() {
         return sendPulseToAllApplications.execute().thenApply(booleen -> ok());
     }
