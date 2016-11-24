@@ -1,4 +1,4 @@
-package controllers;
+package controllers.api;
 
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;

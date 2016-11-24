@@ -3,6 +3,9 @@ package datasources.database;
 import models.ApiKey;
 import models.Application;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 public class ApplicationDatasource {
     public Application findApplicationByPackageAndOrgId(String appPackage, String organizationId) {
         return Application.find
@@ -21,5 +24,9 @@ public class ApplicationDatasource {
         application.setOrganization(apiKey.getOrganization());
         application.save();
         return application;
+    }
+
+    public CompletableFuture<List<Application>> findAll() {
+        return CompletableFuture.supplyAsync(() -> Application.find.all());
     }
 }

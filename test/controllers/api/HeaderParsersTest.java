@@ -1,5 +1,6 @@
-package controllers;
+package controllers.api;
 
+import controllers.api.HeaderParsers;
 import datasources.database.ApiKeyDatasource;
 import models.ApiKey;
 import org.jetbrains.annotations.NotNull;

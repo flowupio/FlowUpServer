@@ -1,14 +1,9 @@
 @import usecases.models.StatCard
 @import java.util
-@(user: models.User, application: models.Application, applications: util.List[Application], statCards: util.List[StatCard])
+@(application: models.Application, statCards: util.List[StatCard], domain: String)
 
-
-@views.html.commandcenter.main("Command Center", user) {
 
     <div class="row">
-
-        @commandcenter.sidebar(user, applications)
-
         <div class="col-sm-9 col-sm-offset-3 main content">
 
             <div class="dashhead">
@@ -24,12 +19,11 @@
             <div class="row statcards">
                 @for(statCard <- statCards) {
                     <div class="col-sm-6 col-lg-3 m-b">
-                        <a href="@controllers.routes.CommandCenterController.grafana()">
-                        @commandcenter.statcard(statCard.getDescription, statCard.getNumber, statCard.getUnit, statCard.getLineChart, statCard.getThreshold)
+                        <a href="@domain@controllers.routes.CommandCenterController.grafana()">
+                        @commandcenter.statcard(statCard.getDescription, statCard.getNumber, statCard.getUnit, statCard.getLineChart, statCard.getThreshold, false)
                         </a>
                     </div>
                 }
             </div>
         </div>
     </div>
-}

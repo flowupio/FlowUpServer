@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 
@@ -35,28 +33,20 @@ public class CommandCenterController extends Controller {
     private final GetUserByAuthUserIdentity getUserByAuthUserIdentity;
     private final GetPrimaryOrganization getPrimaryOrganization;
     private final GetApplicationById getApplicationById;
-    private final GetFramePerSecond getFramePerSecond;
-    private final GetInternalStorageUsage getInternalStorageUsage;
-    private final GetCpuUsage getCpuUsage;
-    private final GetMemoryUsage getMemoryUsage;
+    private final GetKeyMetrics getKeyMetrics;
     private final GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName;
 
 
     @Inject
     public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity,
                                    GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById,
-                                   GetFramePerSecond getFramePerSecond, GetInternalStorageUsage getInternalStorageUsage,
-                                   GetCpuUsage getCpuUsage, GetMemoryUsage getMemoryUsage,
-                                   GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName) {
+                                   GetKeyMetrics getKeyMetrics, GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
         this.getPrimaryOrganization = getPrimaryOrganization;
         this.getApplicationById = getApplicationById;
-        this.getFramePerSecond = getFramePerSecond;
-        this.getInternalStorageUsage = getInternalStorageUsage;
-        this.getCpuUsage = getCpuUsage;
-        this.getMemoryUsage = getMemoryUsage;
+        this.getKeyMetrics = getKeyMetrics;
         this.getLatestAndroidSDKVersionName = getLatestAndroidSDKVersionName;
     }
 
@@ -77,13 +67,8 @@ public class CommandCenterController extends Controller {
         Organization organization = getPrimaryOrganization.execute(user);
 
         Application applicationModel = getApplicationById.execute(UUID.fromString(applicationUUID));
-        CompletableFuture<StatCard> framePerSecondCompletionStage = getFramePerSecond.execute(applicationModel).toCompletableFuture();
-        CompletableFuture<StatCard> internalStorageUsageCompletionStage = getInternalStorageUsage.execute(applicationModel).toCompletableFuture();
-        CompletableFuture<StatCard> cpuUsageCompletionStage = getCpuUsage.execute(applicationModel).toCompletableFuture();
-        CompletableFuture<StatCard> memoryUsageCompletionStage = getMemoryUsage.execute(applicationModel).toCompletableFuture();
 
-        List<CompletableFuture<StatCard>> futures = asList(framePerSecondCompletionStage, internalStorageUsageCompletionStage, cpuUsageCompletionStage, memoryUsageCompletionStage);
-        return CompletableFutures.allAsList(futures).thenApply(statCards ->
+        return getKeyMetrics.execute(applicationModel).thenApply(statCards ->
                 ok(application.render(user, applicationModel, organization.getApplications(), statCards)));
     }
 

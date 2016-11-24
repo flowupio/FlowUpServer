@@ -1,6 +1,7 @@
-package controllers;
+package controllers.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import controllers.*;
 import play.Logger;
 import play.libs.F;
 import play.libs.Json;

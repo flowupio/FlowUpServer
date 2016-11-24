@@ -26,19 +26,18 @@ POST    /admin/users/:id/activate     controllers.admin.UserController.activate(
 
 # Authentication
 GET     /login                      controllers.HomeController.login
-GET     /logout                     controllers.HomeController.logout
-GET     /authenticate/:provider     com.feth.play.module.pa.controllers.Authenticate.authenticate(provider: String)
-GET     /authenticate/:provider/denied     controllers.HomeController.oAuthDenied(provider: String)
+GET     /logout                               controllers.HomeController.logout
+GET     /authenticate/:provider               com.feth.play.module.pa.controllers.Authenticate.authenticate(provider: String)
+GET     /authenticate/:provider/denied        controllers.HomeController.oAuthDenied(provider: String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
-GET     /webjars/*file              controllers.WebJarAssets.at(file)
+GET     /assets/*file         controllers.Assets.versioned(path="/public", file: Asset)
+GET     /webjars/*file        controllers.WebJarAssets.at(file)
 
 # API
-POST    /report                    controllers.ReportController.index
-
-# CONFIG
-GET     /config                    controllers.ConfigController.getConfig
+POST    /report               controllers.api.ReportController.index
+GET     /config               controllers.api.ConfigController.getConfig
+POST     /pulse               controllers.api.FindBugsController.index
 
 # ALLOWED UUIDS
-DELETE /allowedUUIDs               controllers.AllowedUUIDsController.deleteOldAllowedUUIDs()
+DELETE /allowedUUIDs          controllers.api.AllowedUUIDsController.deleteOldAllowedUUIDs()

@@ -1,4 +1,4 @@
-package controllers;
+package controllers.api;
 
 import lombok.Data;
 import usecases.InsertResult;

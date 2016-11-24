@@ -2,7 +2,7 @@
 @import usecases.models.LineChart
 @import usecases.models.Threshold
 @import usecases.models.Unit
-@(status: String, description: String, mainNumber: Double, unit: Unit, lineChart: LineChart, threshold: Threshold)
+@(description: String, mainNumber: Double, unit: Unit, lineChart: LineChart, threshold: Threshold, drawLineChart: Boolean = true)
 
 @statcardClass(threshold: Threshold) = @{
     if(threshold == Threshold.NO_DATA) {
@@ -52,6 +52,8 @@
         }
         <hr class="statcard-hr m-b-0">
     </div>
-    <canvas width="378" height="94" class="sparkline" data-chart="spark-line" data-value="[{data:@Json.toJson(lineChart.getValues).toString}]" data-labels="@lineChart.getLabels.map(label => "'" + label + "'").mkString(",")" style="width: 189px;
-        height: 47px;"></canvas>
+    @if(drawLineChart) {
+        <canvas width="378" height="94" class="sparkline" data-chart="spark-line" data-value="[{data:@Json.toJson(lineChart.getValues).toString}]" data-labels="@lineChart.getLabels.map(label => "'" + label + "'").mkString(",")" style="width: 189px;
+            height: 47px;"></canvas>
+    }
 </div>

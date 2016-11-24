@@ -2,11 +2,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import datasources.elasticsearch.ElasticSearchDatasource;
 import datasources.mandrill.MandrillSender;
+import datasources.mandrill.TwirlEmailTemplateRenderer;
 import usecases.DashboardsClient;
 import datasources.grafana.GrafanaClient;
 import play.Configuration;
 import play.Environment;
 import usecases.EmailSender;
+import usecases.EmailTemplateRenderer;
 import usecases.MetricsDatasource;
 
 public class Module extends AbstractModule {
@@ -53,6 +55,11 @@ public class Module extends AbstractModule {
 
         bind(EmailSender.class)
                 .to(MandrillSender.class)
+                .asEagerSingleton();
+
+
+        bind(EmailTemplateRenderer.class)
+                .to(TwirlEmailTemplateRenderer.class)
                 .asEagerSingleton();
     }
 }

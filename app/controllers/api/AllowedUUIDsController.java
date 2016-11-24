@@ -1,5 +1,6 @@
-package controllers;
+package controllers.api;
 
+import play.mvc.Controller;
 import play.mvc.Result;
 import usecases.DeleteYesterdayAllowedUUIDs;
 
@@ -11,7 +12,7 @@ import java.util.function.Supplier;
 
 import static play.mvc.Results.ok;
 
-public class AllowedUUIDsController {
+public class AllowedUUIDsController extends Controller {
 
     private final DeleteYesterdayAllowedUUIDs deleteOldAllowedUUIDs;
 
