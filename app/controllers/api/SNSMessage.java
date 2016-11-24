@@ -1,5 +1,6 @@
 package controllers.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
@@ -8,16 +9,27 @@ public class SNSMessage {
     private static final String SUBSCRIPTION_CONFIRMATION = "SubscriptionConfirmation";
     private static final String UNSUBSCRIBE_CONFIRMATION = "UnsubscribeConfirmation";
 
+    @JsonProperty("SignatureVersion")
     private String signatureVersion;
+    @JsonProperty("SubscribeURL")
     private String subscribeURL;
+    @JsonProperty("TopicArn")
     private String topicArn;
+    @JsonProperty("Subject")
     private String subject;
+    @JsonProperty("Message")
     private String message;
+    @JsonProperty("MessageId")
     private String messageId;
+    @JsonProperty("SigningCertURL")
     private String signingCertURL;
+    @JsonProperty("Timestamp")
     private String timestamp;
+    @JsonProperty("Type")
     private String type;
+    @JsonProperty("Token")
     private String token;
+    @JsonProperty("Signature")
     private String signature;
 
     private String getNotification() {

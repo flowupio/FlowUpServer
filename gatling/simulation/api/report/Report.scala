@@ -4,8 +4,8 @@ import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPOutputStream
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import controllers.ReportRequest._
 import controllers.api.ReportRequest
+import controllers.api.ReportRequest._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import usecases.models.StatisticalValue
@@ -29,17 +29,6 @@ object Report {
   private val anyTimestamp = System.currentTimeMillis()
   private val anyAmountOfBytes = 1024
   private val anyStatisticalValue = new StatisticalValue(
-    1000,
-    1000,
-    1000,
-    1000,
-    1000,
-    1000,
-    1000,
-    1000,
-    1000,
-    1000,
-    1000,
     1000,
     1000,
     1000)

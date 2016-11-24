@@ -23,23 +23,22 @@ import java.util.concurrent.Executor;
 
 class SNSMessageBodyParser implements BodyParser<SNSMessage> {
 
-    private Json jsonParser;
+    private TolerantJson jsonParser;
     private Executor executor;
     private static final String NOTIFICATION = "Notification";
     private static final String SUBSCRIPTION_CONFIRMATION = "SubscriptionConfirmation";
     private static final String UNSUBSCRIBE_CONFIRMATION = "UnsubscribeConfirmation";
-    private static final String X_509 = "X.509";
-    private static final String SHA_1_WITH_RSA = "SHA1withRSA";
     private static final String X_AMZ_SNS_MESSAGE_TYPE = "x-amz-sns-message-type";
     private static final String SIGNATURE_VERSION_1 = "1";
     private final WSClient wsClient;
-
+    private final IsMessageSignatureValid isMessageSignatureValid;
 
     @Inject
-    public SNSMessageBodyParser(Json jsonParser, Executor executor, WSClient wsClient) {
+    public SNSMessageBodyParser(TolerantJson jsonParser, Executor executor, WSClient wsClient, IsMessageSignatureValid isMessageSignatureValid) {
         this.jsonParser = jsonParser;
         this.executor = executor;
         this.wsClient = wsClient;
+        this.isMessageSignatureValid = isMessageSignatureValid;
     }
 
     @Override
@@ -69,14 +68,13 @@ class SNSMessageBodyParser implements BodyParser<SNSMessage> {
         SNSMessage msg = play.libs.Json.fromJson(jsonNode, SNSMessage.class);
 
         if (msg.getSignatureVersion().equals(SIGNATURE_VERSION_1)) {
-            if (isMessageSignatureValid(msg))
+            if (isMessageSignatureValid.execute(msg))
                 Logger.debug("Signature verification succeeded");
             else {
                 Logger.debug("Signature verification failed");
                 return F.Either.Left(Results.forbidden("Signature verification failed."));
             }
-        }
-        else {
+        } else {
             Logger.debug("Unexpected signature version. Unable to verify signature.");
             return F.Either.Left(Results.forbidden("Unexpected signature version. Unable to verify signature."));
         }
@@ -109,21 +107,25 @@ class SNSMessageBodyParser implements BodyParser<SNSMessage> {
                 return F.Either.Left(Results.badRequest());
         }
     }
+}
 
-    private static boolean isMessageSignatureValid(SNSMessage msg) {
+class IsMessageSignatureValid {
+    private static final String X_509 = "X.509";
+    private static final String SHA_1_WITH_RSA = "SHA1withRSA";
+
+    public boolean execute(SNSMessage msg) {
         try {
             URL url = new URL(msg.getSigningCertURL());
             InputStream inStream = url.openStream();
             CertificateFactory cf = CertificateFactory.getInstance(X_509);
-            X509Certificate cert = (X509Certificate)cf.generateCertificate(inStream);
+            X509Certificate cert = (X509Certificate) cf.generateCertificate(inStream);
             inStream.close();
 
             Signature sig = Signature.getInstance(SHA_1_WITH_RSA);
             sig.initVerify(cert.getPublicKey());
             sig.update(msg.getMessageBytes());
             return sig.verify(Base64.decodeBase64(msg.getSignature()));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Logger.error("Verify method failed.", e);
             return false;
         }
