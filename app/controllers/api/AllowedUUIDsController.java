@@ -20,9 +20,6 @@ public class AllowedUUIDsController extends Controller {
 
     @BodyParser.Of(SNSMessageBodyParser.class)
     public CompletionStage<Result> deleteOldAllowedUUIDs() {
-        SNSMessage message = request().body().as(SNSMessage.class);
-//        message.getSubject();
-//        message.getMessage();
 
         return CompletableFuture.supplyAsync(() -> {
             deleteOldAllowedUUIDs.execute();
