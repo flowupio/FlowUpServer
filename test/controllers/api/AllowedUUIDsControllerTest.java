@@ -67,7 +67,7 @@ public class AllowedUUIDsControllerTest extends WithFlowUpApplication implements
         hm.put("x-amz-sns-topic-arn", new String[]{"arn:aws:sns:us-west-2:123456789012:MyTopic"});
         hm.put("x-amz-sns-subscription-arn", new String[]{"arn:aws:sns:us-west-2:123456789012:MyTopic:2bcfbf39-05c3-41de-beaa-fcfcc21c8f55"});
 
-        Http.RequestBuilder requestBuilder = fakeRequest("DELETE", "/allowedUUIDs")
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/allowedUUIDs")
                 .headers(hm).header("Content-Type", "application/json").bodyText(getFile("sns/notification.json"));
         return route(requestBuilder);
     }
