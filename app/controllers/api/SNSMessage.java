@@ -35,7 +35,7 @@ public class SNSMessage {
     private String getNotification() {
         String stringToSign;
 
-        stringToSign = "SNSMessage\n";
+        stringToSign = "Message\n";
         stringToSign += this.getMessage() + "\n";
         stringToSign += "MessageId\n";
         stringToSign += this.getMessageId() + "\n";
@@ -54,7 +54,7 @@ public class SNSMessage {
 
     private String getSubscription() {
         String stringToSign;
-        stringToSign = "SNSMessage\n";
+        stringToSign = "Message\n";
         stringToSign += this.getMessage() + "\n";
         stringToSign += "MessageId\n";
         stringToSign += this.getMessageId() + "\n";
