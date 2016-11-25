@@ -96,8 +96,8 @@ public class ApiKeyRepository {
     }
 
     private void flushAllowedUUIDCache(String apiKey) {
-        cache.remove(TODAY_ALLOWED_UUID_COUNT_CACHE_KEY + apiKey + getNumericDay());
-        cache.remove(TODAY_ALLOWED_UUIDS + apiKey + getNumericDay());
+        cache.remove(getAllowedUUIDCountCacheKey(apiKey));
+        cache.remove(getAllowedUUIDsCacheKey(apiKey));
     }
 
     private String getApiKeyCacheKey(String apiKey) {
