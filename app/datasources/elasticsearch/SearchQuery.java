@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Data
 public class SearchQuery {
@@ -43,6 +44,7 @@ class Aggregation {
     @JsonProperty("date_histogram")
     private DateHistogramAggregation dateHistogram;
     private AvgAggregation avg;
+    private TermsAggregation terms;
     private AggregationMap aggs;
 }
 
@@ -60,6 +62,13 @@ class DateHistogramAggregation {
     private final String format;
     @JsonProperty("extended_bounds")
     private final ExtendedBounds extendedBounds;
+}
+
+@Data
+class TermsAggregation {
+    private String field;
+    private int size;
+    private Map<String, String> order;
 }
 
 @Data

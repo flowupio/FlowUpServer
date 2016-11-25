@@ -97,14 +97,20 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     public CompletionStage<LineChart> singleStat(SingleStatQuery singleStatQuery) {
-        return singleStat(singleStatQuery.getApplication(), singleStatQuery.getField(), singleStatQuery.getQueryStringValue(), singleStatQuery.getFrom(), singleStatQuery.getTo());
+        long gteEpochMillis = singleStatQuery.getFrom().toEpochMilli();
+        long lteEpochMillis = singleStatQuery.getTo().toEpochMilli();
+
+        SearchQuery searchQuery = prepareSearchQuery(singleStatQuery.getApplication(), gteEpochMillis, lteEpochMillis, singleStatQuery.getField(), singleStatQuery.getQueryStringValue());
+
+        return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchResponse);
     }
 
-    private CompletionStage<LineChart> singleStat(Application application, String field, String queryStringValue, Instant from, Instant to) {
-        long gteEpochMillis = from.toEpochMilli();
-        long lteEpochMillis = to.toEpochMilli();
+    @Override
+    public CompletionStage<List<LineChart>> statGroupBy(SingleStatQuery singleStatQuery, String field) {
+        long gteEpochMillis = singleStatQuery.getFrom().toEpochMilli();
+        long lteEpochMillis = singleStatQuery.getTo().toEpochMilli();
 
-        SearchQuery searchQuery = prepareSearchQuery(application, gteEpochMillis, lteEpochMillis, field, queryStringValue);
+        SearchQuery searchQuery = prepareSearchQuery(singleStatQuery.getApplication(), gteEpochMillis, lteEpochMillis, singleStatQuery.getField(), singleStatQuery.getQueryStringValue());
 
         return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchResponse);
     }
