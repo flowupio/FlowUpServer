@@ -1,10 +1,13 @@
 package usecases;
 
 import models.Application;
+import play.Logger;
 import usecases.models.Report;
 import usecases.repositories.ApplicationRepository;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 
@@ -20,6 +23,11 @@ public class InsertDataPoints {
     }
 
     public CompletionStage<InsertResult> execute(Report report) {
+        if (report.getAppPackage() == null || report.getAppPackage().isEmpty()) {
+            Logger.error("InsertDataPoints with AppPackage empty or null");
+            Logger.error(report.toString());
+            return CompletableFuture.completedFuture(new InsertResult(true, false, Collections.emptyList()));
+        }
 
         Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
         if (application == null) {
