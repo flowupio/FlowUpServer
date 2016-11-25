@@ -17,23 +17,23 @@ import java.util.OptionalDouble;
 import java.util.concurrent.CompletionStage;
 
 abstract class GetLineChart {
-    private final ElasticSearchDatasource elasticSearchDatasource;
+    private final MetricsDatasource metricsDatasource;
 
     @Inject
     GetLineChart(ElasticSearchDatasource elasticSearchDatasource) {
-        this.elasticSearchDatasource = elasticSearchDatasource;
+        this.metricsDatasource = elasticSearchDatasource;
     }
 
     CompletionStage<StatCard> execute(Application application, String field, String description, Unit unit) {
         Instant now = Instant.now();
-        return elasticSearchDatasource.singleStat(new SingleStatQuery(application, field, now.minus(6, ChronoUnit.HOURS), now)).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
+        return metricsDatasource.singleStat(new SingleStatQuery(application, field, now.minus(6, ChronoUnit.HOURS), now)).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
     }
 
     CompletionStage<StatCard> execute(Application application, String field, String queryStringValue, String description, Unit unit) {
         Instant now = Instant.now();
         SingleStatQuery singleStatQuery = new SingleStatQuery(application, field, now.minus(6, ChronoUnit.HOURS), now);
         singleStatQuery.setQueryStringValue(queryStringValue);
-        return elasticSearchDatasource.singleStat(singleStatQuery).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
+        return metricsDatasource.singleStat(singleStatQuery).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
     }
 
     @NotNull
