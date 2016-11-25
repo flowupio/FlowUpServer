@@ -71,7 +71,7 @@ public class SNSMessage {
         return stringToSign;
     }
 
-    public byte [] getMessageBytes() {
+    byte [] getMessageBytes() {
         byte [] bytesToSign = null;
         if (this.getType().equals(NOTIFICATION))
             bytesToSign = this.getNotification().getBytes();

@@ -60,6 +60,13 @@ public class AllowedUUIDsControllerTest extends WithFlowUpApplication implements
         assertEquals(OK, result.status());
     }
 
+    @Test
+    public void returnsOkWhenSubscribingToSNS() {
+        Result result = subscriptionConfirmationToSNS();
+
+        assertEquals(OK, result.status());
+    }
+
     private Result deleteYesterdayAllowedUUIDs() {
         HashMap<String, String[]> hm = new HashMap<>();
         hm.put("x-amz-sns-message-type", new String[]{"Notification"});
@@ -69,6 +76,18 @@ public class AllowedUUIDsControllerTest extends WithFlowUpApplication implements
 
         Http.RequestBuilder requestBuilder = fakeRequest("POST", "/allowedUUIDs")
                 .headers(hm).header("Content-Type", "application/json").bodyText(getFile("sns/notification.json"));
+        return route(requestBuilder);
+    }
+
+    private Result subscriptionConfirmationToSNS() {
+        HashMap<String, String[]> hm = new HashMap<>();
+        hm.put("x-amz-sns-message-type", new String[]{"SubscriptionConfirmation"});
+        hm.put("x-amz-sns-message-id", new String[]{"165545c9-2a5c-472c-8df2-7ff2be2b3b1b"});
+        hm.put("x-amz-sns-topic-arn", new String[]{"arn:aws:sns:us-west-2:123456789012:MyTopic"});
+        hm.put("x-amz-sns-subscription-arn", new String[]{"arn:aws:sns:us-west-2:123456789012:MyTopic:2bcfbf39-05c3-41de-beaa-fcfcc21c8f55"});
+
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/allowedUUIDs")
+                .headers(hm).header("Content-Type", "application/json").bodyText(getFile("sns/subscriptionConfirmation.json"));
         return route(requestBuilder);
     }
 
