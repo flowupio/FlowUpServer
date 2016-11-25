@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.libs.Json;
 import usecases.InsertResult;
+import usecases.SingleStatQuery;
 import usecases.models.LineChart;
 import usecases.models.Report;
 import utils.WithResources;
@@ -57,7 +58,8 @@ public class ElasticSearchDatasourceTest implements WithResources {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnAggregation();
         Application application = givenAnyApplication();
 
-        CompletionStage<LineChart> lineChartCompletionStage = elasticSearchDatasource.singleStat(application, ANY_FIELD, Instant.now().minusSeconds(1L), Instant.now());
+        SingleStatQuery singleStatQuery = new SingleStatQuery(application, ANY_FIELD, Instant.now().minusSeconds(1L), Instant.now());
+        CompletionStage<LineChart> lineChartCompletionStage = elasticSearchDatasource.singleStat(singleStatQuery);
         LineChart lineChart = lineChartCompletionStage.toCompletableFuture().get();
 
         List<Double> values = Arrays.asList(49.714285714285715, 47.73076923076923, 48.714285714285715, 47.22727272727273, 46.083333333333336, 47.25);

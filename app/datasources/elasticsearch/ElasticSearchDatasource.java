@@ -13,7 +13,6 @@ import usecases.SingleStatQuery;
 import usecases.models.*;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -112,23 +111,50 @@ public class ElasticSearchDatasource implements MetricsDatasource {
 
         SearchQuery searchQuery = prepareSearchQuery(singleStatQuery.getApplication(), gteEpochMillis, lteEpochMillis, singleStatQuery.getField(), singleStatQuery.getQueryStringValue());
 
-        return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchResponse);
+        return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchGroupByResponse);
     }
 
     private LineChart processMSearchResponse(MSearchResponse mSearchResponse) {
-        List<String> keys = new ArrayList<>();
-        List<Double> values = new ArrayList<>();
-        for (SearchResponse searchResponse : mSearchResponse.getResponses()) {
-            if (searchResponse.getAggregations() != null) {
-                for (JsonNode bucket : searchResponse.getAggregations().get("2").get("buckets")) {
-                    keys.add(bucket.get("key").asText());
-                    JsonNode value = bucket.get("1").get("value");
-                    values.add(value instanceof NullNode ? null : value.asDouble());
-                }
-            }
+        JsonNode aggregations = getFirstAggregations(mSearchResponse);
+        if (aggregations != null) {
+            return processLineChartAggregation(aggregations);
         }
 
+        return new LineChart(Collections.emptyList(), Collections.emptyList());
+    }
+
+    private List<LineChart> processMSearchGroupByResponse(MSearchResponse mSearchResponse) {
+        List<LineChart> lineCharts = new ArrayList<>();
+        JsonNode aggregations = getFirstAggregations(mSearchResponse);
+        if (aggregations != null) {
+            for (JsonNode bucket : aggregations.get("3").get("buckets")) {
+                LineChart lineChart = processLineChartAggregation(bucket);
+                lineCharts.add(lineChart);
+            }
+        }
+        return lineCharts;
+    }
+
+    private LineChart processLineChartAggregation(JsonNode aggregations) {
+        List<String> keys = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+        JsonNode jsonNode = aggregations.get("2");
+        if (jsonNode != null) {
+            for (JsonNode bucket : jsonNode.get("buckets")) {
+                keys.add(bucket.get("key").asText());
+                JsonNode value = bucket.get("1").get("value");
+                values.add(value instanceof NullNode ? null : value.asDouble());
+            }
+        }
         return new LineChart(keys, values);
+    }
+
+    private JsonNode getFirstAggregations(MSearchResponse mSearchResponse) {
+        if (mSearchResponse.getResponses().size() > 0) {
+            SearchResponse searchResponse = mSearchResponse.getResponses().get(0);
+            return searchResponse.getAggregations();
+        }
+        return null;
     }
 
     @NotNull
