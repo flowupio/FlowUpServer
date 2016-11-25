@@ -13,13 +13,15 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 import javax.inject.Inject;
-import java.io.InputStream;
-import java.net.URL;
 import java.security.Signature;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
 
 class SNSMessageBodyParser implements BodyParser<SNSMessage> {
 
@@ -116,6 +118,7 @@ class IsMessageSignatureValid {
 
     public boolean execute(SNSMessage msg) {
         try {
+            Logger.info(msg.getSigningCertURL());
             URL url = new URL(msg.getSigningCertURL());
             InputStream inStream = url.openStream();
             CertificateFactory cf = CertificateFactory.getInstance(X_509);
@@ -124,11 +127,31 @@ class IsMessageSignatureValid {
 
             Signature sig = Signature.getInstance(SHA_1_WITH_RSA);
             sig.initVerify(cert.getPublicKey());
+            Logger.info(Arrays.toString(msg.getMessageBytes()));
             sig.update(msg.getMessageBytes());
+            Logger.info(msg.getSignature());
             return sig.verify(Base64.decodeBase64(msg.getSignature()));
         } catch (Exception e) {
             Logger.error("Verify method failed.", e);
             return false;
+        }
+    }
+
+    private static boolean isMessageSignatureValid(Message msg) {
+        try {
+            URL url = new URL(msg.getSigningCertURL());
+            InputStream inStream = url.openStream();
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            X509Certificate cert = (X509Certificate)cf.generateCertificate(inStream);
+            inStream.close();
+
+            Signature sig = Signature.getInstance("SHA1withRSA");
+            sig.initVerify(cert.getPublicKey());
+            sig.update(getMessageBytesToSign(msg));
+            return sig.verify(Base64.decodeBase64(msg.getSignature()));
+        }
+        catch (Exception e) {
+            throw new SecurityException("Verify method failed.", e);
         }
     }
 }
