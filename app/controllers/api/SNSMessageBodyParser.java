@@ -136,22 +136,4 @@ class IsMessageSignatureValid {
             return false;
         }
     }
-
-    private static boolean isMessageSignatureValid(Message msg) {
-        try {
-            URL url = new URL(msg.getSigningCertURL());
-            InputStream inStream = url.openStream();
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            X509Certificate cert = (X509Certificate)cf.generateCertificate(inStream);
-            inStream.close();
-
-            Signature sig = Signature.getInstance("SHA1withRSA");
-            sig.initVerify(cert.getPublicKey());
-            sig.update(getMessageBytesToSign(msg));
-            return sig.verify(Base64.decodeBase64(msg.getSignature()));
-        }
-        catch (Exception e) {
-            throw new SecurityException("Verify method failed.", e);
-        }
-    }
 }
