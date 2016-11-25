@@ -20,15 +20,12 @@ public class GetKeyMetrics {
     private final GetCpuUsage getCpuUsage;
     private final GetMemoryUsage getMemoryUsage;
 
-    private final MetricsDatasource metricsDatasource;
-
     @Inject
-    public GetKeyMetrics(GetFramePerSecond getFramePerSecond, GetInternalStorageUsage getInternalStorageUsage, GetCpuUsage getCpuUsage, GetMemoryUsage getMemoryUsage, MetricsDatasource metricsDatasource) {
+    public GetKeyMetrics(GetFramePerSecond getFramePerSecond, GetInternalStorageUsage getInternalStorageUsage, GetCpuUsage getCpuUsage, GetMemoryUsage getMemoryUsage) {
         this.getFramePerSecond = getFramePerSecond;
         this.getInternalStorageUsage = getInternalStorageUsage;
         this.getCpuUsage = getCpuUsage;
         this.getMemoryUsage = getMemoryUsage;
-        this.metricsDatasource = metricsDatasource;
     }
 
     public CompletionStage<List<KeyStatCard>> execute(Application application) {

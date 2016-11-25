@@ -134,3 +134,7 @@ code {
 .statcard-desc {
     font-size: 73%;
 }
+
+.statcard-number {
+    font-size: 26px;
+}

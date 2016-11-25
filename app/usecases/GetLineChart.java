@@ -28,7 +28,7 @@ abstract class GetLineChart {
         Instant nowMinus6Hours = now.minus(6, ChronoUnit.HOURS);
         return metricsDatasource.singleStat(new SingleStatQuery(application, field, nowMinus6Hours, now))
                 .thenApply(lineChart -> formatStatCard(description, unit, lineChart))
-                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, now, nowMinus6Hours, statCard));
+                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, now, nowMinus6Hours, statCard, description));
     }
 
     CompletionStage<KeyStatCard> execute(Application application, String field, String queryStringValue, String description, Unit unit) {
@@ -38,16 +38,16 @@ abstract class GetLineChart {
         singleStatQuery.setQueryStringValue(queryStringValue);
         return metricsDatasource.singleStat(singleStatQuery)
                 .thenApply(lineChart -> formatStatCard(description, unit, lineChart))
-                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, now, nowMinus6Hours, statCard));
+                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, now, nowMinus6Hours, statCard, description));
 
     }
 
-    private CompletionStage<KeyStatCard> getKeyStatCardCompletionStage(Application application, String field, Unit unit, Instant now, Instant nowMinus6Hours, StatCard statCard) {
-        KeyStatCard keyStatCard = new KeyStatCard(statCard);
-        if (!statCard.getThreshold().isWarningOrWorse()) {
+    private CompletionStage<KeyStatCard> getKeyStatCardCompletionStage(Application application, String field, Unit unit, Instant now, Instant nowMinus6Hours, StatCard statCard, String description) {
+        KeyStatCard keyStatCard = new KeyStatCard(statCard, description);
+        if (statCard.getThreshold().isWarningOrWorse()) {
             return metricsDatasource.statGroupBy(new SingleStatQuery(application, field, nowMinus6Hours, now), VERSION_NAME).thenApply(lineCharts -> {
-                List<StatCard> details = lineCharts.stream().map(lineChart -> formatStatCard(field, unit, lineChart)).collect(Collectors.toList());
-                keyStatCard.setDetail(details);
+                List<StatCard> details = lineCharts.stream().map(lineChart -> formatStatCard(lineChart.getName(), unit, lineChart)).collect(Collectors.toList());
+                keyStatCard.setDetails(details);
                 return keyStatCard;
             });
         }

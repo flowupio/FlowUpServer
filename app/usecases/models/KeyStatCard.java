@@ -5,22 +5,28 @@ import java.util.List;
 
 public class KeyStatCard {
     private final StatCard main;
-    private List<StatCard> detail;
+    private final String description;
+    private List<StatCard> details;
 
-    public KeyStatCard(StatCard main) {
+    public KeyStatCard(StatCard main, String description) {
         this.main = main;
-        this.detail = Collections.emptyList();
+        this.description = description;
+        this.details = Collections.emptyList();
     }
 
     public StatCard getMain() {
         return main;
     }
 
-    public List<StatCard> getDetail() {
-        return detail;
+    public List<StatCard> getDetails() {
+        return details;
     }
 
-    public void setDetail(List<StatCard> detail) {
-        this.detail = detail;
+    public void setDetails(List<StatCard> details) {
+        this.details = details;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

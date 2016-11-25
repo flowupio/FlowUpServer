@@ -129,6 +129,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         if (aggregations != null) {
             for (JsonNode bucket : aggregations.get("3").get("buckets")) {
                 LineChart lineChart = processLineChartAggregation(bucket);
+                lineChart.setName(bucket.get("key").asText());
                 lineCharts.add(lineChart);
             }
         }
