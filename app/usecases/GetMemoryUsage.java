@@ -1,5 +1,6 @@
 package usecases;
 
+import com.google.inject.Inject;
 import models.Application;
 import usecases.models.KeyStatCard;
 import usecases.models.Threshold;
@@ -13,6 +14,7 @@ public class GetMemoryUsage extends GetLineChart {
     private static final String TYPE_MEMORY_DATA = "_type:memory_data";
     private static final String MEMORY_USAGE = "Memory Usage";
 
+    @Inject
     protected GetMemoryUsage(MetricsDatasource metricsDatasource) {
         super(metricsDatasource);
     }

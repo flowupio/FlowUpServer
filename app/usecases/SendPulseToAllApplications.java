@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.spotify.futures.CompletableFutures;
 import models.Application;
 import models.User;
+import usecases.models.KeyStatCard;
 import usecases.models.StatCard;
 import usecases.repositories.ApplicationRepository;
 
@@ -41,23 +42,24 @@ public class SendPulseToAllApplications {
         return CompletableFutures.allAsList(completableFutures);
     }
 
-    private CompletionStage<Boolean> processStatsCards(Application application, List<StatCard> statCards) {
-        if (!isStatsCardThresholdWarningOrWorse(statCards)) {
+    private CompletionStage<Boolean> processStatsCards(Application application, List<KeyStatCard> keyStatCards) {
+        if (!isStatsCardThresholdWarningOrWorse(keyStatCards)) {
             return CompletableFuture.completedFuture(false);
         }
 
-        return emailTemplateRenderer.findbugs(application, statCards).thenCompose(content -> {
+        return emailTemplateRenderer.findbugs(application, keyStatCards).thenCompose(content -> {
             List<User> members = application.getOrganization().getMembers();
             return emailSender.sendKeyMetricsMessage(members, application.getAppPackage(), ZonedDateTime.now(),content);
         });
     }
 
-    private boolean isStatsCardThresholdWarningOrWorse(List<StatCard> statCards) {
-        for (StatCard statCard : statCards) {
-            if (statCard.getThreshold().isWarningOrWorse()) {
+    private boolean isStatsCardThresholdWarningOrWorse(List<KeyStatCard> keyStatCards) {
+        for (KeyStatCard keyStatCard : keyStatCards) {
+            if (keyStatCard.getMain().getThreshold().isWarningOrWorse()) {
                 return true;
             }
         }
+
         return false;
     }
 }

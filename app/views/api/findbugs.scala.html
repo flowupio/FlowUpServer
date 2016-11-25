@@ -1,6 +1,7 @@
 @import usecases.models.StatCard
 @import java.util
-@(application: models.Application, statCards: util.List[StatCard], domain: String)
+@import usecases.models.KeyStatCard
+@(application: models.Application, keyStatCards: util.List[KeyStatCard], domain: String)
 
 
     <div class="row">
@@ -17,10 +18,10 @@
             <hr class="m-t">
 
             <div class="row statcards">
-                @for(statCard <- statCards) {
+                @for(keyStatCard <- keyStatCards) {
                     <div class="col-sm-6 col-lg-3 m-b">
                         <a href="@domain@controllers.routes.CommandCenterController.grafana()">
-                        @commandcenter.statcard(statCard.getDescription, statCard.getNumber, statCard.getUnit, statCard.getLineChart, statCard.getThreshold, false)
+                        @commandcenter.statcard(keyStatCard.getMain.getDescription, keyStatCard.getMain.getNumber, keyStatCard.getMain.getUnit, keyStatCard.getMain.getLineChart, keyStatCard.getMain.getThreshold, false)
                         </a>
                     </div>
                 }
