@@ -3,6 +3,7 @@ package usecases;
 import com.google.inject.Inject;
 import com.spotify.futures.CompletableFutures;
 import models.Application;
+import usecases.models.KeyStatCard;
 import usecases.models.StatCard;
 
 import java.time.Instant;
@@ -30,13 +31,13 @@ public class GetKeyMetrics {
         this.metricsDatasource = metricsDatasource;
     }
 
-    public CompletionStage<List<StatCard>> execute(Application application) {
-        CompletableFuture<StatCard> framePerSecondCompletionStage = getFramePerSecond.execute(application).toCompletableFuture();
-        CompletableFuture<StatCard> internalStorageUsageCompletionStage = getInternalStorageUsage.execute(application).toCompletableFuture();
-        CompletableFuture<StatCard> cpuUsageCompletionStage = getCpuUsage.execute(application).toCompletableFuture();
-        CompletableFuture<StatCard> memoryUsageCompletionStage = getMemoryUsage.execute(application).toCompletableFuture();
+    public CompletionStage<List<KeyStatCard>> execute(Application application) {
+        CompletableFuture<KeyStatCard> framePerSecondCompletionStage = getFramePerSecond.execute(application).toCompletableFuture();
+        CompletableFuture<KeyStatCard> internalStorageUsageCompletionStage = getInternalStorageUsage.execute(application).toCompletableFuture();
+        CompletableFuture<KeyStatCard> cpuUsageCompletionStage = getCpuUsage.execute(application).toCompletableFuture();
+        CompletableFuture<KeyStatCard> memoryUsageCompletionStage = getMemoryUsage.execute(application).toCompletableFuture();
 
-        List<CompletableFuture<StatCard>> futures = asList(framePerSecondCompletionStage, internalStorageUsageCompletionStage, cpuUsageCompletionStage, memoryUsageCompletionStage);
+        List<CompletableFuture<KeyStatCard>> futures = asList(framePerSecondCompletionStage, internalStorageUsageCompletionStage, cpuUsageCompletionStage, memoryUsageCompletionStage);
         return CompletableFutures.allAsList(futures);
     }
 }

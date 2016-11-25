@@ -3,16 +3,10 @@ package usecases;
 import com.google.inject.Inject;
 import models.Application;
 import usecases.models.KeyStatCard;
-import usecases.models.StatCard;
 import usecases.models.Threshold;
 import usecases.models.Unit;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 public class GetFramePerSecond extends GetLineChart {
     private static final String FRAMES_PER_SECOND_P90 = "FramesPerSecond.p90";
