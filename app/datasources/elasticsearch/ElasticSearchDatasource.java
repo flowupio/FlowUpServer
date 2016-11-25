@@ -9,6 +9,7 @@ import play.libs.F;
 import play.libs.Json;
 import usecases.InsertResult;
 import usecases.MetricsDatasource;
+import usecases.SingleStatQuery;
 import usecases.models.*;
 
 import javax.inject.Inject;
@@ -95,11 +96,11 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
     }
 
-    public CompletionStage<LineChart> singleStat(Application application, String field, Instant from, Instant to) {
-        return singleStat(application, field, "*", from, to);
+    public CompletionStage<LineChart> singleStat(SingleStatQuery singleStatQuery) {
+        return singleStat(singleStatQuery.getApplication(), singleStatQuery.getField(), singleStatQuery.getQueryStringValue(), singleStatQuery.getFrom(), singleStatQuery.getTo());
     }
 
-    public CompletionStage<LineChart> singleStat(Application application, String field, String queryStringValue, Instant from, Instant to) {
+    private CompletionStage<LineChart> singleStat(Application application, String field, String queryStringValue, Instant from, Instant to) {
         long gteEpochMillis = from.toEpochMilli();
         long lteEpochMillis = to.toEpochMilli();
 

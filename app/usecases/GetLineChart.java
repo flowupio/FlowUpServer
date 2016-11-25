@@ -1,6 +1,7 @@
 package usecases;
 
 import datasources.elasticsearch.ElasticSearchDatasource;
+import lombok.Data;
 import models.Application;
 import org.jetbrains.annotations.NotNull;
 import usecases.models.LineChart;
@@ -25,18 +26,20 @@ abstract class GetLineChart {
 
     CompletionStage<StatCard> execute(Application application, String field, String description, Unit unit) {
         Instant now = Instant.now();
-        return elasticSearchDatasource.singleStat(application, field, now.minus(6, ChronoUnit.HOURS), now).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
+        return elasticSearchDatasource.singleStat(new SingleStatQuery(application, field, now.minus(6, ChronoUnit.HOURS), now)).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
     }
 
     CompletionStage<StatCard> execute(Application application, String field, String queryStringValue, String description, Unit unit) {
         Instant now = Instant.now();
-        return elasticSearchDatasource.singleStat(application, field, queryStringValue, now.minus(6, ChronoUnit.HOURS), now).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
+        SingleStatQuery singleStatQuery = new SingleStatQuery(application, field, now.minus(6, ChronoUnit.HOURS), now);
+        singleStatQuery.setQueryStringValue(queryStringValue);
+        return elasticSearchDatasource.singleStat(singleStatQuery).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
     }
 
     @NotNull
     private StatCard formatStatCard(String description, Unit unit, LineChart lineChart) {
         OptionalDouble optionalAverage = lineChart.getValues().stream().filter(Objects::nonNull).mapToDouble(value -> value).average();
-        Double average = optionalAverage.isPresent() ? optionalAverage.getAsDouble(): null;
+        Double average = optionalAverage.isPresent() ? optionalAverage.getAsDouble() : null;
         Threshold threshold = getThreshold(average);
         return new StatCard(description, average, unit, lineChart, threshold);
     }
