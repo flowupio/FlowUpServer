@@ -5,6 +5,8 @@ import com.spotify.futures.CompletableFutures;
 import models.Application;
 import usecases.models.StatCard;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -17,12 +19,15 @@ public class GetKeyMetrics {
     private final GetCpuUsage getCpuUsage;
     private final GetMemoryUsage getMemoryUsage;
 
+    private final MetricsDatasource metricsDatasource;
+
     @Inject
-    public GetKeyMetrics(GetFramePerSecond getFramePerSecond, GetInternalStorageUsage getInternalStorageUsage, GetCpuUsage getCpuUsage, GetMemoryUsage getMemoryUsage) {
+    public GetKeyMetrics(GetFramePerSecond getFramePerSecond, GetInternalStorageUsage getInternalStorageUsage, GetCpuUsage getCpuUsage, GetMemoryUsage getMemoryUsage, MetricsDatasource metricsDatasource) {
         this.getFramePerSecond = getFramePerSecond;
         this.getInternalStorageUsage = getInternalStorageUsage;
         this.getCpuUsage = getCpuUsage;
         this.getMemoryUsage = getMemoryUsage;
+        this.metricsDatasource = metricsDatasource;
     }
 
     public CompletionStage<List<StatCard>> execute(Application application) {

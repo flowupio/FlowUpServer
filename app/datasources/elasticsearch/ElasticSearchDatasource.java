@@ -105,11 +105,11 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     @Override
-    public CompletionStage<List<LineChart>> statGroupBy(SingleStatQuery singleStatQuery, String field) {
+    public CompletionStage<List<LineChart>> statGroupBy(SingleStatQuery singleStatQuery, String groupBy) {
         long gteEpochMillis = singleStatQuery.getFrom().toEpochMilli();
         long lteEpochMillis = singleStatQuery.getTo().toEpochMilli();
 
-        SearchQuery searchQuery = prepareSearchQuery(singleStatQuery.getApplication(), gteEpochMillis, lteEpochMillis, singleStatQuery.getField(), singleStatQuery.getQueryStringValue());
+        SearchQuery searchQuery = prepareSearchQueryGroupBy(singleStatQuery.getApplication(), gteEpochMillis, lteEpochMillis, singleStatQuery.getField(), singleStatQuery.getQueryStringValue(), groupBy);
 
         return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchGroupByResponse);
     }
@@ -159,14 +159,38 @@ public class ElasticSearchDatasource implements MetricsDatasource {
 
     @NotNull
     private SearchQuery prepareSearchQuery(Application application, long gteEpochMillis, long lteEpochMillis, String field, String queryStringValue) {
-        SearchQuery searchQuery = new SearchQuery();
+        SearchBody searchBody = getSearchBody(gteEpochMillis, lteEpochMillis, queryStringValue);
 
-        SearchIndex searchIndex = new SearchIndex();
-        searchIndex.setIndex(indexName(application.getAppPackage(), application.getOrganization().getId().toString()));
-        searchIndex.setIgnoreUnavailable(true);
-        searchIndex.setSearchType("count");
-        searchQuery.setSearchIndex(searchIndex);
+        Aggregation aggsObject = getSingleStatAggregation(gteEpochMillis, lteEpochMillis, field);
+        searchBody.setAggs(AggregationMap.singleton("2", aggsObject));
 
+        return getSearchQuery(application, searchBody);
+    }
+
+    private SearchQuery prepareSearchQueryGroupBy(Application application, long gteEpochMillis, long lteEpochMillis, String field, String queryStringValue, String groupBy) {
+        SearchBody searchBody = getSearchBody(gteEpochMillis, lteEpochMillis, queryStringValue);
+
+        Aggregation aggsObject = getSingleStatGroupByAggregation(gteEpochMillis, lteEpochMillis, field, groupBy);
+        searchBody.setAggs(AggregationMap.singleton("3", aggsObject));
+
+        return getSearchQuery(application, searchBody);
+    }
+
+    private Aggregation getSingleStatGroupByAggregation(long gteEpochMillis, long lteEpochMillis, String field, String groupBy) {
+        Aggregation aggsObject = new Aggregation();
+
+        TermsAggregation termsAggregation = new TermsAggregation();
+        termsAggregation.setField(groupBy);
+        termsAggregation.setSize(4);
+        termsAggregation.setOrder(Collections.singletonMap("_term", "desc"));
+        aggsObject.setTerms(termsAggregation);
+        aggsObject.setAggs(AggregationMap.singleton("2", getSingleStatAggregation(gteEpochMillis, lteEpochMillis, field)));
+
+        return aggsObject;
+    }
+
+    @NotNull
+    private SearchBody getSearchBody(long gteEpochMillis, long lteEpochMillis, String queryStringValue) {
         SearchBody searchBody = new SearchBody();
         searchBody.setSize(0);
         SearchBodyQuery query = new SearchBodyQuery();
@@ -188,7 +212,24 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         filtered.setFilter(filter);
         query.setFiltered(filtered);
         searchBody.setQuery(query);
+        return searchBody;
+    }
 
+    @NotNull
+    private SearchQuery getSearchQuery(Application application, SearchBody searchBody) {
+        SearchQuery searchQuery = new SearchQuery();
+
+        SearchIndex searchIndex = new SearchIndex();
+        searchIndex.setIndex(indexName(application.getAppPackage(), application.getOrganization().getId().toString()));
+        searchIndex.setIgnoreUnavailable(true);
+        searchIndex.setSearchType("count");
+        searchQuery.setSearchIndex(searchIndex);
+        searchQuery.setSearchBody(searchBody);
+        return searchQuery;
+    }
+
+    @NotNull
+    private Aggregation getSingleStatAggregation(long gteEpochMillis, long lteEpochMillis, String field) {
         Aggregation aggsObject = new Aggregation();
 
         DateHistogramAggregation dateHistogram = new DateHistogramAggregation(
@@ -202,10 +243,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         Aggregation aggregation = new Aggregation();
         aggregation.setAvg(new AvgAggregation(field));
         aggsObject.setAggs(AggregationMap.singleton("1", aggregation));
-
-        searchBody.setAggs(AggregationMap.singleton("2", aggsObject));
-        searchQuery.setSearchBody(searchBody);
-        return searchQuery;
+        return aggsObject;
     }
 
     @NotNull

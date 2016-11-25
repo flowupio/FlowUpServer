@@ -1,39 +1,57 @@
 package usecases;
 
-import datasources.elasticsearch.ElasticSearchDatasource;
-import lombok.Data;
+import com.google.inject.Inject;
 import models.Application;
 import org.jetbrains.annotations.NotNull;
-import usecases.models.LineChart;
-import usecases.models.StatCard;
-import usecases.models.Threshold;
-import usecases.models.Unit;
+import usecases.models.*;
 
-import javax.inject.Inject;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Objects;
 import java.util.OptionalDouble;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 abstract class GetLineChart {
+    private static final String VERSION_NAME = "VersionName";
     private final MetricsDatasource metricsDatasource;
 
     @Inject
-    GetLineChart(ElasticSearchDatasource elasticSearchDatasource) {
-        this.metricsDatasource = elasticSearchDatasource;
+    protected GetLineChart(MetricsDatasource metricsDatasource) {
+        this.metricsDatasource = metricsDatasource;
     }
 
-    CompletionStage<StatCard> execute(Application application, String field, String description, Unit unit) {
+    CompletionStage<KeyStatCard> execute(Application application, String field, String description, Unit unit) {
         Instant now = Instant.now();
-        return metricsDatasource.singleStat(new SingleStatQuery(application, field, now.minus(6, ChronoUnit.HOURS), now)).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
+        Instant nowMinus6Hours = now.minus(6, ChronoUnit.HOURS);
+        return metricsDatasource.singleStat(new SingleStatQuery(application, field, nowMinus6Hours, now))
+                .thenApply(lineChart -> formatStatCard(description, unit, lineChart))
+                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, now, nowMinus6Hours, statCard));
     }
 
-    CompletionStage<StatCard> execute(Application application, String field, String queryStringValue, String description, Unit unit) {
+    CompletionStage<KeyStatCard> execute(Application application, String field, String queryStringValue, String description, Unit unit) {
         Instant now = Instant.now();
+        Instant nowMinus6Hours = now.minus(6, ChronoUnit.HOURS);
         SingleStatQuery singleStatQuery = new SingleStatQuery(application, field, now.minus(6, ChronoUnit.HOURS), now);
         singleStatQuery.setQueryStringValue(queryStringValue);
-        return metricsDatasource.singleStat(singleStatQuery).thenApply(lineChart -> formatStatCard(description, unit, lineChart));
+        return metricsDatasource.singleStat(singleStatQuery)
+                .thenApply(lineChart -> formatStatCard(description, unit, lineChart))
+                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, now, nowMinus6Hours, statCard));
+
+    }
+
+    private CompletionStage<KeyStatCard> getKeyStatCardCompletionStage(Application application, String field, Unit unit, Instant now, Instant nowMinus6Hours, StatCard statCard) {
+        KeyStatCard keyStatCard = new KeyStatCard(statCard);
+        if (!statCard.getThreshold().isWarningOrWorse()) {
+            return metricsDatasource.statGroupBy(new SingleStatQuery(application, field, nowMinus6Hours, now), VERSION_NAME).thenApply(lineCharts -> {
+                List<StatCard> details = lineCharts.stream().map(lineChart -> formatStatCard(field, unit, lineChart)).collect(Collectors.toList());
+                keyStatCard.setDetail(details);
+                return keyStatCard;
+            });
+        }
+        return CompletableFuture.completedFuture(keyStatCard);
     }
 
     @NotNull

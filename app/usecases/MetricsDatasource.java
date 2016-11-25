@@ -11,5 +11,5 @@ public interface MetricsDatasource {
     CompletionStage<InsertResult> writeDataPoints(Report report, Application application);
 
     CompletionStage<LineChart> singleStat(SingleStatQuery singleStatQuery);
-    CompletionStage<List<LineChart>> statGroupBy(SingleStatQuery singleStatQuery, String field);
+    CompletionStage<List<LineChart>> statGroupBy(SingleStatQuery singleStatQuery, String groupBy);
 }

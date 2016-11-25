@@ -1,22 +1,30 @@
 package usecases;
 
-import datasources.elasticsearch.ElasticSearchDatasource;
+import com.google.inject.Inject;
 import models.Application;
+import usecases.models.KeyStatCard;
 import usecases.models.StatCard;
 import usecases.models.Threshold;
 import usecases.models.Unit;
 
-import javax.inject.Inject;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 public class GetFramePerSecond extends GetLineChart {
+    private static final String FRAMES_PER_SECOND_P90 = "FramesPerSecond.p90";
+    private static final String FRAMES_PER_SECOND = "Frames per second";
+
     @Inject
-    public GetFramePerSecond(ElasticSearchDatasource elasticSearchDatasource) {
-        super(elasticSearchDatasource);
+    protected GetFramePerSecond(MetricsDatasource metricsDatasource) {
+        super(metricsDatasource);
     }
 
-    public CompletionStage<StatCard> execute(Application application) {
-        return super.execute(application, "FramesPerSecond.p90", "Frames per second", Unit.NONE);
+    public CompletionStage<KeyStatCard> execute(Application application) {
+        return super.execute(application, FRAMES_PER_SECOND_P90, FRAMES_PER_SECOND, Unit.NONE);
     }
 
     @Override
