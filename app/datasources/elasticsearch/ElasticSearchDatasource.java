@@ -155,18 +155,22 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         filtered.setFilter(filter);
         query.setFiltered(filtered);
         searchBody.setQuery(query);
-        ObjectNode aggsObject = Json.newObject();
-        JsonNode dateHistogram = Json.newObject()
-                .put("interval", "4m")
-                .put("field", "@timestamp")
-                .put("min_doc_count", 0)
-                .put("format", "epoch_millis")
-                .set("extended_bounds", Json.newObject().put("min", gteEpochMillis).put("max", lteEpochMillis));
-        aggsObject.set("date_histogram", dateHistogram);
-        JsonNode aggsNode = Json.newObject().set("1", Json.newObject().set("avg", Json.newObject().put("field", field)));
-        aggsObject.set("aggs", aggsNode);
-        JsonNode aggs = Json.newObject().set("2", aggsObject);
-        searchBody.setAggs(aggs);
+
+        Aggregation aggsObject = new Aggregation();
+
+        DateHistogramAggregation dateHistogram = new DateHistogramAggregation(
+                "4m",
+                "@timestamp",
+                0,
+                "epoch_millis",
+                new ExtendedBounds(gteEpochMillis, lteEpochMillis));
+        aggsObject.setDateHistogram(dateHistogram);
+
+        Aggregation aggregation = new Aggregation();
+        aggregation.setAvg(new AvgAggregation(field));
+        aggsObject.setAggs(AggregationMap.singleton("1", aggregation));
+
+        searchBody.setAggs(AggregationMap.singleton("2", aggsObject));
         searchQuery.setSearchBody(searchBody);
         return searchQuery;
     }
