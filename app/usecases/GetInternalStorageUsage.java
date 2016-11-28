@@ -1,22 +1,25 @@
 package usecases;
 
-import datasources.elasticsearch.ElasticSearchDatasource;
+import com.google.inject.Inject;
 import models.Application;
-import usecases.models.StatCard;
+import usecases.models.KeyStatCard;
 import usecases.models.Threshold;
 import usecases.models.Unit;
 
-import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
 
 public class GetInternalStorageUsage extends GetLineChart {
+
+    private static final String INTERNAL_STORAGE_WRITTEN_BYTES = "InternalStorageWrittenBytes";
+    private static final String INTERNAL_STORAGE = "Internal Storage";
+
     @Inject
-    public GetInternalStorageUsage(ElasticSearchDatasource elasticSearchDatasource) {
-        super(elasticSearchDatasource);
+    protected GetInternalStorageUsage(MetricsDatasource metricsDatasource) {
+        super(metricsDatasource);
     }
 
-    public CompletionStage<StatCard> execute(Application application) {
-        return super.execute(application, "InternalStorageWrittenBytes", "Internal Storage", Unit.BYTE);
+    public CompletionStage<KeyStatCard> execute(Application application) {
+        return super.execute(application, INTERNAL_STORAGE_WRITTEN_BYTES, INTERNAL_STORAGE, Unit.BYTE);
     }
 
     @Override

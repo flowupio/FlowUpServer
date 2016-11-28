@@ -1,6 +1,7 @@
 @import usecases.models.StatCard
 @import java.util
-@(user: models.User, application: models.Application, applications: util.List[Application], statCards: util.List[StatCard])
+@import usecases.models.KeyStatCard
+@(user: models.User, application: models.Application, applications: util.List[Application], keyStatCards: util.List[KeyStatCard])
 
 
 @views.html.commandcenter.main("Command Center", user) {
@@ -22,14 +23,30 @@
             <hr class="m-t">
 
             <div class="row statcards">
-                @for(statCard <- statCards) {
+                @for(keyStatCard <- keyStatCards) {
                     <div class="col-sm-6 col-lg-3 m-b">
                         <a href="@controllers.routes.CommandCenterController.grafana()">
-                        @commandcenter.statcard(statCard.getDescription, statCard.getNumber, statCard.getUnit, statCard.getLineChart, statCard.getThreshold)
+                        @commandcenter.statcard(keyStatCard.getMain.getDescription, keyStatCard.getMain.getNumber, keyStatCard.getMain.getUnit, keyStatCard.getMain.getLineChart, keyStatCard.getMain.getThreshold)
                         </a>
                     </div>
                 }
             </div>
+            @for(keyStatCard <- keyStatCards) {
+                @if(keyStatCard.getDetails.size() > 0) {
+                    <div class="hr-divider m-t-md m-b">
+                        <h3 class="hr-divider-content hr-divider-heading">@keyStatCard.getMain.getDescription</h3>
+                    </div>
+                    <div class="row statcards">
+                    @for(statCard <- keyStatCard.getDetails) {
+                        <div class="col-sm-6 col-lg-3 m-b">
+                            <a href="@controllers.routes.CommandCenterController.grafana()">
+                            @commandcenter.statcard(statCard.getDescription, statCard.getNumber, statCard.getUnit, statCard.getLineChart, statCard.getThreshold)
+                            </a>
+                        </div>
+                    }
+                    </div>
+                }
+            }
         </div>
     </div>
 }

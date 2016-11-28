@@ -1,5 +1,9 @@
 package usecases.models;
 
+import lombok.Data;
+
+import java.util.List;
+
 public class StatCard {
     private final String description;
     private final Double number;
@@ -35,4 +39,3 @@ public class StatCard {
         return threshold;
     }
 }
-

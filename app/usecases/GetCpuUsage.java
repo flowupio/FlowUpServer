@@ -1,24 +1,26 @@
 package usecases;
 
-import datasources.elasticsearch.ElasticSearchDatasource;
+import com.google.inject.Inject;
 import models.Application;
-import org.jetbrains.annotations.NotNull;
-import usecases.models.StatCard;
+import usecases.models.KeyStatCard;
 import usecases.models.Threshold;
 import usecases.models.Unit;
 
-import javax.inject.Inject;
-import java.util.OptionalDouble;
 import java.util.concurrent.CompletionStage;
 
 public class GetCpuUsage extends GetLineChart {
+
+    private static final String CONSUMPTION = "Consumption";
+    private static final String TYPE_CPU_DATA = "_type:cpu_data";
+    private static final String CPU_USAGE = "CPU Usage";
+
     @Inject
-    public GetCpuUsage(ElasticSearchDatasource elasticSearchDatasource) {
-        super(elasticSearchDatasource);
+    protected GetCpuUsage(MetricsDatasource metricsDatasource) {
+        super(metricsDatasource);
     }
 
-    public CompletionStage<StatCard> execute(Application application) {
-        return super.execute(application, "Consumption", "_type:cpu_data", "CPU Usage", Unit.PERCENTAGE);
+    public CompletionStage<KeyStatCard> execute(Application application) {
+        return super.execute(application, CONSUMPTION, TYPE_CPU_DATA, CPU_USAGE, Unit.PERCENTAGE);
     }
 
     @Override

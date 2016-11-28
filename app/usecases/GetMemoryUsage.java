@@ -1,22 +1,26 @@
 package usecases;
 
-import datasources.elasticsearch.ElasticSearchDatasource;
+import com.google.inject.Inject;
 import models.Application;
-import usecases.models.StatCard;
+import usecases.models.KeyStatCard;
 import usecases.models.Threshold;
 import usecases.models.Unit;
 
-import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
 
 public class GetMemoryUsage extends GetLineChart {
+
+    private static final String CONSUMPTION = "Consumption";
+    private static final String TYPE_MEMORY_DATA = "_type:memory_data";
+    private static final String MEMORY_USAGE = "Memory Usage";
+
     @Inject
-    public GetMemoryUsage(ElasticSearchDatasource elasticSearchDatasource) {
-        super(elasticSearchDatasource);
+    protected GetMemoryUsage(MetricsDatasource metricsDatasource) {
+        super(metricsDatasource);
     }
 
-    public CompletionStage<StatCard> execute(Application application) {
-        return super.execute(application, "Consumption", "_type:memory_data", "Memory Usage", Unit.PERCENTAGE);
+    public CompletionStage<KeyStatCard> execute(Application application) {
+        return super.execute(application, CONSUMPTION, TYPE_MEMORY_DATA, MEMORY_USAGE, Unit.PERCENTAGE);
     }
 
     @Override

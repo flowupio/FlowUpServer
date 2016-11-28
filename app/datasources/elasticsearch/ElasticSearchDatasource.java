@@ -9,10 +9,10 @@ import play.libs.F;
 import play.libs.Json;
 import usecases.InsertResult;
 import usecases.MetricsDatasource;
+import usecases.SingleStatQuery;
 import usecases.models.*;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -95,45 +95,103 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);
     }
 
-    public CompletionStage<LineChart> singleStat(Application application, String field, Instant from, Instant to) {
-        return singleStat(application, field, "*", from, to);
-    }
+    public CompletionStage<LineChart> singleStat(SingleStatQuery singleStatQuery) {
+        long gteEpochMillis = singleStatQuery.getFrom().toEpochMilli();
+        long lteEpochMillis = singleStatQuery.getTo().toEpochMilli();
 
-    public CompletionStage<LineChart> singleStat(Application application, String field, String queryStringValue, Instant from, Instant to) {
-        long gteEpochMillis = from.toEpochMilli();
-        long lteEpochMillis = to.toEpochMilli();
-
-        SearchQuery searchQuery = prepareSearchQuery(application, gteEpochMillis, lteEpochMillis, field, queryStringValue);
+        SearchQuery searchQuery = prepareSearchQuery(singleStatQuery.getApplication(), gteEpochMillis, lteEpochMillis, singleStatQuery.getField(), singleStatQuery.getQueryStringValue());
 
         return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchResponse);
     }
 
+    @Override
+    public CompletionStage<List<LineChart>> statGroupBy(SingleStatQuery singleStatQuery, String groupBy) {
+        long gteEpochMillis = singleStatQuery.getFrom().toEpochMilli();
+        long lteEpochMillis = singleStatQuery.getTo().toEpochMilli();
+
+        SearchQuery searchQuery = prepareSearchQueryGroupBy(singleStatQuery.getApplication(), gteEpochMillis, lteEpochMillis, singleStatQuery.getField(), singleStatQuery.getQueryStringValue(), groupBy);
+
+        return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchGroupByResponse);
+    }
+
     private LineChart processMSearchResponse(MSearchResponse mSearchResponse) {
-        List<String> keys = new ArrayList<>();
-        List<Double> values = new ArrayList<>();
-        for (SearchResponse searchResponse : mSearchResponse.getResponses()) {
-            if (searchResponse.getAggregations() != null) {
-                for (JsonNode bucket : searchResponse.getAggregations().get("2").get("buckets")) {
-                    keys.add(bucket.get("key").asText());
-                    JsonNode value = bucket.get("1").get("value");
-                    values.add(value instanceof NullNode ? null : value.asDouble());
-                }
-            }
+        JsonNode aggregations = getFirstAggregations(mSearchResponse);
+        if (aggregations != null) {
+            return processLineChartAggregation(aggregations);
         }
 
+        return new LineChart(Collections.emptyList(), Collections.emptyList());
+    }
+
+    private List<LineChart> processMSearchGroupByResponse(MSearchResponse mSearchResponse) {
+        List<LineChart> lineCharts = new ArrayList<>();
+        JsonNode aggregations = getFirstAggregations(mSearchResponse);
+        if (aggregations != null) {
+            for (JsonNode bucket : aggregations.get("3").get("buckets")) {
+                LineChart lineChart = processLineChartAggregation(bucket);
+                lineChart.setName(bucket.get("key").asText());
+                lineCharts.add(lineChart);
+            }
+        }
+        return lineCharts;
+    }
+
+    private LineChart processLineChartAggregation(JsonNode aggregations) {
+        List<String> keys = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+        JsonNode jsonNode = aggregations.get("2");
+        if (jsonNode != null) {
+            for (JsonNode bucket : jsonNode.get("buckets")) {
+                keys.add(bucket.get("key").asText());
+                JsonNode value = bucket.get("1").get("value");
+                values.add(value instanceof NullNode ? null : value.asDouble());
+            }
+        }
         return new LineChart(keys, values);
+    }
+
+    private JsonNode getFirstAggregations(MSearchResponse mSearchResponse) {
+        if (mSearchResponse.getResponses().size() > 0) {
+            SearchResponse searchResponse = mSearchResponse.getResponses().get(0);
+            return searchResponse.getAggregations();
+        }
+        return null;
     }
 
     @NotNull
     private SearchQuery prepareSearchQuery(Application application, long gteEpochMillis, long lteEpochMillis, String field, String queryStringValue) {
-        SearchQuery searchQuery = new SearchQuery();
+        SearchBody searchBody = getSearchBody(gteEpochMillis, lteEpochMillis, queryStringValue);
 
-        SearchIndex searchIndex = new SearchIndex();
-        searchIndex.setIndex(indexName(application.getAppPackage(), application.getOrganization().getId().toString()));
-        searchIndex.setIgnoreUnavailable(true);
-        searchIndex.setSearchType("count");
-        searchQuery.setSearchIndex(searchIndex);
+        Aggregation aggsObject = getSingleStatAggregation(gteEpochMillis, lteEpochMillis, field);
+        searchBody.setAggs(AggregationMap.singleton("2", aggsObject));
 
+        return getSearchQuery(application, searchBody);
+    }
+
+    private SearchQuery prepareSearchQueryGroupBy(Application application, long gteEpochMillis, long lteEpochMillis, String field, String queryStringValue, String groupBy) {
+        SearchBody searchBody = getSearchBody(gteEpochMillis, lteEpochMillis, queryStringValue);
+
+        Aggregation aggsObject = getSingleStatGroupByAggregation(gteEpochMillis, lteEpochMillis, field, groupBy);
+        searchBody.setAggs(AggregationMap.singleton("3", aggsObject));
+
+        return getSearchQuery(application, searchBody);
+    }
+
+    private Aggregation getSingleStatGroupByAggregation(long gteEpochMillis, long lteEpochMillis, String field, String groupBy) {
+        Aggregation aggsObject = new Aggregation();
+
+        TermsAggregation termsAggregation = new TermsAggregation();
+        termsAggregation.setField(groupBy);
+        termsAggregation.setSize(4);
+        termsAggregation.setOrder(Collections.singletonMap("_term", "desc"));
+        aggsObject.setTerms(termsAggregation);
+        aggsObject.setAggs(AggregationMap.singleton("2", getSingleStatAggregation(gteEpochMillis, lteEpochMillis, field)));
+
+        return aggsObject;
+    }
+
+    @NotNull
+    private SearchBody getSearchBody(long gteEpochMillis, long lteEpochMillis, String queryStringValue) {
         SearchBody searchBody = new SearchBody();
         searchBody.setSize(0);
         SearchBodyQuery query = new SearchBodyQuery();
@@ -155,20 +213,38 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         filtered.setFilter(filter);
         query.setFiltered(filtered);
         searchBody.setQuery(query);
-        ObjectNode aggsObject = Json.newObject();
-        JsonNode dateHistogram = Json.newObject()
-                .put("interval", "4m")
-                .put("field", "@timestamp")
-                .put("min_doc_count", 0)
-                .put("format", "epoch_millis")
-                .set("extended_bounds", Json.newObject().put("min", gteEpochMillis).put("max", lteEpochMillis));
-        aggsObject.set("date_histogram", dateHistogram);
-        JsonNode aggsNode = Json.newObject().set("1", Json.newObject().set("avg", Json.newObject().put("field", field)));
-        aggsObject.set("aggs", aggsNode);
-        JsonNode aggs = Json.newObject().set("2", aggsObject);
-        searchBody.setAggs(aggs);
+        return searchBody;
+    }
+
+    @NotNull
+    private SearchQuery getSearchQuery(Application application, SearchBody searchBody) {
+        SearchQuery searchQuery = new SearchQuery();
+
+        SearchIndex searchIndex = new SearchIndex();
+        searchIndex.setIndex(indexName(application.getAppPackage(), application.getOrganization().getId().toString()));
+        searchIndex.setIgnoreUnavailable(true);
+        searchIndex.setSearchType("count");
+        searchQuery.setSearchIndex(searchIndex);
         searchQuery.setSearchBody(searchBody);
         return searchQuery;
+    }
+
+    @NotNull
+    private Aggregation getSingleStatAggregation(long gteEpochMillis, long lteEpochMillis, String field) {
+        Aggregation aggsObject = new Aggregation();
+
+        DateHistogramAggregation dateHistogram = new DateHistogramAggregation(
+                "4m",
+                "@timestamp",
+                0,
+                "epoch_millis",
+                new ExtendedBounds(gteEpochMillis, lteEpochMillis));
+        aggsObject.setDateHistogram(dateHistogram);
+
+        Aggregation aggregation = new Aggregation();
+        aggregation.setAvg(new AvgAggregation(field));
+        aggsObject.setAggs(AggregationMap.singleton("1", aggregation));
+        return aggsObject;
     }
 
     @NotNull
