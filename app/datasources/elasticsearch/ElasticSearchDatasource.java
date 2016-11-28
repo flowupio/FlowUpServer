@@ -249,6 +249,6 @@ public class ElasticSearchDatasource implements MetricsDatasource {
 
     @NotNull
     public static String indexName(String appPackage, String organizationId) {
-        return String.join(DELIMITER, FLOWUP, organizationId, appPackage);
+        return String.join(DELIMITER, FLOWUP, organizationId, appPackage).toLowerCase();
     }
 }
