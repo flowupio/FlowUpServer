@@ -49,7 +49,7 @@ public class SendPulseToAllApplications {
 
         return emailTemplateRenderer.findbugs(application, keyStatCards).thenCompose(content -> {
             List<User> members = application.getOrganization().getMembers();
-            return emailSender.sendKeyMetricsMessage(members, application.getAppPackage(), ZonedDateTime.now(),content);
+            return emailSender.sendKeyMetricsMessage(members, application.getAppPackage(), ZonedDateTime.now(), content);
         });
     }
 
@@ -59,7 +59,6 @@ public class SendPulseToAllApplications {
                 return true;
             }
         }
-
         return false;
     }
 }
