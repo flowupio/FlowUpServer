@@ -8,18 +8,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import play.inject.guice.GuiceApplicationBuilder;
+import play.libs.F;
 import play.libs.Json;
+import play.test.WithApplication;
+import usecases.DashboardsClient;
 import usecases.InsertResult;
 import usecases.SingleStatQuery;
-import usecases.models.LineChart;
-import usecases.models.Report;
+import usecases.models.*;
+import usecases.repositories.ApiKeyRepository;
+import utils.WithFlowUpApplication;
 import utils.WithResources;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -30,26 +32,34 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ElasticSearchDatasourceTest implements WithResources {
+public class ElasticSearchDatasourceTest extends WithFlowUpApplication implements WithResources {
 
-    public static final String ANY_FIELD = "AnyField";
+    private static final String ANY_FIELD = "AnyField";
     @Mock
     private ElasticsearchClient elasticsearchClient;
+
+    @Override
+    protected play.Application provideApplication() {
+        return new GuiceApplicationBuilder()
+                .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+                .build();
+    }
 
     @Test
     public void parsingElasticSearchClientBulkResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnTwoItems();
-        Report report = givenAnEmptyReport();
+        Report report = givenAReportWithOneDataPoint();
         Application application = givenAnyApplication();
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
-        items.add(new InsertResult.MetricResult("network_data", 1));
-        items.add(new InsertResult.MetricResult("ui_data", 1));
+        items.add(new InsertResult.MetricResult("", 1));
+        items.add(new InsertResult.MetricResult("", 1));
         assertEquals(new InsertResult(false, false, items), insertResult);
     }
 
@@ -76,10 +86,21 @@ public class ElasticSearchDatasourceTest implements WithResources {
         return application;
     }
 
+
+    @NotNull
+    private Report givenAReportWithOneDataPoint() {
+        String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
+        DataPoint dataPoint = new DataPoint(new Date(), Collections.singletonList(new F.Tuple<>("any_measurement", Value.toBasicValue(0))), Collections.singletonList(new F.Tuple<>("any_tag", "tag")));
+        Metric anyMetric = new Metric("any_metric", Collections.singletonList(dataPoint));
+        return new Report(organizationIdentifier, "io.flowup.app", Collections.singletonList(anyMetric));
+    }
+
     @NotNull
     private Report givenAnEmptyReport() {
         String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
-        return new Report(organizationIdentifier, "io.flowup.app", new ArrayList<>());
+        DataPoint dataPoint = new DataPoint(new Date(), Collections.singletonList(new F.Tuple<>("any_measurement", Value.toBasicValue(0))), Collections.singletonList(new F.Tuple<>("any_tag", "tag")));
+        Metric anyMetric = new Metric("any_metric", Collections.singletonList(dataPoint));
+        return new Report(organizationIdentifier, "io.flowup.app", Collections.singletonList(anyMetric));
     }
 
     @Test
@@ -95,14 +116,14 @@ public class ElasticSearchDatasourceTest implements WithResources {
     @Test
     public void parsingElasticSearchClientSimpleResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnOneItem();
-        Report report = givenAnEmptyReport();
+        Report report = givenAReportWithOneDataPoint();
         Application application = givenAnyApplication();
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
-        items.add(new InsertResult.MetricResult("network_data", 1));
+        items.add(new InsertResult.MetricResult("", 1));
         assertEquals(new InsertResult(false, false, items), insertResult);
     }
 
@@ -135,14 +156,14 @@ public class ElasticSearchDatasourceTest implements WithResources {
     @Test
     public void parsingElasticSearchClientFailuresResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnFailure();
-        Report report = givenAnEmptyReport();
+        Report report = givenAReportWithOneDataPoint();
         Application application = givenAnyApplication();
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
-        items.add(new InsertResult.MetricResult("network_data", 0));
+        items.add(new InsertResult.MetricResult("", 0));
         assertEquals(new InsertResult(false, true, items), insertResult);
     }
 
@@ -155,7 +176,7 @@ public class ElasticSearchDatasourceTest implements WithResources {
         BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse), new BulkItemResponse(0, "index", uiDataResponse)};
         BulkResponse bulkResponse = new BulkResponse(responses, 67);
 
-        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
         when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
         return elasticSearchDatasource;
@@ -194,7 +215,7 @@ public class ElasticSearchDatasourceTest implements WithResources {
         JsonNode postBulkResult = Json.parse(getFile(fileName));
         BulkResponse bulkResponse = Json.fromJson(postBulkResult, BulkResponse.class);
 
-        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
         when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
         return elasticSearchDatasource;
@@ -205,7 +226,7 @@ public class ElasticSearchDatasourceTest implements WithResources {
         JsonNode postMSearchResult = Json.parse(getFile(fileName));
         MSearchResponse mSearchResponse = Json.fromJson(postMSearchResult, MSearchResponse.class);
 
-        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
         when(elasticsearchClient.multiSearch(any()))
                 .thenReturn(CompletableFuture.completedFuture(mSearchResponse));
         return elasticSearchDatasource;

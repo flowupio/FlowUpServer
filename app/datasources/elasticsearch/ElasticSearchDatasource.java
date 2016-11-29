@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Application;
 import org.jetbrains.annotations.NotNull;
+import play.Configuration;
+import play.cache.CacheApi;
 import play.libs.F;
 import play.libs.Json;
 import usecases.InsertResult;
@@ -13,20 +15,34 @@ import usecases.SingleStatQuery;
 import usecases.models.*;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
 
     private static final String FLOWUP = "flowup";
     private static final String DELIMITER = "-";
+    private static final String DATAPOINTS_BUFFER_KEY = "datapoints.buffer";
+    private static final String EMPTY_STRING = "";
     private final ElasticsearchClient elasticsearchClient;
+    private final CacheApi cacheApi;
+    private final Executor executor;
+    private final Integer minRequestListSize;
+    private final Integer maxBufferSize;
 
     @Inject
-    public ElasticSearchDatasource(ElasticsearchClient elasticsearchClient) {
+    public ElasticSearchDatasource(ElasticsearchClient elasticsearchClient, CacheApi cacheApi, @Named("elasticsearch") Configuration elasticsearchConf) {
         this.elasticsearchClient = elasticsearchClient;
+        this.cacheApi = cacheApi;
+        this.executor = Executors.newSingleThreadExecutor();
+        this.minRequestListSize = elasticsearchConf.getInt("min_request_list_size", 0);
+        this.maxBufferSize = elasticsearchConf.getInt("max_buffer_size", 0);
     }
 
     @Override
@@ -34,7 +50,37 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         List<IndexRequest> indexRequestList = new ArrayList<>();
         populateIndexRequest(report, indexRequestList, application);
 
-        return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processBulkResponse);
+        if (indexRequestList.size() < minRequestListSize) {
+            return bufferIndexRequests(indexRequestList);
+        } else {
+            return postBulkIndexRequests(indexRequestList);
+        }
+    }
+
+    private CompletableFuture<InsertResult> bufferIndexRequests(List<IndexRequest> indexRequestList) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<IndexRequest> indexRequestListBuffered = cacheApi.get(DATAPOINTS_BUFFER_KEY);
+            if (indexRequestListBuffered == null) {
+                indexRequestListBuffered = new ArrayList<>();
+            }
+            indexRequestListBuffered.addAll(indexRequestList);
+
+            if (indexRequestListBuffered.size() >= maxBufferSize) {
+                cacheApi.remove(DATAPOINTS_BUFFER_KEY);
+                return indexRequestListBuffered;
+            } else {
+                cacheApi.set(DATAPOINTS_BUFFER_KEY, indexRequestListBuffered);
+                return Collections.<IndexRequest>emptyList();
+            }
+        }, executor).thenComposeAsync(this::postBulkIndexRequests);
+    }
+
+    private CompletionStage<InsertResult> postBulkIndexRequests(List<IndexRequest> indexRequestList) {
+        if (!indexRequestList.isEmpty()) {
+            return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processBulkResponse);
+        } else {
+            return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
+        }
     }
 
     private ObjectNode mapSource(DataPoint datapoint) {
@@ -89,7 +135,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
             } else {
                 successful = 0;
             }
-            items.add(new InsertResult.MetricResult(name, successful));
+            items.add(new InsertResult.MetricResult(EMPTY_STRING, successful));
         }
 
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);

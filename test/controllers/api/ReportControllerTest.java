@@ -76,7 +76,7 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
         verify(elasticsearchClient).postBulk(argument.capture());
         assertEquals(5, argument.getValue().size());
         assertEquals(CREATED, result.status());
-        String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"hasFailures\":false,\"items\":[{\"name\":\"network_data\",\"successful\":1}],\"error\":false}}";
+        String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"hasFailures\":false,\"items\":[{\"name\":\"\",\"successful\":1}],\"error\":false}}";
         assertEqualsString(expect, result);
     }
 
