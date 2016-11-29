@@ -9,22 +9,19 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.libs.F;
 import play.libs.Json;
 import play.test.WithApplication;
 import usecases.DashboardsClient;
 import usecases.InsertResult;
 import usecases.SingleStatQuery;
-import usecases.models.LineChart;
-import usecases.models.Report;
+import usecases.models.*;
 import usecases.repositories.ApiKeyRepository;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -54,7 +51,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
     @Test
     public void parsingElasticSearchClientBulkResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnTwoItems();
-        Report report = givenAnEmptyReport();
+        Report report = givenAReportWithOneDataPoint();
         Application application = givenAnyApplication();
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
@@ -89,10 +86,21 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         return application;
     }
 
+
+    @NotNull
+    private Report givenAReportWithOneDataPoint() {
+        String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
+        DataPoint dataPoint = new DataPoint(new Date(), Collections.singletonList(new F.Tuple<>("any_measurement", Value.toBasicValue(0))), Collections.singletonList(new F.Tuple<>("any_tag", "tag")));
+        Metric anyMetric = new Metric("any_metric", Collections.singletonList(dataPoint));
+        return new Report(organizationIdentifier, "io.flowup.app", Collections.singletonList(anyMetric));
+    }
+
     @NotNull
     private Report givenAnEmptyReport() {
         String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
-        return new Report(organizationIdentifier, "io.flowup.app", new ArrayList<>());
+        DataPoint dataPoint = new DataPoint(new Date(), Collections.singletonList(new F.Tuple<>("any_measurement", Value.toBasicValue(0))), Collections.singletonList(new F.Tuple<>("any_tag", "tag")));
+        Metric anyMetric = new Metric("any_metric", Collections.singletonList(dataPoint));
+        return new Report(organizationIdentifier, "io.flowup.app", Collections.singletonList(anyMetric));
     }
 
     @Test
@@ -108,7 +116,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
     @Test
     public void parsingElasticSearchClientSimpleResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnOneItem();
-        Report report = givenAnEmptyReport();
+        Report report = givenAReportWithOneDataPoint();
         Application application = givenAnyApplication();
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
@@ -148,7 +156,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
     @Test
     public void parsingElasticSearchClientFailuresResponse() throws Exception {
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnFailure();
-        Report report = givenAnEmptyReport();
+        Report report = givenAReportWithOneDataPoint();
         Application application = givenAnyApplication();
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
