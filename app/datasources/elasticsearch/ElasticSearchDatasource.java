@@ -29,7 +29,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     private static final String FLOWUP = "flowup";
     private static final String DELIMITER = "-";
     private static final String DATAPOINTS_BUFFER_KEY = "datapoints.buffer";
-    public static final String EMPTY_STRING = "";
+    private static final String EMPTY_STRING = "";
     private final ElasticsearchClient elasticsearchClient;
     private final CacheApi cacheApi;
     private final Executor executor;
