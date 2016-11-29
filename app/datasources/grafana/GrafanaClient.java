@@ -137,7 +137,7 @@ public class GrafanaClient implements DashboardsClient {
                     .put("basicAuth", false)
                     .set("jsonData", jsonNode);
 
-            Logger.info(request.toString());
+            Logger.debug(request.toString());
             return post(API_DATASOURCE, request).thenApply(grafanaResponse -> applicationSwitched);
         });
     }
