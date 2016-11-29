@@ -123,7 +123,7 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
 
         Result result = route(requestBuilder);
 
-        assertEquals(INTERNAL_SERVER_ERROR, result.status());
+        assertEquals(OK, result.status());
         String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"hasFailures\":false,\"items\":[],\"error\":false}}";
         assertEqualsString(expect, result);
     }
