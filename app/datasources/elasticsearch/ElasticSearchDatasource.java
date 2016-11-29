@@ -50,14 +50,13 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         populateIndexRequest(report, indexRequestList, application);
 
         if (indexRequestList.size() < minRequestListSize) {
-            return bufferIndexRequest(indexRequestList);
-
+            return bufferIndexRequests(indexRequestList);
         } else {
             return postBulkIndexRequests(indexRequestList);
         }
     }
 
-    private CompletableFuture<InsertResult> bufferIndexRequest(List<IndexRequest> indexRequestList) {
+    private CompletableFuture<InsertResult> bufferIndexRequests(List<IndexRequest> indexRequestList) {
         return CompletableFuture.supplyAsync(() -> {
             List<IndexRequest> indexRequestListBuffered = cacheApi.get(DATAPOINTS_BUFFER_KEY);
             if (indexRequestListBuffered == null) {

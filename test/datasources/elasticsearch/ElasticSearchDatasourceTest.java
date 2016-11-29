@@ -17,6 +17,7 @@ import usecases.SingleStatQuery;
 import usecases.models.LineChart;
 import usecases.models.Report;
 import usecases.repositories.ApiKeyRepository;
+import utils.WithFlowUpApplication;
 import utils.WithResources;
 
 import java.time.Instant;
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ElasticSearchDatasourceTest extends WithApplication implements WithResources {
+public class ElasticSearchDatasourceTest extends WithFlowUpApplication implements WithResources {
 
     private static final String ANY_FIELD = "AnyField";
     @Mock
