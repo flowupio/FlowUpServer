@@ -75,9 +75,9 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         }, executor).thenComposeAsync(this::postBulkIndexRequests);
     }
 
-    private CompletionStage<InsertResult> postBulkIndexRequests(List<IndexRequest> indexRequestListBuffered) {
-        if (!indexRequestListBuffered.isEmpty()) {
-            return elasticsearchClient.postBulk(indexRequestListBuffered).thenApply(this::processBulkResponse);
+    private CompletionStage<InsertResult> postBulkIndexRequests(List<IndexRequest> indexRequestList) {
+        if (!indexRequestList.isEmpty()) {
+            return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processBulkResponse);
         } else {
             return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
         }
