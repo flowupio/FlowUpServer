@@ -26,7 +26,7 @@ public class InsertDataPoints {
         if (report.getAppPackage() == null || report.getAppPackage().isEmpty()) {
             Logger.error("InsertDataPoints with AppPackage empty or null");
             Logger.error(report.toString());
-            return CompletableFuture.completedFuture(new InsertResult(true, false, Collections.emptyList()));
+            return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
         }
 
         Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
