@@ -8,11 +8,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
+import play.test.WithApplication;
+import usecases.DashboardsClient;
 import usecases.InsertResult;
 import usecases.SingleStatQuery;
 import usecases.models.LineChart;
 import usecases.models.Report;
+import usecases.repositories.ApiKeyRepository;
 import utils.WithResources;
 
 import java.time.Instant;
@@ -30,13 +34,21 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ElasticSearchDatasourceTest implements WithResources {
+public class ElasticSearchDatasourceTest extends WithApplication implements WithResources {
 
-    public static final String ANY_FIELD = "AnyField";
+    private static final String ANY_FIELD = "AnyField";
     @Mock
     private ElasticsearchClient elasticsearchClient;
+
+    @Override
+    protected play.Application provideApplication() {
+        return new GuiceApplicationBuilder()
+                .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+                .build();
+    }
 
     @Test
     public void parsingElasticSearchClientBulkResponse() throws Exception {
@@ -155,7 +167,7 @@ public class ElasticSearchDatasourceTest implements WithResources {
         BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse), new BulkItemResponse(0, "index", uiDataResponse)};
         BulkResponse bulkResponse = new BulkResponse(responses, 67);
 
-        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
         when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
         return elasticSearchDatasource;
@@ -194,7 +206,7 @@ public class ElasticSearchDatasourceTest implements WithResources {
         JsonNode postBulkResult = Json.parse(getFile(fileName));
         BulkResponse bulkResponse = Json.fromJson(postBulkResult, BulkResponse.class);
 
-        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
         when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
         return elasticSearchDatasource;
@@ -205,7 +217,7 @@ public class ElasticSearchDatasourceTest implements WithResources {
         JsonNode postMSearchResult = Json.parse(getFile(fileName));
         MSearchResponse mSearchResponse = Json.fromJson(postMSearchResult, MSearchResponse.class);
 
-        ElasticSearchDatasource elasticSearchDatasource = new ElasticSearchDatasource(elasticsearchClient);
+        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
         when(elasticsearchClient.multiSearch(any()))
                 .thenReturn(CompletableFuture.completedFuture(mSearchResponse));
         return elasticSearchDatasource;
