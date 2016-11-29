@@ -2,6 +2,7 @@ package controllers.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.*;
+import org.jetbrains.annotations.NotNull;
 import play.Logger;
 import play.libs.F;
 import play.libs.Json;
@@ -40,13 +41,7 @@ public class ReportController extends Controller {
             return CompletableFuture.completedFuture(status(PRECONDITION_FAILED));
         }
 
-        List<Metric> metrics = new ArrayList<>();
-        metrics.add(new Metric("network_data", dataPointMapper.mapNetwork(reportRequest)));
-        metrics.add(new Metric("ui_data", dataPointMapper.mapUi(reportRequest)));
-        metrics.add(new Metric("cpu_data", dataPointMapper.mapCpu(reportRequest)));
-        metrics.add(new Metric("gpu_data", dataPointMapper.mapGpu(reportRequest)));
-        metrics.add(new Metric("memory_data", dataPointMapper.mapMemory(reportRequest)));
-        metrics.add(new Metric("disk_data", dataPointMapper.mapDisk(reportRequest)));
+        List<Metric> metrics = dataPointMapper.mapMetrics(reportRequest);
 
         Report report = new Report(apiKey, reportRequest.getAppPackage(), metrics);
 

@@ -29,6 +29,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     private static final String FLOWUP = "flowup";
     private static final String DELIMITER = "-";
     private static final String DATAPOINTS_BUFFER_KEY = "datapoints.buffer";
+    public static final String EMPTY_STRING = "";
     private final ElasticsearchClient elasticsearchClient;
     private final CacheApi cacheApi;
     private final Executor executor;
@@ -134,7 +135,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
             } else {
                 successful = 0;
             }
-            items.add(new InsertResult.MetricResult(name, successful));
+            items.add(new InsertResult.MetricResult(EMPTY_STRING, successful));
         }
 
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);

@@ -1,7 +1,9 @@
 package controllers.api;
 
+import org.jetbrains.annotations.NotNull;
 import play.libs.F;
 import usecases.models.DataPoint;
+import usecases.models.Metric;
 import usecases.models.StatisticalValue;
 import usecases.models.Value;
 
@@ -11,31 +13,43 @@ import java.util.List;
 
 public class DataPointMapper {
 
-    static final String BYTES_UPLOADED = "BytesUploaded";
-    static final String BYTES_DOWNLOADED = "BytesDownloaded";
-    static final String APP_PACKAGE = "AppPackage";
-    static final String DEVICE_MODEL = "DeviceModel";
-    static final String SCREEN_DENSITY = "ScreenDensity";
-    static final String SCREEN_SIZE = "ScreenSize";
-    static final String INSTALLATION_UUID = "InstallationUUID";
-    static final String NUMBER_OF_CORES = "NumberOfCores";
-    static final String VERSION_NAME = "VersionName";
-    static final String ANDROID_OS_VERSION = "AndroidOSVersion";
-    static final String BATTERY_SAVER_ON = "BatterySaverOn";
-    static final String SCREEN_NAME = "ScreenName";
-    static final String FRAMES_PER_SECOND = "FramesPerSecond";
-    static final String FRAME_TIME = "FrameTime";
-    static final String CONSUMPTION = "Consumption";
-    static final String INTERNAL_STORAGE_WRITTEN_BYTES = "InternalStorageWrittenBytes";
-    static final String SHARED_PREFERENCES_WRITTEN_BYTES = "SharedPreferencesWrittenBytes";
-    static final String BYTES_ALLOCATED = "BytesAllocated";
-    static final String ON_ACTIVITY_CREATED_TIME = "OnActivityCreatedTime";
-    static final String ON_ACTIVITY_STARTED_TIME = "OnActivityStartedTime";
-    static final String ON_ACTIVITY_RESUMED_TIME = "OnActivityResumedTime";
-    static final String ACTIVITY_VISIBLE_TIME = "ActivityTime";
-    static final String ON_ACTIVITY_PAUSED_TIME = "OnActivityPausedTime";
-    static final String ON_ACTIVITY_STOPPED_TIME = "OnActivityStoppedTime";
-    static final String ON_ACTIVITY_DESTROYED_TIME = "OnActivityDestroyedTime";
+    private static final String BYTES_UPLOADED = "BytesUploaded";
+    private static final String BYTES_DOWNLOADED = "BytesDownloaded";
+    private static final String APP_PACKAGE = "AppPackage";
+    private static final String DEVICE_MODEL = "DeviceModel";
+    private static final String SCREEN_DENSITY = "ScreenDensity";
+    private static final String SCREEN_SIZE = "ScreenSize";
+    private static final String INSTALLATION_UUID = "InstallationUUID";
+    private static final String NUMBER_OF_CORES = "NumberOfCores";
+    private static final String VERSION_NAME = "VersionName";
+    private static final String ANDROID_OS_VERSION = "AndroidOSVersion";
+    private static final String BATTERY_SAVER_ON = "BatterySaverOn";
+    private static final String SCREEN_NAME = "ScreenName";
+    private static final String FRAMES_PER_SECOND = "FramesPerSecond";
+    private static final String FRAME_TIME = "FrameTime";
+    private static final String CONSUMPTION = "Consumption";
+    private static final String INTERNAL_STORAGE_WRITTEN_BYTES = "InternalStorageWrittenBytes";
+    private static final String SHARED_PREFERENCES_WRITTEN_BYTES = "SharedPreferencesWrittenBytes";
+    private static final String BYTES_ALLOCATED = "BytesAllocated";
+    private static final String ON_ACTIVITY_CREATED_TIME = "OnActivityCreatedTime";
+    private static final String ON_ACTIVITY_STARTED_TIME = "OnActivityStartedTime";
+    private static final String ON_ACTIVITY_RESUMED_TIME = "OnActivityResumedTime";
+    private static final String ACTIVITY_VISIBLE_TIME = "ActivityTime";
+    private static final String ON_ACTIVITY_PAUSED_TIME = "OnActivityPausedTime";
+    private static final String ON_ACTIVITY_STOPPED_TIME = "OnActivityStoppedTime";
+    private static final String ON_ACTIVITY_DESTROYED_TIME = "OnActivityDestroyedTime";
+
+    @NotNull
+    public List<Metric> mapMetrics(ReportRequest reportRequest) {
+        List<Metric> metrics = new ArrayList<>();
+        metrics.add(new Metric("network_data", this.mapNetwork(reportRequest)));
+        metrics.add(new Metric("ui_data", this.mapUi(reportRequest)));
+        metrics.add(new Metric("cpu_data", this.mapCpu(reportRequest)));
+        metrics.add(new Metric("gpu_data", this.mapGpu(reportRequest)));
+        metrics.add(new Metric("memory_data", this.mapMemory(reportRequest)));
+        metrics.add(new Metric("disk_data", this.mapDisk(reportRequest)));
+        return metrics;
+    }
 
     public List<DataPoint> mapNetwork(ReportRequest reportRequest) {
         List<DataPoint> dataPoints = new ArrayList<>();

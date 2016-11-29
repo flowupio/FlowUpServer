@@ -58,8 +58,8 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
-        items.add(new InsertResult.MetricResult("network_data", 1));
-        items.add(new InsertResult.MetricResult("ui_data", 1));
+        items.add(new InsertResult.MetricResult("", 1));
+        items.add(new InsertResult.MetricResult("", 1));
         assertEquals(new InsertResult(false, false, items), insertResult);
     }
 
@@ -123,7 +123,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
-        items.add(new InsertResult.MetricResult("network_data", 1));
+        items.add(new InsertResult.MetricResult("", 1));
         assertEquals(new InsertResult(false, false, items), insertResult);
     }
 
@@ -163,7 +163,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         List<InsertResult.MetricResult> items = new ArrayList<>();
-        items.add(new InsertResult.MetricResult("network_data", 0));
+        items.add(new InsertResult.MetricResult("", 0));
         assertEquals(new InsertResult(false, true, items), insertResult);
     }
 

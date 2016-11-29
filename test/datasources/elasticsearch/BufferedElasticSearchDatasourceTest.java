@@ -54,7 +54,7 @@ public class BufferedElasticSearchDatasourceTest extends WithApplication impleme
     }
 
     @Test
-    public void givenAUniqueReportRequest() throws ExecutionException, InterruptedException {
+    public void givenAUniqueReportRequestWhenWriteDataPointsICalledThenReportIsBufferedAndReturnEmptyList() throws ExecutionException, InterruptedException {
         Report report = givenAReportWithXMetrics(1);
         Application application = givenAnyApplication();
         setupElasticSearchClient();
@@ -67,7 +67,7 @@ public class BufferedElasticSearchDatasourceTest extends WithApplication impleme
     }
 
     @Test
-    public void givenAReportRequestWithTwoRecollect() throws ExecutionException, InterruptedException {
+    public void givenAReportRequestWithTwoRecollectWhenWriteDataPointsICalledThenReportIsWritten() throws ExecutionException, InterruptedException {
         Report report = givenAReportWithXMetrics(2);
         Application application = givenAnyApplication();
         setupElasticSearchClient();
@@ -80,7 +80,7 @@ public class BufferedElasticSearchDatasourceTest extends WithApplication impleme
     }
 
     @Test
-    public void givenTwoDebugReportRequest() throws ExecutionException, InterruptedException {
+    public void givenTwoDebugReportRequestWhenWriteDataPointsICalledThenTheFirstOneIsBufferedAndTheSecondIsWritten() throws ExecutionException, InterruptedException {
         Report report = givenAReportWithXMetrics(1);
         Application application = givenAnyApplication();
         setupElasticSearchClient();
@@ -128,8 +128,8 @@ public class BufferedElasticSearchDatasourceTest extends WithApplication impleme
         metrics.add(new Metric("network_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapNetwork(reportRequest))));
         metrics.add(new Metric("ui_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapUi(reportRequest))));
         metrics.add(new Metric("cpu_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapCpu(reportRequest))));
-        metrics.add(new Metric("memory_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapCpu(reportRequest))));
-        metrics.add(new Metric("disk_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapCpu(reportRequest))));
+        metrics.add(new Metric("memory_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapMemory(reportRequest))));
+        metrics.add(new Metric("disk_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapDisk(reportRequest))));
         return new Report(organizationIdentifier, "io.flowup.app", metrics);
     }
 
