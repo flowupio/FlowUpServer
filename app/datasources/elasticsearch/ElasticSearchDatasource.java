@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
 
@@ -59,15 +60,15 @@ public class ElasticSearchDatasource implements MetricsDatasource {
 
     private CompletableFuture<InsertResult> bufferIndexRequests(List<IndexRequest> indexRequestList) {
         return CompletableFuture.supplyAsync(() -> {
-            List<IndexRequest> indexRequestListBuffered = cacheApi.get(DATAPOINTS_BUFFER_KEY);
+            List<IndexRequestSerializable> indexRequestListBuffered = cacheApi.get(DATAPOINTS_BUFFER_KEY);
             if (indexRequestListBuffered == null) {
                 indexRequestListBuffered = new ArrayList<>();
             }
-            indexRequestListBuffered.addAll(indexRequestList);
+            indexRequestListBuffered.addAll(indexRequestList.stream().map(IndexRequest::toIndexRequestSerializable).collect(Collectors.toList()));
 
             if (indexRequestListBuffered.size() >= maxBufferSize) {
                 cacheApi.remove(DATAPOINTS_BUFFER_KEY);
-                return indexRequestListBuffered;
+                return indexRequestListBuffered.stream().map(IndexRequestSerializable::toIndexRequest).collect(Collectors.toList());
             } else {
                 cacheApi.set(DATAPOINTS_BUFFER_KEY, indexRequestListBuffered);
                 return Collections.<IndexRequest>emptyList();

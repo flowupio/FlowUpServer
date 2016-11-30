@@ -34,6 +34,9 @@ Test your setup http://asquera.de/blog/2013-07-10/an-elasticsearch-workflow/
 
 `docker run -p 3000:3000 -d grafana/grafana`
 
+#  How to setup redis locally
+`docker run -p 127.0.0.1:6379:6379 -d redis:3.2`
+
 ### How to execute the stress tests
 
 `sbt gatling:test`

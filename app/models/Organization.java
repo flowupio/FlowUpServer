@@ -4,11 +4,15 @@ import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-public class Organization extends Model {
+public class Organization extends Model implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     private UUID id;
 

@@ -13,11 +13,15 @@ import com.feth.play.module.pa.user.AuthUserIdentity;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.*;
 
 @Entity
-public class User extends Model implements Subject {
+public class User extends Model implements Subject, Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     private UUID id;
 

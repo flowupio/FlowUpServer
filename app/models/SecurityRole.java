@@ -7,10 +7,13 @@ import play.data.validation.Constraints;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-public class SecurityRole extends Model implements Role {
+public class SecurityRole extends Model implements Role, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     private UUID id;

@@ -26,7 +26,8 @@ libraryDependencies ++= Seq(javaJdbc, cache, javaWs,
   "mysql" % "mysql-connector-java" % "5.1.40",
   "be.objectify" %% "deadbolt-java" % "2.5.0",
   "com.spotify" % "completable-futures" % "0.3.0",
-  "io.airbrake" % "airbrake-java" % "2.2.8"
+  "io.airbrake" % "airbrake-java" % "2.2.8",
+  "com.github.karelcemus" %% "play-redis" % "1.3.0-M1"
 )
 
 topLevelDirectory := None

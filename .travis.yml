@@ -15,6 +15,7 @@ before_cache:
 
 services:
   - mysql
+  - redis-server
 env:
 - LOG_APP_LEVEL=INFO MYSQL_USER=travis MYSQL_PASSWORD=""
 

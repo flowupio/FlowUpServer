@@ -6,10 +6,14 @@ import com.feth.play.module.pa.user.AuthUser;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-public class LinkedAccount extends Model {
+public class LinkedAccount extends Model implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     public UUID id;
 

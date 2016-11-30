@@ -8,11 +8,14 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.UniqueConstraint;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
 @UniqueConstraint(columnNames = {"app_package", "organization_id"})
-public class Application extends Model {
+public class Application extends Model implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     private UUID id;
