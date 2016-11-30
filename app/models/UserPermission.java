@@ -5,10 +5,13 @@ import com.avaje.ebean.Model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-public class UserPermission extends Model implements Permission {
+public class UserPermission extends Model implements Permission, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     private UUID id;

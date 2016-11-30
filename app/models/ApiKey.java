@@ -7,6 +7,7 @@ import play.data.validation.Constraints;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +15,9 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 @Entity
-public class ApiKey extends Model {
+public class ApiKey extends Model implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     private UUID id;

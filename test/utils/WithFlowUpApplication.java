@@ -1,5 +1,6 @@
 package utils;
 
+import akka.actor.ActorSystem;
 import org.junit.Before;
 import play.Logger;
 import play.db.Database;
@@ -7,6 +8,15 @@ import play.test.WithApplication;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import scala.concurrent.Await;
+import scala.concurrent.duration.Duration;
+import scredis.Client;
+import scredis.Redis;
+import scredis.RedisConfig;
+import scredis.RedisConfigDefaults;
 
 public class WithFlowUpApplication extends WithApplication {
 
@@ -15,6 +25,17 @@ public class WithFlowUpApplication extends WithApplication {
     public void startPlay() {
         super.startPlay();
         cleanDatabase();
+        cleanCache();
+    }
+
+    private void cleanCache() {
+        ActorSystem actorSystem = app.injector().instanceOf(ActorSystem.class);
+        Client client = new Client(RedisConfigDefaults.Config(), actorSystem);
+        try {
+            Await.ready(client.flushDB(), Duration.create(1, TimeUnit.SECONDS));
+        } catch (InterruptedException | TimeoutException e) {
+            Logger.error(e.getMessage());
+        }
     }
 
     private void cleanDatabase() {

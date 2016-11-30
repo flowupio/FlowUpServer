@@ -5,11 +5,14 @@ import com.avaje.ebean.annotation.CreatedTimestamp;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
-public class AllowedUUID extends Model {
+public class AllowedUUID extends Model implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static Finder<UUID, AllowedUUID> find = new Finder<>(AllowedUUID.class);
 
