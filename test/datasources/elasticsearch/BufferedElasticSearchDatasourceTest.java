@@ -18,6 +18,7 @@ import usecases.InsertResult;
 import usecases.models.DataPoint;
 import usecases.models.Metric;
 import usecases.models.Report;
+import utils.WithFlowUpApplication;
 import utils.WithResources;
 
 import java.util.*;
@@ -38,7 +39,7 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BufferedElasticSearchDatasourceTest extends WithApplication implements WithResources {
+public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication implements WithResources {
 
     private static final String ANY_FIELD = "AnyField";
     @Mock

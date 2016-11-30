@@ -12,11 +12,12 @@ import play.mvc.Http;
 import play.test.WithApplication;
 import usecases.repositories.ApiKeyRepository;
 import utils.Time;
+import utils.WithFlowUpApplication;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-public class HeaderParsersTest extends WithApplication {
+public class HeaderParsersTest extends WithFlowUpApplication {
 
     private static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
 
