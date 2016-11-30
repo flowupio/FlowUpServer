@@ -1,10 +1,10 @@
 package controllers.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.*;
-import org.jetbrains.annotations.NotNull;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import play.Configuration;
 import play.Logger;
-import play.libs.F;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
@@ -14,20 +14,23 @@ import sampling.SamplingGroup;
 import usecases.*;
 import usecases.models.*;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class ReportController extends Controller {
+    private final InsertDataPoints insertDataPoints;
+    private final DataPointMapper dataPointMapper;
+    private final SamplingGroup samplingGroup;
+    private final Configuration flowupConf;
+
     @Inject
-    InsertDataPoints insertDataPoints;
-    @Inject
-    DataPointMapper dataPointMapper;
-    @Inject
-    SamplingGroup samplingGroup;
+    public ReportController(InsertDataPoints insertDataPoints, DataPointMapper dataPointMapper, SamplingGroup samplingGroup, @Named("flowup") Configuration flowupConf) {
+        this.insertDataPoints = insertDataPoints;
+        this.dataPointMapper = dataPointMapper;
+        this.samplingGroup = samplingGroup;
+        this.flowupConf = flowupConf;
+    }
 
     @BodyParser.Of(ReportRequestBodyParser.class)
     public CompletionStage<Result> index() {
@@ -38,7 +41,8 @@ public class ReportController extends Controller {
         String apiKey = request().getHeader(HeaderParsers.X_API_KEY);
         String uuid = request().getHeader(HeaderParsers.X_UUID);
         if (!samplingGroup.isIn(apiKey, uuid)) {
-            return CompletableFuture.completedFuture(status(PRECONDITION_FAILED));
+            Integer statusCode = flowupConf.getInt("not_in_sampling_group_status_code", PRECONDITION_FAILED);
+            return CompletableFuture.completedFuture(status(statusCode));
         }
 
         List<Metric> metrics = dataPointMapper.mapMetrics(reportRequest);

@@ -54,7 +54,7 @@ public class ConfigControllerTest extends WithFlowUpApplication implements WithR
 
         Result result = getConfig(API_KEY_VALUE);
 
-        assertEquals(PRECONDITION_FAILED, result.status());
+        assertEquals(OK, result.status());
     }
 
     @Test

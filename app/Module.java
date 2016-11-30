@@ -45,6 +45,12 @@ public class Module extends AbstractModule {
                 .annotatedWith(Names.named("mandrill"))
                 .toInstance(mandrillConf);
 
+
+        Configuration flowupConf = configuration.getConfig("flowup");
+        bind(Configuration.class)
+                .annotatedWith(Names.named("flowup"))
+                .toInstance(flowupConf);
+
         bind(MetricsDatasource.class)
                 .to(ElasticSearchDatasource.class)
                 .asEagerSingleton();
