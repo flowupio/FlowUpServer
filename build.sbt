@@ -41,6 +41,7 @@ mappings in Universal in packageBin += file("aws-config/Dockerfile") -> "Dockerf
 mappings in Universal in packageBin += file("aws-config/Dockerrun.aws.json") -> "Dockerrun.aws.json"
 mappings in Universal in packageBin += file("aws-config/newrelic.jar") -> "newrelic.jar"
 mappings in Universal in packageBin += file("aws-config/newrelic.yml") -> "newrelic.yml"
+mappings in Universal in packageBin += file("aws-config/.ebextensions/cloudwatch.config") -> ".ebextensions/cloudwatch.config"
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
 

@@ -24,20 +24,13 @@ public class ConfigController {
 
 
     private final GetApiKeyConfig getConfig;
-    private final SamplingGroup samplingGroup;
 
     @Inject
-    public ConfigController(GetApiKeyConfig getConfig, SamplingGroup samplingGroup) {
+    public ConfigController(GetApiKeyConfig getConfig) {
         this.getConfig = getConfig;
-        this.samplingGroup = samplingGroup;
     }
 
     public Result getConfig() {
-        String apiKey = request().getHeader(HeaderParsers.X_API_KEY);
-        String uuid = request().getHeader(HeaderParsers.X_UUID);
-        if (!samplingGroup.isIn(apiKey, uuid)) {
-            return status(PRECONDITION_FAILED);
-        }
         ApiKeyConfig apiKeyConfig = getApiKeyConfig();
         JsonNode content = Json.toJson(apiKeyConfig);
         return ok(content);
@@ -45,7 +38,8 @@ public class ConfigController {
 
     private ApiKeyConfig getApiKeyConfig() {
         String apiKeyValue = request().getHeader(X_API_KEY);
-        return getConfig.execute(apiKeyValue);
+        String uuid = request().getHeader(HeaderParsers.X_UUID);
+        return getConfig.execute(apiKeyValue, uuid);
     }
 
 }
