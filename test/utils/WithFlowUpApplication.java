@@ -32,7 +32,7 @@ public class WithFlowUpApplication extends WithApplication {
         ActorSystem actorSystem = app.injector().instanceOf(ActorSystem.class);
         Client client = new Client(RedisConfigDefaults.Config(), actorSystem);
         try {
-            Await.ready(client.flushDB(), Duration.create(1, TimeUnit.SECONDS));
+            Await.ready(client.flushAll(), Duration.create(1, TimeUnit.SECONDS));
         } catch (InterruptedException | TimeoutException e) {
             Logger.error(e.getMessage());
         }
