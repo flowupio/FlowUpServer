@@ -31,7 +31,7 @@ public class IndexRequestSerializable implements Serializable {
 
     static IndexRequest toIndexRequest(IndexRequestSerializable indexRequestSerializable) {
         IndexRequest indexRequest = new IndexRequest(indexRequestSerializable.getAction());
-        indexRequest.setSource(indexRequest.getSource());
+        indexRequest.setSource(indexRequestSerializable.getSource());
         return indexRequest;
     }
 }
