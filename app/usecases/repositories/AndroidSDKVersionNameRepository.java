@@ -7,6 +7,7 @@ import play.libs.ws.WSClient;
 import usecases.models.AndroidSDKVersion;
 
 import javax.inject.Inject;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
@@ -36,9 +37,16 @@ public class AndroidSDKVersionNameRepository {
     }
 
     public CompletionStage<String> getLatestAndroidSDKVersionName() {
-        return cache.getOrElse(getCacheKey(),
-                this::getLatestAndroidSDKVersionFromMavenCentral,
-                ANDROID_SDK_VERSION_TTL);
+        String cachedLatestAndroidSDKVersionFromMavenCentral = cache.get(getCacheKey());
+        if (cachedLatestAndroidSDKVersionFromMavenCentral != null) {
+            return CompletableFuture.completedFuture(cachedLatestAndroidSDKVersionFromMavenCentral);
+        } else {
+            CompletionStage<String> latestAndroidSDKVersionFromMavenCentral = getLatestAndroidSDKVersionFromMavenCentral();
+            return latestAndroidSDKVersionFromMavenCentral.thenApply(s -> {
+                cache.set(getCacheKey(), s, ANDROID_SDK_VERSION_TTL);
+                return s;
+            });
+        }
     }
 
     private CompletionStage<String> getLatestAndroidSDKVersionFromMavenCentral() {
