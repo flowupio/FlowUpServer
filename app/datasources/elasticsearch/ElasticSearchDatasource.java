@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Application;
 import org.jetbrains.annotations.NotNull;
 import play.Configuration;
+import play.Logger;
 import play.cache.CacheApi;
 import play.libs.F;
 import play.libs.Json;
@@ -137,6 +138,10 @@ public class ElasticSearchDatasource implements MetricsDatasource {
                 successful = 0;
             }
             items.add(new InsertResult.MetricResult(EMPTY_STRING, successful));
+        }
+
+        if (bulkResponse.hasFailures()) {
+            Logger.error(bulkResponse.toString());
         }
 
         return new InsertResult(bulkResponse.isError(), bulkResponse.hasFailures(), items);

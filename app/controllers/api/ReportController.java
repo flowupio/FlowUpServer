@@ -56,6 +56,7 @@ public class ReportController extends Controller {
                     if (result.isError()) {
                         return internalServerError(content);
                     } else if (result.isHasFailures()) {
+                        Logger.error(reportRequest.toString());
                         return status(SERVICE_UNAVAILABLE, content);
                     } else {
                         return created(content);
