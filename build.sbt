@@ -10,7 +10,7 @@ lazy val `flowupserver` = (project in file(".")).enablePlugins(PlayJava, PlayEbe
   .configs(GatlingTest)
   .settings(inConfig(GatlingTest)(Defaults.testSettings): _*)
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.0"
 
 libraryDependencies ++= Seq(javaJdbc, cache, javaWs,
   "org.projectlombok" % "lombok" % "1.16.10",
