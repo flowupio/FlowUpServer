@@ -79,7 +79,7 @@ FlowUp.Builder.with(this)<br />
 
                             <hr class="m-t">
 
-                            <h2>Start seeing data in just a few seconds:</h2>
+                            <h2>Refresh this page and start seeing data in just a few seconds:</h2>
 
                             <p>Within seconds you will see data in your FlowUp Dashboards.</p>
 
@@ -95,7 +95,29 @@ lintOptions {
 }
                             </code></pre>
 
-                            <p><strong>If you face any error related to the build configuration remember to review the Google Play Services dependencies you have are up to date. Flow</strong>. Additionally, remember you can send an email to support@@flowup.io or use the customer care chat asking for any doubt or issue.</p>
+                            <p><strong>If you face any error related to the build configuration or the application startup like this:</strong></p>
+                            <pre>
+                                <code class="language-java">
+                                    java.lang.IllegalArgumentException: There is no GcmTaskService component registered within this package. Have you extended GcmTaskService correctly?
+                                    at com.google.android.gms.common.internal.zzx.zzb(Unknown Source)
+                                    at com.google.android.gms.gcm.GcmNetworkManager.zzdi(Unknown Source)
+                                    at com.google.android.gms.gcm.GcmNetworkManager.schedule(Unknown Source)
+                                    at io.flowup.config.android.a.a(Unknown Source)
+                                    at io.flowup.FlowUp.p(Unknown Source)
+                                    at io.flowup.FlowUp.d(Unknown Source)
+                                    at io.flowup.FlowUp$1.run(Unknown Source)
+                                    at java.lang.Thread.run(Thread.java:841)			</code>
+                            </pre>
+                            <p>Remember to review the Google Play Services dependencies you have the version 9.6.1 or to exclude it from the Android SDK as follows:</strong></p>
+                            <pre>
+                                <code class="language-groovy">
+                                    compile ("io.flowup:android-sdk:@sdkVersion") {
+                                    exclude group: 'com.google.android.gms'
+                                    }
+                                </code>
+                            </pre>
+
+                            <p>Additionally, remember you can send an email to support@@flowup.io asking for any doubt or issue.</p>
                         </div>
                     </div>
 
