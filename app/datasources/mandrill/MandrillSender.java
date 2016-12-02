@@ -28,6 +28,8 @@ public class MandrillSender implements EmailSender {
     private final String signUpApprovedSubject;
     private final String pulseTemplate;
     private final String pulseSubject;
+    private final Boolean pulseDryRun;
+    private final String pulseDryRunEmail;
 
     @Inject
     public MandrillSender(MandrillClient client, @Named("mandrill") Configuration configuration) {
@@ -44,6 +46,8 @@ public class MandrillSender implements EmailSender {
 
         this.pulseTemplate = configuration.getString("pulse.template");
         this.pulseSubject = configuration.getString("pulse.subject");
+        this.pulseDryRun = configuration.getBoolean("pulse.dry_run", true);
+        this.pulseDryRunEmail = configuration.getString("pulse.dry_run_email", "tech@flowup.io");
     }
 
     @Override
@@ -74,7 +78,17 @@ public class MandrillSender implements EmailSender {
 
     @Override
     public CompletionStage<Boolean> sendKeyMetricsMessage(List<User> users, String appPackage, ZonedDateTime dateTime, String topMetricsHtml) {
-        List<Recipient> recipients = users.stream().map(user -> new Recipient(user.getEmail(), user.getName(), TO)).collect(Collectors.toList());
+
+        List<Recipient> recipients = users.stream().map(user -> {
+            String email;
+            if (this.pulseDryRun) {
+                email = this.pulseDryRunEmail;
+            } else {
+                email = user.getEmail();
+            }
+                return new Recipient(email, user.getName(), TO);
+            }
+        ).collect(Collectors.toList());
         Var[] globalMergeVars = new Var[] { new Var(COMPANY, companyName)};
         DateTimeFormatter format = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
 
