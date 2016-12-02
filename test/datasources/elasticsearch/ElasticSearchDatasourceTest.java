@@ -68,7 +68,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         ElasticSearchDatasource elasticSearchDatasource = givenElasticSearchDatasourceThatReturnAggregation();
         Application application = givenAnyApplication();
 
-        SingleStatQuery singleStatQuery = new SingleStatQuery(application, ANY_FIELD, new F.Tuple<>(Instant.now().minusSeconds(1L), Instant.now());
+        SingleStatQuery singleStatQuery = new SingleStatQuery(application, ANY_FIELD, new F.Tuple<>(Instant.now().minusSeconds(1L), Instant.now()));
         CompletionStage<LineChart> lineChartCompletionStage = elasticSearchDatasource.singleStat(singleStatQuery);
         LineChart lineChart = lineChartCompletionStage.toCompletableFuture().get();
 
