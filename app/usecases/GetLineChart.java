@@ -3,6 +3,7 @@ package usecases;
 import com.google.inject.Inject;
 import models.Application;
 import org.jetbrains.annotations.NotNull;
+import play.libs.F;
 import usecases.models.*;
 
 import java.time.Instant;
@@ -24,28 +25,32 @@ abstract class GetLineChart {
     }
 
     CompletionStage<KeyStatCard> execute(Application application, String field, String description, Unit unit) {
-        Instant now = Instant.now();
-        Instant nowMinus6Hours = now.minus(6, ChronoUnit.HOURS);
-        return metricsDatasource.singleStat(new SingleStatQuery(application, field, nowMinus6Hours, now))
+        F.Tuple<Instant, Instant> bounds = getInstantBounds();
+        return metricsDatasource.singleStat(new SingleStatQuery(application, field, bounds))
                 .thenApply(lineChart -> formatStatCard(description, unit, lineChart))
-                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, now, nowMinus6Hours, statCard, description));
+                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, bounds, statCard, description));
     }
 
     CompletionStage<KeyStatCard> execute(Application application, String field, String queryStringValue, String description, Unit unit) {
-        Instant now = Instant.now();
-        Instant nowMinus6Hours = now.minus(6, ChronoUnit.HOURS);
-        SingleStatQuery singleStatQuery = new SingleStatQuery(application, field, now.minus(6, ChronoUnit.HOURS), now);
+        F.Tuple<Instant, Instant> bounds = getInstantBounds();
+        SingleStatQuery singleStatQuery = new SingleStatQuery(application, field, bounds);
         singleStatQuery.setQueryStringValue(queryStringValue);
         return metricsDatasource.singleStat(singleStatQuery)
                 .thenApply(lineChart -> formatStatCard(description, unit, lineChart))
-                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, now, nowMinus6Hours, statCard, description));
-
+                .thenCompose(statCard -> getKeyStatCardCompletionStage(application, field, unit, bounds, statCard, description));
     }
 
-    private CompletionStage<KeyStatCard> getKeyStatCardCompletionStage(Application application, String field, Unit unit, Instant now, Instant nowMinus6Hours, StatCard statCard, String description) {
+    @NotNull
+    private F.Tuple<Instant, Instant> getInstantBounds() {
+        Instant now = Instant.now();
+        Instant nowMinus6Hours = now.minus(24, ChronoUnit.HOURS);
+        return new F.Tuple<>(nowMinus6Hours, now);
+    }
+
+    private CompletionStage<KeyStatCard> getKeyStatCardCompletionStage(Application application, String field, Unit unit, F.Tuple<Instant, Instant> bounds, StatCard statCard, String description) {
         KeyStatCard keyStatCard = new KeyStatCard(statCard, description);
         if (statCard.getThreshold().isWarningOrWorse()) {
-            return metricsDatasource.statGroupBy(new SingleStatQuery(application, field, nowMinus6Hours, now), VERSION_NAME).thenApply(lineCharts -> {
+            return metricsDatasource.statGroupBy(new SingleStatQuery(application, field, bounds), VERSION_NAME).thenApply(lineCharts -> {
                 List<StatCard> details = lineCharts.stream().map(lineChart -> formatStatCard(lineChart.getName(), unit, lineChart)).collect(Collectors.toList());
                 keyStatCard.setDetails(details);
                 return keyStatCard;
