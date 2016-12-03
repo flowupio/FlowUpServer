@@ -10,4 +10,4 @@ WORKDIR /app/bin
 
 EXPOSE 9000
 
-CMD JAVA_OPTS="$JAVA_OPTS -javaagent:/app/newrelic.jar" ./flowupserver
+CMD ["./flowupserver"]
