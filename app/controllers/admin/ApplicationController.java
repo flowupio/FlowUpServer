@@ -35,7 +35,7 @@ public class ApplicationController extends Controller {
      * This result directly redirect to application home.
      */
     private Result GO_HOME = Results.redirect(
-            ApplicationController.list(0, "name", "asc", "")
+            controllers.admin.routes.ApplicationController.list(0, "name", "asc", "")
     );
 
     /**

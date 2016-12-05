@@ -1,4 +1,4 @@
-@(userForm: Form[Application])
+@(applicationForm: Form[Application])
 
 @import helper._
 
@@ -6,14 +6,14 @@
 
 @views.html.admin.main {
     
-    <h1>Add a user</h1>
+    <h1>Add a Application</h1>
     
     @b3.form(controllers.admin.routes.ApplicationController.save()) {
         
         <fieldset>
-            @b3.text(form("appPackage"), '_label -> "appPackage", '_help -> "")
-            @b3.text(form("organization"), '_label -> "organization", '_help -> "")
-            @b3.text(form("grafanaId"), '_label -> "grafanaId", '_help -> "")
+            @b3.text(applicationForm("appPackage"), '_label -> "appPackage", '_help -> "")
+            @b3.text(applicationForm("organization"), '_label -> "organization", '_help -> "")
+            @b3.text(applicationForm("grafanaId"), '_label -> "grafanaId", '_help -> "")
         </fieldset>
         
         <div class="actions">
