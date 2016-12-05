@@ -1,0 +1,26 @@
+@(userForm: Form[Application])
+
+@import helper._
+
+@import b3.vertical.fieldConstructor
+
+@views.html.admin.main {
+    
+    <h1>Add a user</h1>
+    
+    @b3.form(controllers.admin.routes.ApplicationController.save()) {
+        
+        <fieldset>
+            @b3.text(form("appPackage"), '_label -> "appPackage", '_help -> "")
+            @b3.text(form("organization"), '_label -> "organization", '_help -> "")
+            @b3.text(form("grafanaId"), '_label -> "grafanaId", '_help -> "")
+        </fieldset>
+        
+        <div class="actions">
+            <input type="submit" value="Create User" class="btn primary"> or
+            <a href="@controllers.admin.routes.ApplicationController.list()" class="btn">Cancel</a>
+        </div>
+        
+    }
+    
+}
