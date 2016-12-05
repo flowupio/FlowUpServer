@@ -19,7 +19,6 @@ import views.html.commandcenter.home;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Security.Authenticated(Secured.class)
@@ -83,10 +82,14 @@ public class CommandCenterController extends Controller {
                 ok(application.render(user, applicationModel, organization.getApplications(), statCards)));
     }
 
-    public CompletionStage<Result> grafana() {
+    public CompletionStage<Result> dashboards() {
         final User localUser = User.findByAuthUserIdentity(this.auth.getUser(session()));
 
         return grafanaProxy.retreiveSessionCookies(localUser).thenApply(cookies ->
                 redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()])));
+    }
+
+    public Result grafana() {
+        return redirect(routes.CommandCenterController.dashboards());
     }
 }

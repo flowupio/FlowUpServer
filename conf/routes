@@ -11,6 +11,7 @@ GET         /command-center                        controllers.CommandCenterCont
 GET         /command-center/getting-started        controllers.CommandCenterController.gettingStarted
 GET         /command-center/application/:id        controllers.CommandCenterController.application(id)
 GET         /command-center/grafana                controllers.CommandCenterController.grafana
+GET         /command-center/dashboards             controllers.CommandCenterController.dashboards
 
 # Admin Website
 GET         /admin/                                controllers.admin.UserController.index()
