@@ -1,15 +1,14 @@
 package usecases;
 
-import models.Application;
 import models.Organization;
 import models.User;
 
-import javax.inject.Inject;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public class GetPrimaryOrganization {
-    public Organization execute(User user) {
-        return user.getOrganizations().get(0);
+    public CompletionStage<Organization> execute(User user) {
+        return CompletableFuture.supplyAsync(() -> user.getOrganizations().get(0));
     }
 }
 
