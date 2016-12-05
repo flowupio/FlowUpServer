@@ -12,18 +12,14 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
 import usecases.*;
-import usecases.models.StatCard;
-import views.html.commandcenter.home;
+import usecases.models.KeyStatCard;
 import views.html.commandcenter.application;
-
+import views.html.commandcenter.home;
 
 import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
-import static java.util.Arrays.asList;
 
 @Security.Authenticated(Secured.class)
 public class CommandCenterController extends Controller {
@@ -53,29 +49,47 @@ public class CommandCenterController extends Controller {
     public CompletionStage<Result> index() {
         AuthUser authUser = auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
-        CompletableFuture<Organization> organizationFuture = CompletableFuture.supplyAsync(() -> getPrimaryOrganization.execute(user));
-        CompletableFuture<String> sdkVersionFuture = getLatestAndroidSDKVersionName.execute().toCompletableFuture();
+        return getPrimaryOrganization.execute(user)
+                .thenApply(organization -> {
+                    if (organization.getApplications() == null || organization.getApplications().isEmpty()) {
+                        return redirect(routes.CommandCenterController.gettingStarted());
+                    } else {
+                        Application application = organization.getApplications().get(0);
+                        return redirect(routes.CommandCenterController.application(application.getId().toString()));
+                    }
+                });
+    }
+
+    public CompletionStage<Result> gettingStarted() {
+        AuthUser authUser = auth.getUser(session());
+        User user = getUserByAuthUserIdentity.execute(authUser);
+        CompletionStage<Organization> organizationFuture = getPrimaryOrganization.execute(user);
+        CompletionStage<String> sdkVersionFuture = getLatestAndroidSDKVersionName.execute();
         return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
                 ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName))
         );
-
     }
 
     public CompletionStage<Result> application(String applicationUUID) {
         AuthUser authUser = this.auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
-        Organization organization = getPrimaryOrganization.execute(user);
+        CompletionStage<Organization> organizationCompletionStage = getPrimaryOrganization.execute(user);
 
         Application applicationModel = getApplicationById.execute(UUID.fromString(applicationUUID));
+        CompletionStage<List<KeyStatCard>> keyMetricsCompletionStage = getKeyMetrics.execute(applicationModel);
 
-        return getKeyMetrics.execute(applicationModel).thenApply(statCards ->
+        return CompletableFutures.combine(organizationCompletionStage, keyMetricsCompletionStage, (organization, statCards) ->
                 ok(application.render(user, applicationModel, organization.getApplications(), statCards)));
     }
 
-    public CompletionStage<Result> grafana() {
+    public CompletionStage<Result> dashboards() {
         final User localUser = User.findByAuthUserIdentity(this.auth.getUser(session()));
 
         return grafanaProxy.retreiveSessionCookies(localUser).thenApply(cookies ->
                 redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()])));
+    }
+
+    public Result grafana() {
+        return redirect(routes.CommandCenterController.dashboards());
     }
 }

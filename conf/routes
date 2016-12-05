@@ -8,8 +8,10 @@ GET         /health                                controllers.HomeController.he
 # User Website
 GET         /                                      controllers.HomeController.index
 GET         /command-center                        controllers.CommandCenterController.index
+GET         /command-center/getting-started        controllers.CommandCenterController.gettingStarted
 GET         /command-center/application/:id        controllers.CommandCenterController.application(id)
 GET         /command-center/grafana                controllers.CommandCenterController.grafana
+GET         /command-center/dashboards             controllers.CommandCenterController.dashboards
 
 # Admin Website
 GET         /admin/                                controllers.admin.UserController.index()
