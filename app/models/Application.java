@@ -1,6 +1,7 @@
 package models;
 
 import com.avaje.ebean.Model;
+import com.avaje.ebean.PagedList;
 import com.avaje.ebean.annotation.Index;
 import play.data.validation.Constraints;
 
@@ -31,6 +32,14 @@ public class Application extends Model implements Serializable {
     private String grafanaOrgId;
 
     public static Finder<UUID, Application> find = new Finder<>(Application.class);
+
+    public static PagedList<Application> page(int page, int pageSize, String sortBy, String order, String filter) {
+        return
+                find.where()
+                        .ilike("app_package", "%" + filter + "%")
+                        .orderBy(sortBy + " " + order)
+                        .findPagedList(page, pageSize);
+    }
 
     public UUID getId() {
         return id;
