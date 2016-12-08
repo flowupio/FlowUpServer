@@ -1,5 +1,6 @@
 package datasources.elasticsearch;
 
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.spotify.futures.CompletableFutures;
 import controllers.api.DataPointMapper;
@@ -13,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
-import play.test.WithApplication;
 import usecases.InsertResult;
 import usecases.models.DataPoint;
 import usecases.models.Metric;
@@ -21,7 +21,10 @@ import usecases.models.Report;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -30,27 +33,29 @@ import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
+
 @RunWith(MockitoJUnitRunner.class)
 public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication implements WithResources {
 
-    private static final String ANY_FIELD = "AnyField";
     @Mock
     private ElasticsearchClient elasticsearchClient;
+    @Mock
+    private AmazonSQS amazonSQS;
 
     @Override
     protected play.Application provideApplication() {
         return new GuiceApplicationBuilder()
                 .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+                .overrides(bind(AmazonSQS.class).toInstance(amazonSQS))
                 .configure("elasticsearch.min_request_list_size", 6)
                 .configure("elasticsearch.max_buffer_size", 6)
+                .configure("elasticsearch.queue_small_request_enabled", true)
                 .build();
     }
 
@@ -78,23 +83,6 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         assertTrue(insertResult.getItems().size() > 0);
-    }
-
-    @Test
-    public void givenTwoDebugReportRequestWhenWriteDataPointsICalledThenTheFirstOneIsBufferedAndTheSecondIsWritten() throws ExecutionException, InterruptedException {
-        Report report = givenAReportWithXMetrics(1);
-        Application application = givenAnyApplication();
-        setupElasticSearchClient();
-        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
-
-        CompletionStage<InsertResult> insertResultCompletionStage1 = elasticSearchDatasource.writeDataPoints(report, application);
-        CompletionStage<InsertResult> insertResultCompletionStage2 = elasticSearchDatasource.writeDataPoints(report, application);
-
-        CompletableFuture<List<InsertResult>> listCompletableFuture = CompletableFutures.allAsList(asList(insertResultCompletionStage1, insertResultCompletionStage2));
-
-        List<InsertResult> insertResults = listCompletableFuture.get();
-        assertTrue(insertResults.get(0).getItems().size() == 0);
-        assertTrue(insertResults.get(1).getItems().size() > 0);
     }
 
     private void setupElasticSearchClient() {

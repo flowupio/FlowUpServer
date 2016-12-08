@@ -46,3 +46,4 @@ POST        /report                                controllers.api.ReportControl
 GET         /config                                controllers.api.ConfigController.getConfig
 POST        /pulse                                 controllers.api.FindBugsController.index
 POST        /allowedUUIDs                          controllers.api.AllowedUUIDsController.deleteOldAllowedUUIDs()
+POST        /bufferedReports                       controllers.api.ProcessSQSController.index

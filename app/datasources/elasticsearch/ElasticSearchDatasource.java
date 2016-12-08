@@ -23,32 +23,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
 
     private static final String FLOWUP = "flowup";
     private static final String DELIMITER = "-";
-    private static final String DATAPOINTS_BUFFER_KEY = "datapoints.buffer";
     private static final String EMPTY_STRING = "";
     private final ElasticsearchClient elasticsearchClient;
-    private final CacheApi cacheApi;
-    private final Executor executor;
     private final SQSClient sqsClient;
     private final Integer minRequestListSize;
-    private final Integer maxBufferSize;
     private final boolean queueSmallRequestEnabled;
 
     @Inject
-    public ElasticSearchDatasource(ElasticsearchClient elasticsearchClient, CacheApi cacheApi, @Named("elasticsearch") Configuration elasticsearchConf, SQSClient sqsClient) {
+    public ElasticSearchDatasource(ElasticsearchClient elasticsearchClient, @Named("elasticsearch") Configuration elasticsearchConf, SQSClient sqsClient) {
         this.elasticsearchClient = elasticsearchClient;
-        this.cacheApi = cacheApi;
         this.sqsClient = sqsClient;
-        this.executor = Executors.newSingleThreadExecutor();
         this.minRequestListSize = elasticsearchConf.getInt("min_request_list_size", 0);
-        this.maxBufferSize = elasticsearchConf.getInt("max_buffer_size", 0);
         this.queueSmallRequestEnabled = elasticsearchConf.getBoolean("queue_small_request_enabled", false);
     }
 
@@ -67,24 +58,6 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         } else {
             return postBulkIndexRequests(indexRequestList);
         }
-    }
-
-    private CompletableFuture<InsertResult> bufferIndexRequests(List<IndexRequest> indexRequestList) {
-        return CompletableFuture.supplyAsync(() -> {
-            List<IndexRequestSerializable> indexRequestListBuffered = cacheApi.get(DATAPOINTS_BUFFER_KEY);
-            if (indexRequestListBuffered == null) {
-                indexRequestListBuffered = new ArrayList<>();
-            }
-            indexRequestListBuffered.addAll(indexRequestList.stream().map(IndexRequest::toIndexRequestSerializable).collect(Collectors.toList()));
-
-            if (indexRequestListBuffered.size() >= maxBufferSize) {
-                cacheApi.remove(DATAPOINTS_BUFFER_KEY);
-                return indexRequestListBuffered.stream().map(IndexRequestSerializable::toIndexRequest).collect(Collectors.toList());
-            } else {
-                cacheApi.set(DATAPOINTS_BUFFER_KEY, indexRequestListBuffered);
-                return Collections.<IndexRequest>emptyList();
-            }
-        }, executor).thenComposeAsync(this::postBulkIndexRequests);
     }
 
     private CompletionStage<InsertResult> postBulkIndexRequests(List<IndexRequest> indexRequestList) {
@@ -123,17 +96,15 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     private List<IndexRequest> populateIndexRequest(Report report, Application application) {
-        return report.getMetrics().stream().map (metric -> {
+        return report.getMetrics().stream().map (metric ->
+                metric.getDataPoints().stream().map(datapoint -> {
+            IndexRequest indexRequest = new IndexRequest(indexName(report.getAppPackage(), application.getOrganization().getId().toString()), metric.getName());
 
-            return metric.getDataPoints().stream().map(datapoint -> {
-                IndexRequest indexRequest = new IndexRequest(indexName(report.getAppPackage(), application.getOrganization().getId().toString()), metric.getName());
+            ObjectNode source = mapSource(datapoint);
 
-                ObjectNode source = mapSource(datapoint);
-
-                indexRequest.setSource(source);
-                return indexRequest;
-            }).collect(Collectors.toList());
-        }).reduce(new ArrayList<>(), (indexRequests, indexRequests2) -> {
+            indexRequest.setSource(source);
+            return indexRequest;
+        }).collect(Collectors.toList())).reduce(new ArrayList<>(), (indexRequests, indexRequests2) -> {
             indexRequests.addAll(indexRequests2);
             return indexRequests;
         });
@@ -177,6 +148,22 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         SearchQuery searchQuery = prepareSearchQueryGroupBy(singleStatQuery.getApplication(), gteEpochMillis, lteEpochMillis, singleStatQuery.getField(), singleStatQuery.getQueryStringValue(), groupBy);
 
         return elasticsearchClient.multiSearch(Collections.singletonList(searchQuery)).thenApply(this::processMSearchGroupByResponse);
+    }
+
+    @Override
+    public CompletionStage<Boolean> processSQS() {
+        List<IndexRequest> indexRequestList = new ArrayList<>();
+        return sqsClient.receiveMessages(messages -> {
+            messages.forEach(message -> {
+                for (JsonNode jsonNode : Json.parse(message)) {
+                    IndexRequest indexRequest = Json.fromJson(jsonNode, IndexRequest.class);
+                    indexRequestList.add(indexRequest);
+                }
+            });
+
+            return this.postBulkIndexRequests(indexRequestList).thenApply(insertResult ->
+                    !insertResult.isError() && !insertResult.isHasFailures());
+        });
     }
 
     private LineChart processMSearchResponse(MSearchResponse mSearchResponse) {

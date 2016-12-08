@@ -19,13 +19,14 @@ import java.util.stream.Collectors;
 public class SQSClient {
     private static final int SQS_MESSAGE_MAX_LENGTH = 256 * 1024;
     private final AmazonSQS sqs;
-    private String queueUrl;
+    private final String queueUrl;
 
     @Inject
-    public SQSClient(AmazonSQS sqs, @Named("sqs") Configuration sqsConf) {
+    public SQSClient(@Named("sqs") Configuration sqsConf, AmazonSQS sqs) {
         this.sqs = sqs;
         Region region = RegionUtils.getRegion(sqsConf.getString("region", "eu-west-1"));
-        sqs.setRegion(region);
+        this.sqs.setRegion(region);
+        queueUrl = sqsConf.getString("queue_url");
     }
 
     public boolean hasMessageBodyAValidLength(String messageBody) {
@@ -39,17 +40,17 @@ public class SQSClient {
     public CompletionStage<Boolean> receiveMessages(ProcessMessage processMessage) {
         return CompletableFuture.supplyAsync(() -> {
             ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueUrl);
-            List<Message> messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
+            return sqs.receiveMessage(receiveMessageRequest).getMessages();
+        }).thenCompose(messages -> {
             List<String> messagesBody = messages.stream().map(Message::getBody).collect(Collectors.toList());
+            return processMessage.executed(messagesBody).thenApply(processed -> {
+                if (processed) {
+                    List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries =  messages.stream().map(Message::getReceiptHandle).map(this::getDeleteMessageBatchRequestEntry).collect(Collectors.toList());
+                    sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries));
+                }
 
-            boolean processed = processMessage.executed(messagesBody);
-
-            if (processed) {
-                List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries =  messages.stream().map(Message::getReceiptHandle).map(this::getDeleteMessageBatchRequestEntry).collect(Collectors.toList());
-                sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries));
-            }
-
-            return processed;
+                return processed;
+            });
         });
     }
 
@@ -59,6 +60,3 @@ public class SQSClient {
     }
 }
 
-interface ProcessMessage {
-    boolean executed(List<String> messages);
-}
