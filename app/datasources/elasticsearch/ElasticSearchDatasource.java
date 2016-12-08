@@ -3,6 +3,7 @@ package datasources.elasticsearch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import datasources.sqs.SQSClient;
 import models.Application;
 import org.jetbrains.annotations.NotNull;
 import play.Configuration;
@@ -35,25 +36,34 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     private final ElasticsearchClient elasticsearchClient;
     private final CacheApi cacheApi;
     private final Executor executor;
+    private final SQSClient sqsClient;
     private final Integer minRequestListSize;
     private final Integer maxBufferSize;
+    private final boolean queueSmallRequestEnabled;
 
     @Inject
-    public ElasticSearchDatasource(ElasticsearchClient elasticsearchClient, CacheApi cacheApi, @Named("elasticsearch") Configuration elasticsearchConf) {
+    public ElasticSearchDatasource(ElasticsearchClient elasticsearchClient, CacheApi cacheApi, @Named("elasticsearch") Configuration elasticsearchConf, SQSClient sqsClient) {
         this.elasticsearchClient = elasticsearchClient;
         this.cacheApi = cacheApi;
+        this.sqsClient = sqsClient;
         this.executor = Executors.newSingleThreadExecutor();
         this.minRequestListSize = elasticsearchConf.getInt("min_request_list_size", 0);
         this.maxBufferSize = elasticsearchConf.getInt("max_buffer_size", 0);
+        this.queueSmallRequestEnabled = elasticsearchConf.getBoolean("queue_small_request_enabled", false);
     }
 
     @Override
     public CompletionStage<InsertResult> writeDataPoints(Report report, Application application) {
-        List<IndexRequest> indexRequestList = new ArrayList<>();
-        populateIndexRequest(report, indexRequestList, application);
+        List<IndexRequest> indexRequestList = populateIndexRequest(report, application);
 
-        if (indexRequestList.size() < minRequestListSize) {
-            return bufferIndexRequests(indexRequestList);
+        if (indexRequestList.size() < minRequestListSize && queueSmallRequestEnabled) {
+            String jsonPayload = Json.toJson(indexRequestList).toString();
+            if (sqsClient.hasMessageBodyAValidLength(jsonPayload)) {
+                sqsClient.sendMessage(jsonPayload);
+                return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
+            } else {
+                return postBulkIndexRequests(indexRequestList);
+            }
         } else {
             return postBulkIndexRequests(indexRequestList);
         }
@@ -112,17 +122,20 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return source;
     }
 
-    private void populateIndexRequest(Report report, List<IndexRequest> indexRequestList, Application application) {
-        report.getMetrics().forEach(metric -> {
+    private List<IndexRequest> populateIndexRequest(Report report, Application application) {
+        return report.getMetrics().stream().map (metric -> {
 
-            metric.getDataPoints().forEach(datapoint -> {
+            return metric.getDataPoints().stream().map(datapoint -> {
                 IndexRequest indexRequest = new IndexRequest(indexName(report.getAppPackage(), application.getOrganization().getId().toString()), metric.getName());
 
                 ObjectNode source = mapSource(datapoint);
 
                 indexRequest.setSource(source);
-                indexRequestList.add(indexRequest);
-            });
+                return indexRequest;
+            }).collect(Collectors.toList());
+        }).reduce(new ArrayList<>(), (indexRequests, indexRequests2) -> {
+            indexRequests.addAll(indexRequests2);
+            return indexRequests;
         });
     }
 
