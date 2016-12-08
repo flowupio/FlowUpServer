@@ -2,8 +2,10 @@ package usecases;
 
 import com.feth.play.module.pa.user.AuthUser;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import models.Organization;
 import models.User;
+import play.Configuration;
 import usecases.repositories.UserRepository;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,16 +16,18 @@ public class CreateUser {
     private final UserRepository userRepository;
     private final EmailSender emailSender;
     private final DashboardsClient dashboardsClient;
+    private final Boolean userActiveByDefault;
 
     @Inject
-    public CreateUser(UserRepository userRepository, EmailSender emailSender, DashboardsClient dashboardsClient) {
+    public CreateUser(UserRepository userRepository, EmailSender emailSender, DashboardsClient dashboardsClient, @Named("flowup") Configuration flowupConf) {
         this.userRepository = userRepository;
         this.emailSender = emailSender;
         this.dashboardsClient = dashboardsClient;
+        this.userActiveByDefault = flowupConf.getBoolean("user_active_at_creation", true);
     }
 
     public CompletionStage<User> execute(AuthUser authUser) {
-        boolean isActive = userRepository.existsOrganizationByEmail(authUser);
+        boolean isActive = userActiveByDefault || userRepository.existsOrganizationByEmail(authUser);
         User user = userRepository.create(authUser, isActive);
         CompletionStage<Boolean> sendEmailCompletionStage = sendSigningUpEmail(user);
 
