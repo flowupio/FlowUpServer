@@ -1,13 +1,21 @@
 package utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import datasources.elasticsearch.*;
+import models.Application;
+import models.Organization;
 import org.apache.commons.io.IOUtils;
 import play.libs.Json;
 import play.mvc.Result;
 
 import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.test.Helpers.contentAsString;
 
 public interface WithResources {
@@ -35,5 +43,13 @@ public interface WithResources {
 
     default JsonNode contentAsJson(Result result) {
         return Json.parse(contentAsString(result));
+    }
+
+    default Application givenAnyApplication() {
+        Application application = mock(Application.class);
+        Organization organization = mock(Organization.class);
+        when(application.getOrganization()).thenReturn(organization);
+        when(organization.getId()).thenReturn(UUID.randomUUID());
+        return application;
     }
 }

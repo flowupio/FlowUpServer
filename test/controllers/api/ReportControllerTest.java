@@ -40,17 +40,13 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
 
     private static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
 
-    @Mock
-    private ElasticsearchClient elasticsearchClient;
-
     @Captor
     private ArgumentCaptor<List<IndexRequest>> argument;
     private ApiKeyRepository apiKeyRepository;
 
     @Override
     protected Application provideApplication() {
-        return new GuiceApplicationBuilder()
-                .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+        return getGuiceApplicationBuilder()
                 .overrides(bind(DashboardsClient.class).toInstance(getMockDashboardsClient()))
                 .build();
     }
@@ -188,17 +184,6 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
         ApiKey apiKey = apiKeyRepository.create(API_KEY_VALUE, enabled);
         new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey);
         return apiKey;
-    }
-
-
-    private void setupSuccessfulElasticsearchClient() {
-        ActionWriteResponse networkDataResponse = new IndexResponse("flowup-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
-        networkDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
-        BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse)};
-        BulkResponse bulkResponse = new BulkResponse(responses, 67);
-
-        when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
-                .thenReturn(CompletableFuture.completedFuture(bulkResponse));
     }
 
     private void setupElasticsearchClientWithError() {
