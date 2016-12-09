@@ -56,6 +56,7 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
                 .configure("elasticsearch.min_request_list_size", 6)
                 .configure("elasticsearch.max_buffer_size", 6)
                 .configure("elasticsearch.queue_small_request_enabled", true)
+                .configure("dry_run_queue_enabled", false)
                 .build();
     }
 
