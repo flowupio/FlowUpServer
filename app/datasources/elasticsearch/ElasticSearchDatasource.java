@@ -8,7 +8,6 @@ import models.Application;
 import org.jetbrains.annotations.NotNull;
 import play.Configuration;
 import play.Logger;
-import play.cache.CacheApi;
 import play.libs.F;
 import play.libs.Json;
 import usecases.InsertResult;
@@ -34,6 +33,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     private final SQSClient sqsClient;
     private final Integer minRequestListSize;
     private final boolean queueSmallRequestEnabled;
+    private final boolean dryRunSQSMessagesEnabled;
 
     @Inject
     public ElasticSearchDatasource(ElasticsearchClient elasticsearchClient, @Named("elasticsearch") Configuration elasticsearchConf, SQSClient sqsClient) {
@@ -41,6 +41,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         this.sqsClient = sqsClient;
         this.minRequestListSize = elasticsearchConf.getInt("min_request_list_size", 0);
         this.queueSmallRequestEnabled = elasticsearchConf.getBoolean("queue_small_request_enabled", false);
+        this.dryRunSQSMessagesEnabled = elasticsearchConf.getBoolean("dry_run_queue_enabled", true);
     }
 
     @Override
@@ -51,7 +52,11 @@ public class ElasticSearchDatasource implements MetricsDatasource {
             String jsonPayload = Json.toJson(indexRequestList).toString();
             if (sqsClient.hasMessageBodyAValidLength(jsonPayload)) {
                 sqsClient.sendMessage(jsonPayload);
-                return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
+                if (this.dryRunSQSMessagesEnabled) {
+                    return postBulkIndexRequests(indexRequestList);
+                } else {
+                    return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
+                }
             } else {
                 return postBulkIndexRequests(indexRequestList);
             }
@@ -161,8 +166,12 @@ public class ElasticSearchDatasource implements MetricsDatasource {
                 }
             });
 
-            return this.postBulkIndexRequests(indexRequestList).thenApply(insertResult ->
-                    !insertResult.isError() && !insertResult.isHasFailures());
+            if (this.dryRunSQSMessagesEnabled) {
+                return CompletableFuture.completedFuture(true);
+            } else {
+                return this.postBulkIndexRequests(indexRequestList).thenApply(insertResult ->
+                        !insertResult.isError() && !insertResult.isHasFailures());
+            }
         });
     }
 
