@@ -46,10 +46,14 @@ public interface WithResources {
     }
 
     default Application givenAnyApplication() {
+        return givenAnyApplicationWithOrganizationId(UUID.randomUUID());
+    }
+
+    default Application givenAnyApplicationWithOrganizationId(UUID uuid) {
         Application application = mock(Application.class);
         Organization organization = mock(Organization.class);
         when(application.getOrganization()).thenReturn(organization);
-        when(organization.getId()).thenReturn(UUID.randomUUID());
+        when(organization.getId()).thenReturn(uuid);
         return application;
     }
 }
