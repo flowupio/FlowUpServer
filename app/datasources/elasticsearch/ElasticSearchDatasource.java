@@ -161,7 +161,8 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return sqsClient.receiveMessages(messages -> {
             messages.forEach(message -> {
                 for (JsonNode jsonNode : Json.parse(message)) {
-                    IndexRequest indexRequest = Json.fromJson(jsonNode, IndexRequest.class);
+                    IndexRequest indexRequest = new IndexRequest(Json.fromJson(jsonNode.get("action"), IndexAction.class));
+                    indexRequest.setSource(jsonNode.get("source"));
                     indexRequestList.add(indexRequest);
                 }
             });

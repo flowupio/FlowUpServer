@@ -3,7 +3,9 @@ package utils;
 import akka.actor.ActorSystem;
 import datasources.elasticsearch.*;
 import org.junit.Before;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import play.Logger;
 import play.db.Database;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -23,6 +25,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
+@RunWith(MockitoJUnitRunner.class)
 public class WithFlowUpApplication extends WithApplication {
 
     @Mock
