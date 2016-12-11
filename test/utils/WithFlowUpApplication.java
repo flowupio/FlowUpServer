@@ -25,8 +25,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
-@RunWith(MockitoJUnitRunner.class)
-public class WithFlowUpApplication extends WithApplication {
+public abstract class WithFlowUpApplication extends WithApplication {
 
     @Mock
     protected ElasticsearchClient elasticsearchClient;
