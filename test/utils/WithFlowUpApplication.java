@@ -1,24 +1,49 @@
 package utils;
 
 import akka.actor.ActorSystem;
+import datasources.elasticsearch.*;
 import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import play.Logger;
 import play.db.Database;
+import play.inject.guice.GuiceApplicationBuilder;
 import play.test.WithApplication;
-
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 import scredis.Client;
-import scredis.Redis;
-import scredis.RedisConfig;
 import scredis.RedisConfigDefaults;
 
-public class WithFlowUpApplication extends WithApplication {
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.when;
+import static play.inject.Bindings.bind;
+
+public abstract class WithFlowUpApplication extends WithApplication {
+
+    @Mock
+    protected ElasticsearchClient elasticsearchClient;
+
+    protected GuiceApplicationBuilder getGuiceApplicationBuilder() {
+        return new GuiceApplicationBuilder()
+                .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient));
+    }
+
+    protected void setupSuccessfulElasticsearchClient() {
+        ActionWriteResponse networkDataResponse = new IndexResponse("flowup-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
+        networkDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
+        BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse)};
+        BulkResponse bulkResponse = new BulkResponse(responses, 67);
+
+        when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
+                .thenReturn(CompletableFuture.completedFuture(bulkResponse));
+    }
 
     @Before
     @Override

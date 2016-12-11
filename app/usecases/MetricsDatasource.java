@@ -12,4 +12,6 @@ public interface MetricsDatasource {
 
     CompletionStage<LineChart> singleStat(SingleStatQuery singleStatQuery);
     CompletionStage<List<LineChart>> statGroupBy(SingleStatQuery singleStatQuery, String groupBy);
+
+    CompletionStage<Boolean> processSQS();
 }

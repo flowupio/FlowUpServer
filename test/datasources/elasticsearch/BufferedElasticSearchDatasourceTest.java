@@ -1,19 +1,19 @@
 package datasources.elasticsearch;
 
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.spotify.futures.CompletableFutures;
 import controllers.api.DataPointMapper;
 import controllers.api.ReportRequest;
 import models.Application;
-import models.Organization;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
-import play.test.WithApplication;
 import usecases.InsertResult;
 import usecases.models.DataPoint;
 import usecases.models.Metric;
@@ -21,49 +21,53 @@ import usecases.models.Report;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
-import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static play.inject.Bindings.bind;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication implements WithResources {
 
-    private static final String ANY_FIELD = "AnyField";
     @Mock
-    private ElasticsearchClient elasticsearchClient;
+    private AmazonSQS amazonSQS;
+
+    @Captor
+    private ArgumentCaptor<SendMessageRequest> sendMessageRequestArgumentCaptor;
+
 
     @Override
     protected play.Application provideApplication() {
-        return new GuiceApplicationBuilder()
-                .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+        return getGuiceApplicationBuilder()
+                .overrides(bind(AmazonSQS.class).toInstance(amazonSQS))
                 .configure("elasticsearch.min_request_list_size", 6)
-                .configure("elasticsearch.max_buffer_size", 6)
+                .configure("elasticsearch.queue_small_request_enabled", true)
+                .configure("elasticsearch.dry_run_queue_enabled", false)
                 .build();
     }
 
     @Test
     public void givenAUniqueReportRequestWhenWriteDataPointsICalledThenReportIsBufferedAndReturnEmptyList() throws ExecutionException, InterruptedException {
         Report report = givenAReportWithXMetrics(1);
-        Application application = givenAnyApplication();
-        setupElasticSearchClient();
+        Application application = givenAnyApplicationWithOrganizationId(UUID.fromString("9cdc0b15-bdb0-4209-a3d2-3bc7012d9793"));
+        setupSuccessfulElasticsearchClient();
         ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
+        verify(amazonSQS).sendMessage(sendMessageRequestArgumentCaptor.capture());
+        assertEquals(givenJsonSerializedIndexRequests(), sendMessageRequestArgumentCaptor.getValue().getMessageBody());
         assertEquals(insertResult, new InsertResult(false, false, Collections.emptyList()));
     }
 
@@ -71,48 +75,13 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
     public void givenAReportRequestWithTwoRecollectWhenWriteDataPointsICalledThenReportIsWritten() throws ExecutionException, InterruptedException {
         Report report = givenAReportWithXMetrics(2);
         Application application = givenAnyApplication();
-        setupElasticSearchClient();
+        setupSuccessfulElasticsearchClient();
         ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
 
         CompletionStage<InsertResult> insertResultCompletionStage = elasticSearchDatasource.writeDataPoints(report, application);
         InsertResult insertResult = insertResultCompletionStage.toCompletableFuture().get();
 
         assertTrue(insertResult.getItems().size() > 0);
-    }
-
-    @Test
-    public void givenTwoDebugReportRequestWhenWriteDataPointsICalledThenTheFirstOneIsBufferedAndTheSecondIsWritten() throws ExecutionException, InterruptedException {
-        Report report = givenAReportWithXMetrics(1);
-        Application application = givenAnyApplication();
-        setupElasticSearchClient();
-        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
-
-        CompletionStage<InsertResult> insertResultCompletionStage1 = elasticSearchDatasource.writeDataPoints(report, application);
-        CompletionStage<InsertResult> insertResultCompletionStage2 = elasticSearchDatasource.writeDataPoints(report, application);
-
-        CompletableFuture<List<InsertResult>> listCompletableFuture = CompletableFutures.allAsList(asList(insertResultCompletionStage1, insertResultCompletionStage2));
-
-        List<InsertResult> insertResults = listCompletableFuture.get();
-        assertTrue(insertResults.get(0).getItems().size() == 0);
-        assertTrue(insertResults.get(1).getItems().size() > 0);
-    }
-
-    private void setupElasticSearchClient() {
-        ActionWriteResponse networkDataResponse = new IndexResponse("flowup-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
-        networkDataResponse.setShardInfo(new ActionWriteResponse.ShardInfo(2, 1));
-        BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse)};
-        BulkResponse bulkResponse = new BulkResponse(responses, 67);
-
-        when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
-                .thenReturn(CompletableFuture.completedFuture(bulkResponse));
-    }
-
-    private Application givenAnyApplication() {
-        Application application = mock(Application.class);
-        Organization organization = mock(Organization.class);
-        when(application.getOrganization()).thenReturn(organization);
-        when(organization.getId()).thenReturn(UUID.randomUUID());
-        return application;
     }
 
     @NotNull

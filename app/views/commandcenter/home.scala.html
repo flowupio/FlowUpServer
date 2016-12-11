@@ -101,22 +101,23 @@ lintOptions {
                             <p><strong>If you face any error related to the build configuration or the application startup like this:</strong></p>
                             <pre>
                                 <code class="language-java">
-                                    java.lang.IllegalArgumentException: There is no GcmTaskService component registered within this package. Have you extended GcmTaskService correctly?
-                                    at com.google.android.gms.common.internal.zzx.zzb(Unknown Source)
-                                    at com.google.android.gms.gcm.GcmNetworkManager.zzdi(Unknown Source)
-                                    at com.google.android.gms.gcm.GcmNetworkManager.schedule(Unknown Source)
-                                    at io.flowup.config.android.a.a(Unknown Source)
-                                    at io.flowup.FlowUp.p(Unknown Source)
-                                    at io.flowup.FlowUp.d(Unknown Source)
-                                    at io.flowup.FlowUp$1.run(Unknown Source)
-                                    at java.lang.Thread.run(Thread.java:841)			</code>
+java.lang.IllegalArgumentException: There is no GcmTaskService component registered within this package. Have you extended GcmTaskService correctly?
+at com.google.android.gms.common.internal.zzx.zzb(Unknown Source)
+at com.google.android.gms.gcm.GcmNetworkManager.zzdi(Unknown Source)
+at com.google.android.gms.gcm.GcmNetworkManager.schedule(Unknown Source)
+at io.flowup.config.android.a.a(Unknown Source)
+at io.flowup.FlowUp.p(Unknown Source)
+at io.flowup.FlowUp.d(Unknown Source)
+at io.flowup.FlowUp$1.run(Unknown Source)
+at java.lang.Thread.run(Thread.java:841)
+                                </code>
                             </pre>
                             <p>Remember to review the Google Play Services dependencies you have the version 9.6.1 or to exclude it from the Android SDK as follows:</strong></p>
                             <pre>
                                 <code class="language-groovy">
-                                    compile ("io.flowup:android-sdk:@sdkVersion") {
-                                    exclude group: 'com.google.android.gms'
-                                    }
+compile ("io.flowup:android-sdk:@sdkVersion") {
+    exclude group: 'com.google.android.gms'
+}
                                 </code>
                             </pre>
 

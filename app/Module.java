@@ -1,3 +1,5 @@
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import datasources.elasticsearch.ElasticSearchDatasource;
@@ -51,6 +53,12 @@ public class Module extends AbstractModule {
                 .annotatedWith(Names.named("flowup"))
                 .toInstance(flowupConf);
 
+        Configuration sqsConf = configuration.getConfig("sqs");
+        bind(Configuration.class)
+                .annotatedWith(Names.named("sqs"))
+                .toInstance(sqsConf);
+
+
         bind(MetricsDatasource.class)
                 .to(ElasticSearchDatasource.class)
                 .asEagerSingleton();
@@ -67,5 +75,8 @@ public class Module extends AbstractModule {
         bind(EmailTemplateRenderer.class)
                 .to(TwirlEmailTemplateRenderer.class)
                 .asEagerSingleton();
+
+        bind(AmazonSQS.class)
+                .to(AmazonSQSClient.class);
     }
 }

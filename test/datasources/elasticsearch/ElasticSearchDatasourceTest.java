@@ -38,13 +38,10 @@ import static play.inject.Bindings.bind;
 public class ElasticSearchDatasourceTest extends WithFlowUpApplication implements WithResources {
 
     private static final String ANY_FIELD = "AnyField";
-    @Mock
-    private ElasticsearchClient elasticsearchClient;
 
     @Override
     protected play.Application provideApplication() {
-        return new GuiceApplicationBuilder()
-                .overrides(bind(ElasticsearchClient.class).toInstance(elasticsearchClient))
+        return getGuiceApplicationBuilder()
                 .build();
     }
 
@@ -77,15 +74,6 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         assertEquals(values, lineChart.getValues());
         assertEquals(labels, lineChart.getLabels());
     }
-
-    private Application givenAnyApplication() {
-        Application application = mock(Application.class);
-        Organization organization = mock(Organization.class);
-        when(application.getOrganization()).thenReturn(organization);
-        when(organization.getId()).thenReturn(UUID.randomUUID());
-        return application;
-    }
-
 
     @NotNull
     private Report givenAReportWithOneDataPoint() {
