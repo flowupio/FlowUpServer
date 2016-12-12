@@ -46,8 +46,10 @@ public class SQSClient {
             List<String> messagesBody = messages.stream().map(Message::getBody).collect(Collectors.toList());
             return processMessage.executed(messagesBody).thenApply(processed -> {
                 if (processed) {
-                    List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries =  messages.stream().map(Message::getReceiptHandle).map(this::getDeleteMessageBatchRequestEntry).collect(Collectors.toList());
-                    sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries));
+                    if (!messages.isEmpty()) {
+                        List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries =  messages.stream().map(Message::getReceiptHandle).map(this::getDeleteMessageBatchRequestEntry).collect(Collectors.toList());
+                        sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries));
+                    }
                 }
 
                 return processed;
