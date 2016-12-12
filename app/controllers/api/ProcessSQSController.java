@@ -1,6 +1,7 @@
 package controllers.api;
 
 import com.google.inject.Inject;
+import play.Logger;
 import play.mvc.Controller;
 import play.mvc.Result;
 import usecases.ProcessReportQueue;
@@ -17,13 +18,7 @@ public class ProcessSQSController extends Controller {
     }
 
     public CompletionStage<Result> index() {
-        return processReportQueue.execute().thenApply(success -> {
-            if (success) {
-                return ok();
-            } else {
-                return internalServerError();
-            }
-        });
+        return processReportQueue.execute().thenApply(success -> ok());
     }
 }
 
