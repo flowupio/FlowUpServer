@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 public class SQSClient {
     private static final int SQS_MESSAGE_MAX_LENGTH = 256 * 1024;
+    public static final int MAX_NUMBER_OF_MESSAGES = 10;
     private final AmazonSQS sqs;
     private final String queueUrl;
 
@@ -39,7 +40,7 @@ public class SQSClient {
 
     public CompletionStage<Boolean> receiveMessages(ProcessMessage processMessage) {
         return CompletableFuture.supplyAsync(() -> {
-            ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueUrl);
+            ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueUrl).withMaxNumberOfMessages(MAX_NUMBER_OF_MESSAGES);
             return sqs.receiveMessage(receiveMessageRequest).getMessages();
         }).thenCompose(messages -> {
             List<String> messagesBody = messages.stream().map(Message::getBody).collect(Collectors.toList());
