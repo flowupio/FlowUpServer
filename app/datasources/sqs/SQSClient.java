@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class SQSClient {
     private static final int SQS_MESSAGE_MAX_LENGTH = 256 * 1024;
-    public static final int MAX_NUMBER_OF_MESSAGES = 10;
+    private static final int MAX_NUMBER_OF_MESSAGES = 10;
     private final AmazonSQS sqs;
     private final String queueUrl;
 
@@ -53,7 +53,16 @@ public class SQSClient {
                 if (processed) {
                     if (!messages.isEmpty()) {
                         List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries =  messages.stream().map(Message::getReceiptHandle).map(this::getDeleteMessageBatchRequestEntry).collect(Collectors.toList());
-                        sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries));
+
+                        if (deleteMessageBatchRequestEntries.size() > MAX_NUMBER_OF_MESSAGES) {
+                            List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries1 = deleteMessageBatchRequestEntries.subList(0, MAX_NUMBER_OF_MESSAGES);
+                            sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries1));
+
+                            List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries2 = deleteMessageBatchRequestEntries.subList(MAX_NUMBER_OF_MESSAGES, deleteMessageBatchRequestEntries.size());
+                            sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries2));
+                        } else {
+                            sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries));
+                        }
                     }
                 }
 
