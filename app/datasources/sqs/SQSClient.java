@@ -7,6 +7,7 @@ import com.amazonaws.services.sqs.model.*;
 import com.google.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import play.Configuration;
+import play.Logger;
 
 import javax.inject.Named;
 import java.nio.charset.Charset;
@@ -50,19 +51,17 @@ public class SQSClient {
         }).thenComposeAsync(messages -> {
             List<String> messagesBody = messages.stream().map(Message::getBody).collect(Collectors.toList());
             return processMessage.executed(messagesBody).thenApplyAsync(processed -> {
-                if (processed) {
-                    if (!messages.isEmpty()) {
-                        List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries =  messages.stream().map(Message::getReceiptHandle).map(this::getDeleteMessageBatchRequestEntry).collect(Collectors.toList());
+                if (!messages.isEmpty()) {
+                    List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries =  messages.stream().map(Message::getReceiptHandle).map(this::getDeleteMessageBatchRequestEntry).collect(Collectors.toList());
 
-                        if (deleteMessageBatchRequestEntries.size() > MAX_NUMBER_OF_MESSAGES) {
-                            List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries1 = deleteMessageBatchRequestEntries.subList(0, MAX_NUMBER_OF_MESSAGES);
-                            sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries1));
+                    if (deleteMessageBatchRequestEntries.size() > MAX_NUMBER_OF_MESSAGES) {
+                        List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries1 = deleteMessageBatchRequestEntries.subList(0, MAX_NUMBER_OF_MESSAGES);
+                        sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries1));
 
-                            List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries2 = deleteMessageBatchRequestEntries.subList(MAX_NUMBER_OF_MESSAGES, deleteMessageBatchRequestEntries.size());
-                            sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries2));
-                        } else {
-                            sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries));
-                        }
+                        List<DeleteMessageBatchRequestEntry> deleteMessageBatchRequestEntries2 = deleteMessageBatchRequestEntries.subList(MAX_NUMBER_OF_MESSAGES, deleteMessageBatchRequestEntries.size());
+                        sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries2));
+                    } else {
+                        sqs.deleteMessageBatch(new DeleteMessageBatchRequest(queueUrl, deleteMessageBatchRequestEntries));
                     }
                 }
 
