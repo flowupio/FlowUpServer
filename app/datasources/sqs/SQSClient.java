@@ -41,7 +41,12 @@ public class SQSClient {
     public CompletionStage<Boolean> receiveMessages(ProcessMessage processMessage) {
         return CompletableFuture.supplyAsync(() -> {
             ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueUrl).withMaxNumberOfMessages(MAX_NUMBER_OF_MESSAGES);
-            return sqs.receiveMessage(receiveMessageRequest).getMessages();
+            List<Message> messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
+            if (messages.size() == MAX_NUMBER_OF_MESSAGES) {
+                List<Message> messages2 = sqs.receiveMessage(receiveMessageRequest).getMessages();
+                messages.addAll(messages2);
+            }
+            return messages;
         }).thenCompose(messages -> {
             List<String> messagesBody = messages.stream().map(Message::getBody).collect(Collectors.toList());
             return processMessage.executed(messagesBody).thenApply(processed -> {
