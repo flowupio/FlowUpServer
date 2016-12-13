@@ -31,7 +31,7 @@ public class ApiKey extends Model implements Serializable {
 
     private boolean enabled = true;
 
-    private int numberOfAllowedUUIDs = 50;
+    private int numberOfAllowedUUIDs = 20;
 
     public static Finder<UUID, ApiKey> find = new Finder<>(ApiKey.class);
 
