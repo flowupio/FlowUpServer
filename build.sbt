@@ -14,12 +14,6 @@ scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(javaJdbc, cache, javaWs,
   "org.projectlombok" % "lombok" % "1.16.10",
-  "com.novocode" % "junit-interface" % "0.11" % "test",
-  "org.mockito" % "mockito-all" % "1.10.19" % "test",
-  "org.hamcrest" % "hamcrest-junit" % "2.0.0.0" % "test",
-  "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.2.2" % "test",
-  "io.gatling" % "gatling-test-framework" % "2.2.2" % "test",
-  "com.github.tomakehurst" % "wiremock" % "2.3.1" % "test",
   "org.webjars" %% "webjars-play" % "2.5.0",
   "org.webjars" % "bootstrap" % "3.3.4",
   "com.adrianhurt" %% "play-bootstrap" % "1.1-P25-B3",
@@ -30,6 +24,13 @@ libraryDependencies ++= Seq(javaJdbc, cache, javaWs,
   "com.github.karelcemus" %% "play-redis" % "1.3.0-M1",
   "com.amazonaws" % "aws-java-sdk-sqs" % "1.11.66",
 
+  //Test dependencies
+  "com.novocode" % "junit-interface" % "0.11" % "test",
+  "org.mockito" % "mockito-all" % "1.10.19" % "test",
+  "org.hamcrest" % "hamcrest-junit" % "2.0.0.0" % "test",
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.2.2" % "test",
+  "io.gatling" % "gatling-test-framework" % "2.2.2" % "test",
+  "com.github.tomakehurst" % "wiremock" % "2.3.1" % "test",
   "com.tngtech.java" % "junit-dataprovider" % "1.10.0" % "test"
 )
 
