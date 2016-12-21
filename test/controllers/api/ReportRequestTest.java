@@ -1,14 +1,13 @@
 package controllers.api;
 
 import org.junit.Test;
+import utils.mothers.WithReportFixtures;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static utils.ReportRequestMother.reportWithCpuMetrics;
-import static utils.ReportRequestMother.reportWithNoMetrics;
-import static utils.ReportRequestMother.reportWithUIMetrics;
+import static utils.mothers.WithReportRequestFixtures.*;
 
-public class ReportRequestTest {
+public class ReportRequestTest implements WithReportFixtures {
 
     @Test
     public void whenNoCPUMetricsShouldBeConsideredDebug() throws Exception {

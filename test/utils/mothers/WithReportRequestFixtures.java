@@ -1,15 +1,14 @@
-package utils;
+package utils.mothers;
 
 import controllers.api.ReportRequest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-public class ReportRequestMother {
+public interface WithReportRequestFixtures {
 
-    public static ReportRequest reportWithNoMetrics() {
+    static ReportRequest reportWithNoMetrics() {
         return new ReportRequest(
                 "arbitrary_package_name",
                 "arbitrary_device_model",
@@ -26,7 +25,7 @@ public class ReportRequestMother {
         );
     }
 
-    public static ReportRequest reportWithUIMetrics() {
+    static ReportRequest reportWithUIMetrics() {
         return new ReportRequest(
                 "arbitrary_package_name",
                 "arbitrary_device_model",
@@ -56,9 +55,9 @@ public class ReportRequestMother {
         );
     }
 
-    public static ReportRequest reportWithCpuMetrics(Integer numberOfMetrics) {
+    static ReportRequest reportWithCpuMetrics(Integer numberOfMetrics) {
         List<ReportRequest.Cpu> cpuMetrics = new ArrayList<>();
-        for (int i = 0; i < numberOfMetrics; i++ ) {
+        for (int i = 0; i < numberOfMetrics; i++) {
             cpuMetrics.add(new ReportRequest.Cpu(
                     i,
                     "arbitrary_app_version",
