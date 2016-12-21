@@ -1,4 +1,4 @@
-package utils.mothers;
+package utils.fixtures;
 
 import usecases.models.Report;
 

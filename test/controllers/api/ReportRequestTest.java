@@ -1,11 +1,11 @@
 package controllers.api;
 
 import org.junit.Test;
-import utils.mothers.WithReportFixtures;
+import utils.fixtures.WithReportFixtures;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static utils.mothers.WithReportRequestFixtures.*;
+import static utils.fixtures.WithReportRequestFixtures.*;
 
 public class ReportRequestTest implements WithReportFixtures {
 

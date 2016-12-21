@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import usecases.models.Report;
 import usecases.repositories.ApplicationRepository;
-import utils.mothers.WithReportFixtures;
+import utils.fixtures.WithReportFixtures;
 
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static utils.mothers.WithReportFixtures.*;
+import static utils.fixtures.WithReportFixtures.*;
 
 @RunWith(DataProviderRunner.class)
 public class InsertDataPointsTest implements WithReportFixtures {
