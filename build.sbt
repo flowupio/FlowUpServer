@@ -28,7 +28,9 @@ libraryDependencies ++= Seq(javaJdbc, cache, javaWs,
   "com.spotify" % "completable-futures" % "0.3.0",
   "io.airbrake" % "airbrake-java" % "2.2.8",
   "com.github.karelcemus" %% "play-redis" % "1.3.0-M1",
-  "com.amazonaws" % "aws-java-sdk-sqs" % "1.11.66"
+  "com.amazonaws" % "aws-java-sdk-sqs" % "1.11.66",
+
+  "com.tngtech.java" % "junit-dataprovider" % "1.10.0" % "test"
 )
 
 topLevelDirectory := None

@@ -28,7 +28,9 @@ public class InsertDataPoints {
             Logger.error(report.toString());
             return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
         }
-
+        if (report.getInDebugMode() && report.getAppInBackground()) {
+            return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
+        }
         Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
         if (application == null) {
             return applicationRepository.create(report.getApiKey(), report.getAppPackage()).thenCompose(application1 -> {

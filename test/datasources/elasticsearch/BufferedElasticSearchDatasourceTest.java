@@ -100,7 +100,7 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
         metrics.add(new Metric("cpu_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapCpu(reportRequest))));
         metrics.add(new Metric("memory_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapMemory(reportRequest))));
         metrics.add(new Metric("disk_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapDisk(reportRequest))));
-        return new Report(organizationIdentifier, "io.flowup.app", metrics);
+        return new Report(organizationIdentifier, "io.flowup.app", metrics, false, false);
     }
 
     private List<DataPoint> getAccumulatedDataPoints(int nbMetrics, IntFunction<List<DataPoint>> mapper) {
