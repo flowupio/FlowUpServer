@@ -32,11 +32,12 @@ public class InsertDataPoints {
             return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
         }
         Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
+        CompletionStage<Application> futureApplication;
         if (application == null) {
-            return applicationRepository.create(report.getApiKey(), report.getAppPackage()).thenCompose(application1 -> {
-                return metricsDatasource.writeDataPoints(report, application1);
-            });
+            futureApplication = applicationRepository.create(report.getApiKey(), report.getAppPackage());
+        } else {
+            futureApplication = CompletableFuture.completedFuture(application);
         }
-        return metricsDatasource.writeDataPoints(report, application);
+        return futureApplication.thenCompose((app) -> metricsDatasource.writeDataPoints(report, app));
     }
 }
