@@ -47,8 +47,8 @@ public class ReportController extends Controller {
 
         List<Metric> metrics = dataPointMapper.mapMetrics(reportRequest);
 
-        Report report = new Report(apiKey, reportRequest.getAppPackage(), metrics,
-                reportRequest.isInDebugMode(), reportRequest.isBackground());
+        Report.Metadata metadata = new Report.Metadata(reportRequest.isInDebugMode(), reportRequest.isBackground());
+        Report report = new Report(apiKey, reportRequest.getAppPackage(), metrics, metadata);
 
         return insertDataPoints.execute(report).thenApply(result -> {
                     ReportResponse reportResponse = new ReportResponse("Metrics Inserted", result);

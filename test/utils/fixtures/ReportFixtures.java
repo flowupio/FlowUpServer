@@ -9,24 +9,21 @@ public interface ReportFixtures {
         return new Report("arbitrary_api_key",
                 null,
                 new ArrayList<>(),
-                false,
-                false);
+                new Report.Metadata(false, false));
     }
 
     static Report reportWithEmptyAppPackage() {
         return new Report("arbitrary_api_key",
                 "    ",
                 new ArrayList<>(),
-                false,
-                false);
+                new Report.Metadata(false, false));
     }
 
     static Report reportForBackgroundDebug() {
         return new Report("arbitrary_api_key",
                 "arbitrary_app_package",
                 new ArrayList<>(),
-                true,
-                true);
+                new Report.Metadata(true, true));
     }
 
     static Report reportForDebug() {
@@ -34,8 +31,7 @@ public interface ReportFixtures {
                 "arbitrary_api_key",
                 "arbitrary_app_package",
                 new ArrayList<>(),
-                true,
-                false);
+                new Report.Metadata(true, false));
     }
 
     static Report reportForBackground() {
@@ -43,8 +39,7 @@ public interface ReportFixtures {
                 "arbitrary_api_key",
                 "arbitrary_app_package",
                 new ArrayList<>(),
-                false,
-                true);
+                new Report.Metadata(false, true));
     }
 
 }

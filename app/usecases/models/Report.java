@@ -11,6 +11,15 @@ public class Report {
     private final String apiKey;
     private final String appPackage;
     private final List<Metric> metrics;
-    private final Boolean inDebugMode;
-    private final Boolean appInBackground;
+    private final Metadata metadata;
+
+    @Data
+    public static class Metadata {
+        private final Boolean inDebugMode;
+        private final Boolean appInBackground;
+    }
+
+    public Boolean isDiscardable() {
+        return metadata.appInBackground && metadata.inDebugMode;
+    }
 }

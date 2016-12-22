@@ -80,7 +80,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
         DataPoint dataPoint = new DataPoint(new Date(), Collections.singletonList(new F.Tuple<>("any_measurement", Value.toBasicValue(0))), Collections.singletonList(new F.Tuple<>("any_tag", "tag")));
         Metric anyMetric = new Metric("any_metric", Collections.singletonList(dataPoint));
-        return new Report(organizationIdentifier, "io.flowup.app", Collections.singletonList(anyMetric), false, false);
+        return new Report(organizationIdentifier, "io.flowup.app", Collections.singletonList(anyMetric), new Report.Metadata(false, false));
     }
 
     @NotNull
@@ -88,7 +88,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
         DataPoint dataPoint = new DataPoint(new Date(), Collections.singletonList(new F.Tuple<>("any_measurement", Value.toBasicValue(0))), Collections.singletonList(new F.Tuple<>("any_tag", "tag")));
         Metric anyMetric = new Metric("any_metric", Collections.singletonList(dataPoint));
-        return new Report(organizationIdentifier, "io.flowup.app", Collections.singletonList(anyMetric), false, false);
+        return new Report(organizationIdentifier, "io.flowup.app", Collections.singletonList(anyMetric), new Report.Metadata(false, false));
     }
 
     @Test

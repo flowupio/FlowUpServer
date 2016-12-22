@@ -29,7 +29,7 @@ public class InsertDataPoints {
             Logger.error(report.toString());
             return emptyInsertResult();
         }
-        if (report.getInDebugMode() && report.getAppInBackground()) {
+        if (report.isDiscardable()) {
             return emptyInsertResult();
         }
         Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
