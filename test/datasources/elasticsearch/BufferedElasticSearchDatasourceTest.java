@@ -87,9 +87,7 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
     private Report givenAReportWithXMetrics(int nbMetrics) {
         String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
 
-
-        JsonNode jsonNode = Json.parse(getFile("androidsdk/simpleReportRequestBody.json"));
-        ReportRequest reportRequest = Json.fromJson(jsonNode, ReportRequest.class);
+        ReportRequest reportRequest = resourceFromFile("androidsdk/simpleReportRequestBody.json", ReportRequest.class);
 
         DataPointMapper dataPointMapper = new DataPointMapper();
 
