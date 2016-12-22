@@ -22,7 +22,6 @@ import utils.WithFlowUpApplication;
 import utils.WithResources;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
@@ -68,7 +67,7 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
 
         verify(amazonSQS).sendMessage(sendMessageRequestArgumentCaptor.capture());
         assertEquals(givenJsonSerializedIndexRequests(), sendMessageRequestArgumentCaptor.getValue().getMessageBody());
-        assertEquals(insertResult, new InsertResult(false, false, Collections.emptyList()));
+        assertEquals(insertResult, InsertResult.successEmpty());
     }
 
     @Test

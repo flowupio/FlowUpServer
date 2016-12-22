@@ -20,9 +20,10 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+
+import static java.util.concurrent.CompletableFuture.completedFuture;
 
 public class ElasticSearchDatasource implements MetricsDatasource {
 
@@ -55,7 +56,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
                 if (this.dryRunSQSMessagesEnabled) {
                     return postBulkIndexRequests(indexRequestList);
                 } else {
-                    return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
+                    return completedFuture(InsertResult.successEmpty());
                 }
             } else {
                 return postBulkIndexRequests(indexRequestList);
@@ -69,7 +70,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         if (!indexRequestList.isEmpty()) {
             return elasticsearchClient.postBulk(indexRequestList).thenApply(this::processBulkResponse);
         } else {
-            return CompletableFuture.completedFuture(new InsertResult(false, false, Collections.emptyList()));
+            return completedFuture(InsertResult.successEmpty());
         }
     }
 
@@ -168,7 +169,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
             });
 
             if (this.dryRunSQSMessagesEnabled) {
-                return CompletableFuture.completedFuture(true);
+                return completedFuture(true);
             } else {
                 return this.postBulkIndexRequests(indexRequestList).thenApply(insertResult ->
                         !insertResult.isError() && !insertResult.isHasFailures());

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public interface WithReportRequestFixtures {
+public interface ReportRequestFixtures {
 
     static ReportRequest reportWithNoMetrics() {
         return new ReportRequest(

@@ -10,9 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import usecases.models.Report;
 import usecases.repositories.ApplicationRepository;
-import utils.fixtures.WithReportFixtures;
 
-import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -20,10 +18,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static utils.fixtures.WithReportFixtures.*;
+import static utils.fixtures.ReportFixtures.*;
 
 @RunWith(DataProviderRunner.class)
-public class InsertDataPointsTest implements WithReportFixtures {
+public class InsertDataPointsTest {
 
     @Mock
     private MetricsDatasource metricsDatasourceMock;
@@ -42,6 +40,7 @@ public class InsertDataPointsTest implements WithReportFixtures {
     public static Object[][] invalidReportProvider() {
         return new Object[][]{
                 {reportWithNoAppPackage()},
+                {reportWithEmptyAppPackage()},
                 {reportForBackgroundDebug()}
         };
     }
@@ -53,7 +52,7 @@ public class InsertDataPointsTest implements WithReportFixtures {
         InsertResult result = futureResult.toCompletableFuture().get();
 
         verify(metricsDatasourceMock, never()).writeDataPoints(any(Report.class), any(Application.class));
-        assertEquals(expectedResult(), result);
+        assertEquals(InsertResult.successEmpty(), result);
     }
 
     @DataProvider
@@ -73,7 +72,7 @@ public class InsertDataPointsTest implements WithReportFixtures {
 
         CompletionStage<InsertResult> futureResult = useCase.execute(report);
         InsertResult result = futureResult.toCompletableFuture().get();
-        assertEquals(expectedResult(), result);
+        assertEquals(InsertResult.successEmpty(), result);
 
         verify(metricsDatasourceMock, times(1)).writeDataPoints(report, application);
     }
@@ -88,14 +87,10 @@ public class InsertDataPointsTest implements WithReportFixtures {
 
         CompletionStage<InsertResult> futureResult = useCase.execute(report);
         InsertResult result = futureResult.toCompletableFuture().get();
-        assertEquals(expectedResult(), result);
+        assertEquals(InsertResult.successEmpty(), result);
 
         verify(applicationRepositoryMock, times(1)).create(report.getApiKey(), report.getAppPackage());
         verify(metricsDatasourceMock, times(1)).writeDataPoints(report, application);
-    }
-
-    private InsertResult expectedResult() {
-        return new InsertResult(false, false, Collections.emptyList());
     }
 
     private void givenApplicationRepositoryToFindApplication(Application application) {
@@ -110,7 +105,7 @@ public class InsertDataPointsTest implements WithReportFixtures {
 
     private void givenMetricsDataSourceToWriteDataPoints(Report report, Application application) {
         when(metricsDatasourceMock.writeDataPoints(report, application))
-                .thenReturn(CompletableFuture.completedFuture(expectedResult()));
+                .thenReturn(CompletableFuture.completedFuture(InsertResult.successEmpty()));
     }
 
 }

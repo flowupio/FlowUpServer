@@ -4,10 +4,18 @@ import usecases.models.Report;
 
 import java.util.ArrayList;
 
-public interface WithReportFixtures {
+public interface ReportFixtures {
     static Report reportWithNoAppPackage() {
         return new Report("arbitrary_api_key",
                 null,
+                new ArrayList<>(),
+                false,
+                false);
+    }
+
+    static Report reportWithEmptyAppPackage() {
+        return new Report("arbitrary_api_key",
+                "    ",
                 new ArrayList<>(),
                 false,
                 false);

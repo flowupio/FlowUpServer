@@ -1,13 +1,12 @@
 package controllers.api;
 
 import org.junit.Test;
-import utils.fixtures.WithReportRequestFixtures;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static utils.fixtures.WithReportRequestFixtures.*;
+import static utils.fixtures.ReportRequestFixtures.*;
 
-public class ReportRequestTest implements WithReportRequestFixtures {
+public class ReportRequestTest {
 
     @Test
     public void whenNoCPUMetricsShouldBeConsideredDebug() throws Exception {
