@@ -1,6 +1,7 @@
 package utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import controllers.api.ReportRequest;
 import models.Application;
 import models.Organization;
 import org.apache.commons.io.IOUtils;
@@ -36,6 +37,11 @@ public interface WithResources {
 
         return result;
 
+    }
+
+    default <T> T resourceFromFile(String file, Class<T> clazz) {
+        JsonNode jsonNode = Json.parse(getFile(file));
+        return Json.fromJson(jsonNode, clazz);
     }
 
     default JsonNode contentAsJson(Result result) {
