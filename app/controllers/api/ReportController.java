@@ -46,7 +46,7 @@ public class ReportController extends Controller {
             return CompletableFuture.completedFuture(status(statusCode));
         }
 
-        Report report = toReport(reportRequest, apiKey);
+        Report report = toReport(reportRequest, apiKey, request());
 
         return insertDataPoints.execute(report).thenApply(result -> {
                     ReportResponse reportResponse = new ReportResponse("Metrics Inserted", result);
@@ -65,11 +65,20 @@ public class ReportController extends Controller {
     }
 
     @NotNull
-    private Report toReport(ReportRequest reportRequest, String apiKey) {
+    private Report toReport(ReportRequest reportRequest, String apiKey, Http.Request request) {
         List<Metric> metrics = dataPointMapper.mapMetrics(reportRequest);
 
-        Report.Metadata metadata = new Report.Metadata(reportRequest.isInDebugMode(), reportRequest.isBackground());
+        Report.Metadata metadata = new Report.Metadata(isInDebugMode(request, reportRequest), reportRequest.isBackground());
         return new Report(apiKey, reportRequest.getAppPackage(), metrics, metadata);
+    }
+
+    @NotNull
+    private Boolean isInDebugMode(Http.Request request, ReportRequest reportRequest) {
+        String debugHeader = request.getHeader(HeaderParsers.X_DEBUG_MODE);
+        if (debugHeader == null) {
+            return reportRequest.isInDebugMode();
+        }
+        return Boolean.valueOf(debugHeader);
     }
 }
 

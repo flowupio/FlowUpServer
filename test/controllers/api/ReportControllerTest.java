@@ -28,6 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
@@ -168,6 +169,24 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
         Result result = route(requestBuilder);
 
         assertEquals(PRECONDITION_FAILED, result.status());
+    }
+
+    @Test
+    public void testReportAPIInBackgroundAndDebugModeWontInsertAnyMetric() {
+        setupDatabaseWithApiKey();
+        setupSuccessfulElasticsearchClient();
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("androidsdk/multipleCPUMetricReportRequestBody.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("X-Debug-Mode", "true")
+                .header("Content-Type", "application/json");
+
+        Result result = route(requestBuilder);
+
+        verify(elasticsearchClient, never()).postBulk(argument.capture());
+        assertEquals(CREATED, result.status());
+        String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"hasFailures\":false,\"items\":[],\"error\":false}}";
+        assertEqualsString(expect, result);
     }
 
     private void configureAFullSamplingGroup(ApiKey apiKey) {
