@@ -2,7 +2,6 @@ package datasources.elasticsearch;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.fasterxml.jackson.databind.JsonNode;
 import controllers.api.DataPointMapper;
 import controllers.api.ReportRequest;
 import models.Application;
@@ -13,7 +12,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import play.libs.Json;
 import usecases.InsertResult;
 import usecases.models.DataPoint;
 import usecases.models.Metric;
