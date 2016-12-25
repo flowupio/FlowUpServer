@@ -1,0 +1,18 @@
+{
+  "appPackage": "io.flowup.example",
+  "installationUUID": "123456789",
+  "deviceModel": "Nexus 5X",
+  "screenDensity": "xxhdpi",
+  "screenSize": "800X600",
+  "numberOfCores": 4,
+  "network": [
+  ],
+  "ui": [
+  ],
+  "cpu": [
+  ],
+  "memory": [
+  ],
+  "disk": [
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "appPackage": "io.flowup.example",
+  "installationUUID": "123456789",
+  "deviceModel": "Nexus 5X",
+  "screenDensity": "xxhdpi",
+  "screenSize": "800X600",
+  "numberOfCores": 4,
+  "network": [
+  ],
+  "ui": [
+    {
+      "screen": "MainActivity",
+      "frameTime": {
+        "mean": 60.0,
+        "p10": 60.0,
+        "p90": 60.0
+      },
+      "onActivityCreatedTime": {
+        "mean": 60.0,
+        "p10": 60.0,
+        "p90": 60.0
+      },
+      "onActivityStartedTime": {
+        "mean": 60.0,
+        "p10": 60.0,
+        "p90": 60.0
+      },
+      "onActivityResumedTime": {
+        "mean": 60.0,
+        "p10": 60.0,
+        "p90": 60.0
+      },
+      "activityVisibleTime": {
+        "mean": 60.0,
+        "p10": 60.0,
+        "p90": 60.0
+      },
+      "onActivityPausedTime": {
+        "mean": 60.0,
+        "p10": 60.0,
+        "p90": 60.0
+      },
+      "onActivityStoppedTime": {
+        "mean": 60.0,
+        "p10": 60.0,
+        "p90": 60.0
+      },
+      "onActivityDestroyedTime": {
+        "mean": 60.0,
+        "p10": 60.0,
+        "p90": 60.0
+      },
+      "timestamp": 123456789,
+      "appVersionName": "1.0.0",
+      "androidOSVersion": "API24",
+      "batterySaverOn": true
+    }
+  ],
+  "cpu": [
+  ],
+  "memory": [
+  ],
+  "disk": [
+  ]
+}

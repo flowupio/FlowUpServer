@@ -3,6 +3,7 @@ package controllers.api;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import org.jetbrains.annotations.NotNull;
 import play.Configuration;
 import play.Logger;
 import play.libs.Json;
@@ -45,9 +46,7 @@ public class ReportController extends Controller {
             return CompletableFuture.completedFuture(status(statusCode));
         }
 
-        List<Metric> metrics = dataPointMapper.mapMetrics(reportRequest);
-
-        Report report = new Report(apiKey, reportRequest.getAppPackage(), metrics);
+        Report report = toReport(reportRequest, apiKey);
 
         return insertDataPoints.execute(report).thenApply(result -> {
                     ReportResponse reportResponse = new ReportResponse("Metrics Inserted", result);
@@ -63,6 +62,14 @@ public class ReportController extends Controller {
                     }
                 }
         );
+    }
+
+    @NotNull
+    private Report toReport(ReportRequest reportRequest, String apiKey) {
+        List<Metric> metrics = dataPointMapper.mapMetrics(reportRequest);
+
+        Report.Metadata metadata = new Report.Metadata(reportRequest.isInDebugMode(), reportRequest.isBackground());
+        return new Report(apiKey, reportRequest.getAppPackage(), metrics, metadata);
     }
 }
 

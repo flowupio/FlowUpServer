@@ -22,7 +22,6 @@ import utils.WithFlowUpApplication;
 import utils.WithResources;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
@@ -68,7 +67,7 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
 
         verify(amazonSQS).sendMessage(sendMessageRequestArgumentCaptor.capture());
         assertEquals(givenJsonSerializedIndexRequests(), sendMessageRequestArgumentCaptor.getValue().getMessageBody());
-        assertEquals(insertResult, new InsertResult(false, false, Collections.emptyList()));
+        assertEquals(insertResult, InsertResult.successEmpty());
     }
 
     @Test
@@ -88,9 +87,7 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
     private Report givenAReportWithXMetrics(int nbMetrics) {
         String organizationIdentifier = "3e02e6b9-3a33-4113-ae78-7d37f11ca3bf";
 
-
-        JsonNode jsonNode = Json.parse(getFile("androidsdk/simpleReportRequestBody.json"));
-        ReportRequest reportRequest = Json.fromJson(jsonNode, ReportRequest.class);
+        ReportRequest reportRequest = resourceFromFile("androidsdk/simpleReportRequestBody.json", ReportRequest.class);
 
         DataPointMapper dataPointMapper = new DataPointMapper();
 
@@ -100,7 +97,7 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
         metrics.add(new Metric("cpu_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapCpu(reportRequest))));
         metrics.add(new Metric("memory_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapMemory(reportRequest))));
         metrics.add(new Metric("disk_data", getAccumulatedDataPoints(nbMetrics, value -> dataPointMapper.mapDisk(reportRequest))));
-        return new Report(organizationIdentifier, "io.flowup.app", metrics);
+        return new Report(organizationIdentifier, "io.flowup.app", metrics, new Report.Metadata(false, false));
     }
 
     private List<DataPoint> getAccumulatedDataPoints(int nbMetrics, IntFunction<List<DataPoint>> mapper) {
