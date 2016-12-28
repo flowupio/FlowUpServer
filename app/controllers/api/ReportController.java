@@ -1,43 +1,39 @@
 package controllers.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import org.jetbrains.annotations.NotNull;
 import play.Configuration;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
-import play.mvc.Http;
 import play.mvc.Result;
 import sampling.SamplingGroup;
-import usecases.*;
-import usecases.models.*;
+import usecases.InsertDataPoints;
+import usecases.models.Report;
 
-import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class ReportController extends Controller {
     private final InsertDataPoints insertDataPoints;
-    private final DataPointMapper dataPointMapper;
     private final SamplingGroup samplingGroup;
     private final Configuration flowupConf;
+    private final ReportMapper reportMapper;
 
     @Inject
-    public ReportController(InsertDataPoints insertDataPoints, DataPointMapper dataPointMapper, SamplingGroup samplingGroup, @Named("flowup") Configuration flowupConf) {
+    public ReportController(InsertDataPoints insertDataPoints, ReportMapper reportMapper, SamplingGroup samplingGroup, @Named("flowup") Configuration flowupConf) {
         this.insertDataPoints = insertDataPoints;
-        this.dataPointMapper = dataPointMapper;
+        this.reportMapper = reportMapper;
         this.samplingGroup = samplingGroup;
         this.flowupConf = flowupConf;
     }
 
     @BodyParser.Of(ReportRequestBodyParser.class)
     public CompletionStage<Result> index() {
-        Http.RequestBody body = request().body();
-        Logger.debug(body.asText());
-        ReportRequest reportRequest = body.as(ReportRequest.class);
+        String body = request().body().asText();
+        Logger.debug(body);
 
         String apiKey = request().getHeader(HeaderParsers.X_API_KEY);
         String uuid = request().getHeader(HeaderParsers.X_UUID);
@@ -46,7 +42,7 @@ public class ReportController extends Controller {
             return CompletableFuture.completedFuture(status(statusCode));
         }
 
-        Report report = toReport(reportRequest, apiKey, request());
+        Report report = reportMapper.map(request());
 
         return insertDataPoints.execute(report).thenApply(result -> {
                     ReportResponse reportResponse = new ReportResponse("Metrics Inserted", result);
@@ -55,7 +51,7 @@ public class ReportController extends Controller {
                     if (result.isError()) {
                         return internalServerError(content);
                     } else if (result.isHasFailures()) {
-                        Logger.error(reportRequest.toString());
+                        Logger.error(body);
                         return status(SERVICE_UNAVAILABLE, content);
                     } else {
                         return created(content);
@@ -64,21 +60,5 @@ public class ReportController extends Controller {
         );
     }
 
-    @NotNull
-    private Report toReport(ReportRequest reportRequest, String apiKey, Http.Request request) {
-        List<Metric> metrics = dataPointMapper.mapMetrics(reportRequest);
-
-        Report.Metadata metadata = new Report.Metadata(isInDebugMode(request, reportRequest), reportRequest.isBackground());
-        return new Report(apiKey, reportRequest.getAppPackage(), metrics, metadata);
-    }
-
-    @NotNull
-    private Boolean isInDebugMode(Http.Request request, ReportRequest reportRequest) {
-        String debugHeader = request.getHeader(HeaderParsers.X_DEBUG_MODE);
-        if (debugHeader == null) {
-            return reportRequest.isInDebugMode();
-        }
-        return Boolean.valueOf(debugHeader);
-    }
 }
 
