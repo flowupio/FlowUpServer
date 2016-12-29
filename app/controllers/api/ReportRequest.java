@@ -53,14 +53,6 @@ public class ReportRequest {
         return emptyIfNull(disk);
     }
 
-    public Boolean isInDebugMode() {
-        return emptyIfNull(cpu).size() <= 1;
-    }
-
-    public Boolean isBackground() {
-        return emptyIfNull(ui).isEmpty();
-    }
-
     private <T> List<T> emptyIfNull(List<T> list) {
         return list != null ? list : Collections.emptyList();
     }

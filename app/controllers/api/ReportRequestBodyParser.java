@@ -65,6 +65,7 @@ class HeaderParsers {
     private final ApiKeyRepository repository;
     static String X_API_KEY = "X-Api-Key";
     static String X_UUID = "X-UUID";
+    static String X_DEBUG_MODE = "X-Debug-Mode";
 
     @Inject
     public HeaderParsers(ApiKeyRepository repository) {
