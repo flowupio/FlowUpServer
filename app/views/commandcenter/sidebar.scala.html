@@ -24,8 +24,8 @@
                         <a target="_blank" href="@controllers.routes.CommandCenterController.grafana()">Dashboards</a>
                     </li>
 
-                    @for(appplication <- applications) {
-                        <li><a href="@controllers.routes.CommandCenterController.application(appplication.getId.toString)">@appplication.getAppPackage</a></li>
+                    @for(application <- applications) {
+                        <li><a href="@controllers.routes.CommandCenterController.application(application.getId.toString)">@application.getAppPackage</a></li>
                     }
                 }
 
@@ -34,6 +34,7 @@
                 <li ><a href="//flowup.io/features.html">Features</a></li>
                 <li ><a href="//flowup.io/documentation.html">Documentation</a></li>
                 <li ><a href="//flowup.io/pricing.html">Pricing</a></li>
+                <li ><a href="@controllers.routes.CommandCenterController.billing()">Billing</a></li>
             </ul>
             <hr class="visible-xs m-t">
         </div>

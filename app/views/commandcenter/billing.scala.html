@@ -1,0 +1,65 @@
+@import java.util
+@(user: models.User, applications: util.List[Application])
+
+@views.html.commandcenter.main("Command Center", user) {
+<div class="row">
+
+    @commandcenter.sidebar(user, applications)
+
+    <div class="col-sm-9 col-sm-offset-3 main content">
+
+        <div class="dashhead">
+            <div class="dashhead-titles">
+                <h1 class="dashhead-title">Billing</h1>
+            </div>
+        </div>
+
+        <button onclick="onCompanyPlanClick()">
+            Company plan
+        </button>
+
+        <button onclick="onEnterprisePlanClick()">
+            Enterprise plan
+        </button>
+
+        <hr class="m-t">
+
+    </div>
+</div>
+
+<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>
+<script type="text/javascript">
+Taxamo.initialize('public_test_9QC3z9tNxxPOTze4GJzd4GC9JsVJJvv5OxW5v2t2BIo');
+
+function onCompanyPlanClick() {
+    onPlanClicked("company_plan");
+}
+
+function onEnterprisePlanClick() {
+    onPlanClicked("enterprise_plan");
+}
+
+function onPlanClicked(planId) {
+    var transaction = {
+                        custom_id: "holaquetal",
+                        billing_country_code: Taxamo.defaultTransaction.billing_country_code
+                      };
+    var metadata    = { allowed_payment_providers: 'braintree',
+                        subscription_mode: true,
+                        show_email: true,
+                        show_buyer_name: true,
+                        show_invoice_address: true,
+                        finished_redirect_url: self.location.href,
+                        plans: {
+                            b2c_plan_id: planId,
+                            b2b_plan_id: planId
+                        }
+                      };
+
+    var checkout = new Taxamo.Checkout(transaction, metadata);
+    checkout.overlay(function(data) { //you can also use .redirect() here
+        console.log(JSON.stringify(data, null, '\t'));
+    });
+}
+</script>
+}

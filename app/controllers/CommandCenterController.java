@@ -14,6 +14,7 @@ import play.mvc.Security;
 import usecases.*;
 import usecases.models.KeyStatCard;
 import views.html.commandcenter.application;
+import views.html.commandcenter.billing;
 import views.html.commandcenter.home;
 
 import javax.inject.Inject;
@@ -87,6 +88,14 @@ public class CommandCenterController extends Controller {
 
         return grafanaProxy.retreiveSessionCookies(localUser).thenApply(cookies ->
                 redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()])));
+    }
+
+    public CompletionStage<Result> billing() {
+        AuthUser authUser = auth.getUser(session());
+        User user = getUserByAuthUserIdentity.execute(authUser);
+        return getPrimaryOrganization.execute(user).thenApply(organization ->
+                ok(billing.render(user, organization.getApplications()))
+        );
     }
 
     public Result grafana() {
