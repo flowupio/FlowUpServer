@@ -1,5 +1,5 @@
 @import java.util
-@(user: models.User, applications: util.List[Application])
+@(user: models.User, applications: util.List[Application], billingId: String)
 
 @views.html.commandcenter.main("Command Center", user) {
 <div class="row">
@@ -41,7 +41,7 @@ function onEnterprisePlanClick() {
 
 function onPlanClicked(planId) {
     var transaction = {
-                        custom_id: "holaquetal",
+                        custom_id: "@billingId",
                         billing_country_code: Taxamo.defaultTransaction.billing_country_code
                       };
     var metadata    = { allowed_payment_providers: 'braintree',

@@ -93,9 +93,8 @@ public class CommandCenterController extends Controller {
     public CompletionStage<Result> billing() {
         AuthUser authUser = auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
-        return getPrimaryOrganization.execute(user).thenApply(organization ->
-                ok(billing.render(user, organization.getApplications()))
-        );
+        return getPrimaryOrganization.execute(user)
+                .thenApply(organization -> ok(billing.render(user, organization.getApplications(), organization.getBillingId())));
     }
 
     public Result grafana() {

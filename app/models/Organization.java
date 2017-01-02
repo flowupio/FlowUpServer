@@ -1,6 +1,5 @@
 package models;
 
-import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Model;
 
 import javax.persistence.*;
@@ -28,6 +27,8 @@ public class Organization extends Model implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Application> applications;
+
+    private String billingId;
 
     public static Model.Finder<UUID, Organization> find = new Model.Finder<>(Organization.class);
 
@@ -83,4 +84,11 @@ public class Organization extends Model implements Serializable {
         this.applications = applications;
     }
 
+    public String getBillingId() {
+        return billingId;
+    }
+
+    public void setBillingId(String billingId) {
+        this.billingId = billingId;
+    }
 }

@@ -6,6 +6,7 @@ import models.Organization;
 import usecases.repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
+import java.util.UUID;
 
 public class OrganizationDatasource {
 
@@ -29,16 +30,18 @@ public class OrganizationDatasource {
     }
 
     public Organization create(String name, String googleAccount) {
-        return create(name, googleAccount, apiKeyRepository.create());
+        String billingId = UUID.randomUUID().toString().replaceAll("-", "");
+        return create(name, googleAccount, apiKeyRepository.create(), billingId);
     }
 
-    public Organization create(String name, String googleAccount, ApiKey apiKey) {
+    public Organization create(String name, String googleAccount, ApiKey apiKey, String billingId) {
         final Organization organization = new Organization();
         organization.setName(name);
         organization.setApiKey(apiKey);
         if (googleAccount != null) {
             organization.setGoogleAccount(googleAccount);
         }
+        organization.setBillingId(billingId);
 
         organization.save();
         return organization;
