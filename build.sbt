@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(javaJdbc, cache, javaWs,
   "io.airbrake" % "airbrake-java" % "2.2.8",
   "com.github.karelcemus" %% "play-redis" % "1.3.0-M1",
   "com.amazonaws" % "aws-java-sdk-sqs" % "1.11.66",
+  "com.taxamo" % "taxamo-java" % "1.1.1",
 
   //Test dependencies
   "com.novocode" % "junit-interface" % "0.11" % "test",

@@ -58,6 +58,11 @@ public class Module extends AbstractModule {
                 .annotatedWith(Names.named("sqs"))
                 .toInstance(sqsConf);
 
+        Configuration taxamoConf = configuration.getConfig("taxamo");
+        bind(Configuration.class)
+                .annotatedWith(Names.named("taxamo"))
+                .toInstance(taxamoConf);
+
 
         bind(MetricsDatasource.class)
                 .to(ElasticSearchDatasource.class)

@@ -3,7 +3,6 @@ package datasources.mandrill;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import lombok.Data;
 import play.Configuration;
 import play.Logger;
 import play.libs.Json;
@@ -32,6 +31,7 @@ public class MandrillClient {
 
         this.apiKey = configuration.getString("api_key");
     }
+
     public CompletionStage<MessagesSendTemplateResponse> sendMessageWithTemplate(String templateName, Message message) {
         return this.sendMessageWithTemplate(templateName, Collections.emptyList(), message);
     }

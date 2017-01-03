@@ -32,12 +32,14 @@ public class CommandCenterController extends Controller {
     private final GetApplicationById getApplicationById;
     private final GetKeyMetrics getKeyMetrics;
     private final GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName;
+    private final GetBilling getBilling;
 
 
     @Inject
     public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity,
                                    GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById,
-                                   GetKeyMetrics getKeyMetrics, GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName) {
+                                   GetKeyMetrics getKeyMetrics, GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName,
+                                   GetBilling getBilling) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
@@ -45,6 +47,7 @@ public class CommandCenterController extends Controller {
         this.getApplicationById = getApplicationById;
         this.getKeyMetrics = getKeyMetrics;
         this.getLatestAndroidSDKVersionName = getLatestAndroidSDKVersionName;
+        this.getBilling = getBilling;
     }
 
     public CompletionStage<Result> index() {
