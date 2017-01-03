@@ -20,8 +20,7 @@ public class GetApiKeyConfig {
 
     public CompletionStage<ApiKeyConfig> execute(String apiKeyValue, String uuid) {
         return repository.getApiKeyAsync(apiKeyValue).thenApply(apiKey -> {
-            boolean isApiKeyEnabled =
-                    apiKey != null &&
+            boolean isApiKeyEnabled = apiKey != null &&
                     apiKey.isEnabled() &&
                     samplingGroup.isIn(apiKeyValue, uuid);
 

@@ -60,6 +60,8 @@ public class ConfigControllerTest extends WithFlowUpApplication implements WithR
 
     @Test
     public void returnsUnauthorizedIfThereIsNoApiKeyWithTheValueSpecified() {
+        givenThereIsNoApiKey(API_KEY_VALUE);
+
         Result result = getConfig(API_KEY_VALUE);
 
         assertEquals(UNAUTHORIZED, result.status());
@@ -81,4 +83,8 @@ public class ConfigControllerTest extends WithFlowUpApplication implements WithR
         when(apiKeyRepository.getApiKeyAsync(apiKeyValue)).thenReturn(CompletableFuture.completedFuture(apiKey));
     }
 
+    private void givenThereIsNoApiKey(String apiKeyValue) {
+        when(apiKeyRepository.getApiKey(apiKeyValue)).thenReturn(null);
+        when(apiKeyRepository.getApiKeyAsync(apiKeyValue)).thenReturn(CompletableFuture.completedFuture(null));
+    }
 }
