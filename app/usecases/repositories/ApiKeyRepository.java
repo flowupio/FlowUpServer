@@ -10,6 +10,8 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 public class ApiKeyRepository {
@@ -56,6 +58,10 @@ public class ApiKeyRepository {
         return cache.getOrElse(getApiKeyCacheKey(apiKey),
                 () -> apiKeyDatasource.findByApiKeyValue(apiKey),
                 API_KEY_CACHE_TTL);
+    }
+
+    public CompletionStage<ApiKey> getApiKeyAsync(String apiKey) {
+        return CompletableFuture.supplyAsync(() -> getApiKey(apiKey));
     }
 
     public void addAllowedUUID(ApiKey apiKey, String uuid) {

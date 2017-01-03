@@ -1,11 +1,11 @@
 package usecases;
 
-import models.ApiKey;
 import sampling.SamplingGroup;
 import usecases.models.ApiKeyConfig;
 import usecases.repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
+import java.util.concurrent.CompletionStage;
 
 public class GetApiKeyConfig {
 
@@ -18,10 +18,13 @@ public class GetApiKeyConfig {
         this.samplingGroup = samplingGroup;
     }
 
-    public ApiKeyConfig execute(String apiKeyValue, String uuid) {
-        ApiKey apiKey = repository.getApiKey(apiKeyValue);
-        boolean isApiKeyEnabled = apiKey != null && apiKey.isEnabled() && samplingGroup.isIn(apiKeyValue, uuid);
+    public CompletionStage<ApiKeyConfig> execute(String apiKeyValue, String uuid) {
+        return repository.getApiKeyAsync(apiKeyValue).thenApply(apiKey -> {
+            boolean isApiKeyEnabled = apiKey != null &&
+                    apiKey.isEnabled() &&
+                    samplingGroup.isIn(apiKeyValue, uuid);
 
-        return new ApiKeyConfig(isApiKeyEnabled);
+            return new ApiKeyConfig(isApiKeyEnabled);
+        });
     }
 }
