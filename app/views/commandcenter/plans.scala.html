@@ -1,0 +1,46 @@
+@import java.util
+@(billingId: String)
+
+<button onclick="onCompanyPlanClick()">
+    Company plan
+</button>
+
+<button onclick="onEnterprisePlanClick()">
+    Enterprise plan
+</button>
+
+<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>
+<script type="text/javascript">
+Taxamo.initialize('public_test_9QC3z9tNxxPOTze4GJzd4GC9JsVJJvv5OxW5v2t2BIo');
+
+function onCompanyPlanClick() {
+    onPlanClicked("company_plan");
+}
+
+function onEnterprisePlanClick() {
+    onPlanClicked("enterprise_plan");
+}
+
+function onPlanClicked(planId) {
+    var transaction = {
+                        custom_id: "@billingId",
+                        custom_fields: [
+                            { key: 'taxed-plan-id', value: planId },
+                            { key: 'untaxed-plan-id', value: planId + '_untaxed' }
+                        ],
+                        billing_country_code: Taxamo.defaultTransaction.billing_country_code
+                      };
+    var metadata    = { allowed_payment_providers: 'braintree',
+                        subscription_mode: true,
+                        show_email: true,
+                        show_buyer_name: true,
+                        show_invoice_address: true,
+                        finished_redirect_url: self.location.href
+                      };
+
+    var checkout = new Taxamo.Checkout(transaction, metadata);
+    checkout.overlay(function(data) { //you can also use .redirect() here
+
+    });
+}
+</script>

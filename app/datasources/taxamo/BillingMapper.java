@@ -1,12 +1,11 @@
 package datasources.taxamo;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.taxamo.client.model.Transactions;
 import org.apache.commons.lang3.StringUtils;
 import usecases.models.Billing;
 import usecases.models.Transaction;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,7 +22,12 @@ class BillingMapper {
         this.transactionsMapper = transactionsMapper;
     }
 
+    @Nullable
     Billing mapBilling(List<Transactions> taxamoTransactions) {
+        if (taxamoTransactions.isEmpty()) {
+            return null;
+        }
+
         List<Transaction> transactions = taxamoTransactions
                 .stream()
                 .map(transactionsMapper::mapTransaction)

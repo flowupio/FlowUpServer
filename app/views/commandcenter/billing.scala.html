@@ -15,118 +15,13 @@
             </div>
         </div>
 
-        <button onclick="onCompanyPlanClick()">
-            Company plan
-        </button>
-
-        <button onclick="onEnterprisePlanClick()">
-            Enterprise plan
-        </button>
-
         <hr class="m-t">
 
-        <div class="col-sm-6">
-            <address>
-                <strong>Billing Information</strong><br>
-                @billing.getFullName<br>
-                @billing.getEmail<br>
-                @billing.getAddress<br>
-                @billing.getCity,
-                @billing.getPostalCode<br>
-                @billing.getCountry
-            </address>
-        </div>
-
-        <div class="col-sm-6">
-            <address>
-                <strong>Payment Information</strong><br>
-                Credit card: @billing.getCardNumber<br>
-                Current plan: @billing.getCurrentPlan
-            </address>
-        </div>
-
-        <div class="row">
-            <table class="table table-bordered">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Plan</th>
-                    <th>Invoice</th>
-                </tr>
-                </thead>
-                <tbody>
-                @for(transaction <- billing.getTransactions) {
-                <tr>
-                    <td>
-                        @transaction.getId
-                    </td>
-                    <td>
-                        @transaction.getCreationDate
-                    </td>
-                    <td>
-                        @transaction.getAmount @transaction.getCurrency
-                    </td>
-                    <td>
-                        @transaction.getPlan
-                    </td>
-                    <td>
-                        @if(transaction.getInvoiceUrl != null) {
-                        <a href="@transaction.getInvoiceUrl">Link</a>
-                        }
-                    </td>
-                </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="row">
-            <div class="pull-right">
-                <button type="button" class="btn btn-change-sub">Change subscription</button>
-                <button type="button" class="btn btn-cancel-sub">Cancel subscription</button>
-            </div>
-        </div>
+        @if(billing == null) {
+            @commandcenter.plans(billingId)
+        } else {
+            @commandcenter.billinginfo(billing)
+        }
     </div>
 </div>
-
-<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>
-<script type="text/javascript">
-Taxamo.initialize('public_test_9QC3z9tNxxPOTze4GJzd4GC9JsVJJvv5OxW5v2t2BIo');
-
-function onCompanyPlanClick() {
-    onPlanClicked("company_plan");
-}
-
-function onEnterprisePlanClick() {
-    onPlanClicked("enterprise_plan");
-}
-
-function onPlanClicked(planId) {
-    var transaction = {
-                        custom_id: "@billingId",
-                        custom_fields: [
-                            { key: 'taxed-plan-id', value: planId },
-                            { key: 'untaxed-plan-id', value: planId + '_untaxed' }
-                        ],
-                        billing_country_code: Taxamo.defaultTransaction.billing_country_code
-                      };
-    var metadata    = { allowed_payment_providers: 'braintree',
-                        subscription_mode: true,
-                        show_email: true,
-                        show_buyer_name: true,
-                        show_invoice_address: true,
-                        finished_redirect_url: self.location.href
-                      };
-
-    var checkout = new Taxamo.Checkout(transaction, metadata);
-    checkout.overlay(function(data) { //you can also use .redirect() here
-
-    });
-}
-
-
-
-</script>
 }
