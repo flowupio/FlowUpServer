@@ -45,41 +45,49 @@
             </address>
         </div>
 
-        <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Plan</th>
-                <th>Invoice</th>
-            </tr>
-            </thead>
-            <tbody>
-            @for(transaction <- billing.getTransactions) {
-            <tr>
-                <td>
-                    @transaction.getId
-                </td>
-                <td>
-                    @transaction.getCreationDate
-                </td>
-                <td>
-                    @transaction.getAmount @transaction.getCurrency
-                </td>
-                <td>
-                    @transaction.getPlan
-                </td>
-                <td>
-                    @if(transaction.getInvoiceUrl != null) {
-                    <a href="@transaction.getInvoiceUrl">Link</a>
-                    }
-                </td>
-            </tr>
-            }
-            </tbody>
-        </table>
+        <div class="row">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Plan</th>
+                    <th>Invoice</th>
+                </tr>
+                </thead>
+                <tbody>
+                @for(transaction <- billing.getTransactions) {
+                <tr>
+                    <td>
+                        @transaction.getId
+                    </td>
+                    <td>
+                        @transaction.getCreationDate
+                    </td>
+                    <td>
+                        @transaction.getAmount @transaction.getCurrency
+                    </td>
+                    <td>
+                        @transaction.getPlan
+                    </td>
+                    <td>
+                        @if(transaction.getInvoiceUrl != null) {
+                        <a href="@transaction.getInvoiceUrl">Link</a>
+                        }
+                    </td>
+                </tr>
+                }
+                </tbody>
+            </table>
+        </div>
 
+        <div class="row">
+            <div class="pull-right">
+                <button type="button" class="btn btn-change-sub">Change subscription</button>
+                <button type="button" class="btn btn-cancel-sub">Cancel subscription</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -117,5 +125,8 @@ function onPlanClicked(planId) {
 
     });
 }
+
+
+
 </script>
 }

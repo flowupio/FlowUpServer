@@ -138,3 +138,23 @@ code {
 .statcard-number {
     font-size: 26px;
 }
+
+.btn-change-sub {
+    color: white;
+    background-color: #FF196E;
+}
+
+.btn-change-sub:hover, .btn-change-sub:focus {
+    color: white;
+    background-color: #EE195E;
+}
+
+.btn-cancel-sub {
+    color: white;
+    background-color: #333743;
+}
+
+.btn-cancel-sub:hover, .btn-cancel-sub:focus {
+    color: white;
+    background-color: #444753;
+}
