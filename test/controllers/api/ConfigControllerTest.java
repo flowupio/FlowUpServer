@@ -13,11 +13,12 @@ import usecases.repositories.ApiKeyRepository;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 
+import java.util.concurrent.CompletableFuture;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.PRECONDITION_FAILED;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
@@ -77,6 +78,7 @@ public class ConfigControllerTest extends WithFlowUpApplication implements WithR
         apiKey.setValue(apiKeyValue);
         apiKey.setEnabled(enabled);
         when(apiKeyRepository.getApiKey(apiKeyValue)).thenReturn(apiKey);
+        when(apiKeyRepository.getApiKeyAsync(apiKeyValue)).thenReturn(CompletableFuture.completedFuture(apiKey));
     }
 
 }
