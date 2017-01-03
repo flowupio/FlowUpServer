@@ -2,8 +2,8 @@ package usecases;
 
 import datasources.taxamo.BillingDataSource;
 import models.Organization;
-import models.Transaction;
-import play.Logger;
+import usecases.models.Billing;
+import usecases.models.Transaction;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -19,7 +19,7 @@ public class GetBilling {
         this.dataSource = dataSource;
     }
 
-    public CompletionStage<List<Transaction>> execute(Organization organization) {
-        return CompletableFuture.supplyAsync(() -> dataSource.getTransactions(organization.getBillingId()));
+    public CompletionStage<Billing> execute(Organization organization) {
+        return dataSource.getBilling(organization.getBillingId());
     }
 }

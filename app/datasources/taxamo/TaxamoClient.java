@@ -17,7 +17,7 @@ public class TaxamoClient {
         this.api = new TaxamoApi(configuration.getString("api_key"));
     }
 
-    public ListTransactionsOut getAllTransactions(String customKey) throws ApiException {
+    ListTransactionsOut getAllTransactions(String customKey) throws ApiException {
         return api.listTransactions(null, null, customKey, null, null, null, null, null, null, null, "0", null, null, null, null);
     }
 }

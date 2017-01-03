@@ -1,7 +1,7 @@
 package datasources.taxamo;
 
 import com.taxamo.client.model.Transactions;
-import models.Transaction;
+import usecases.models.Transaction;
 
 public class TransactionsMapper {
 
