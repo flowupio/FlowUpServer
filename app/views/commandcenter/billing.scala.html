@@ -25,13 +25,60 @@
 
         <hr class="m-t">
 
-        <ul>
+        <div class="col-sm-6">
+            <address>
+                <strong>Billing Information</strong><br>
+                @billing.getFullName<br>
+                @billing.getEmail<br>
+                @billing.getAddress<br>
+                @billing.getCity,
+                @billing.getPostalCode<br>
+                @billing.getCountry
+            </address>
+        </div>
+
+        <div class="col-sm-6">
+            <address>
+                <strong>Payment Information</strong><br>
+                Credit card: @billing.getCardNumber<br>
+                Current plan: @billing.getCurrentPlan
+            </address>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Plan</th>
+                <th>Invoice</th>
+            </tr>
+            </thead>
+            <tbody>
             @for(transaction <- billing.getTransactions) {
-            <li>
-                Amount: @transaction.getAmount
-            </li>
+            <tr>
+                <td>
+                    @transaction.getId
+                </td>
+                <td>
+                    @transaction.getCreationDate
+                </td>
+                <td>
+                    @transaction.getAmount @transaction.getCurrency
+                </td>
+                <td>
+                    @transaction.getPlan
+                </td>
+                <td>
+                    @if(transaction.getInvoiceUrl != null) {
+                    <a href="@transaction.getInvoiceUrl">Link</a>
+                    }
+                </td>
+            </tr>
             }
-        </ul>
+            </tbody>
+        </table>
 
     </div>
 </div>
@@ -51,6 +98,10 @@ function onEnterprisePlanClick() {
 function onPlanClicked(planId) {
     var transaction = {
                         custom_id: "@billingId",
+                        custom_fields: [
+                            { key: 'taxed-plan-id', value: planId },
+                            { key: 'untaxed-plan-id', value: planId + '_untaxed' }
+                        ],
                         billing_country_code: Taxamo.defaultTransaction.billing_country_code
                       };
     var metadata    = { allowed_payment_providers: 'braintree',
@@ -58,16 +109,12 @@ function onPlanClicked(planId) {
                         show_email: true,
                         show_buyer_name: true,
                         show_invoice_address: true,
-                        finished_redirect_url: self.location.href,
-                        plans: {
-                            b2c_plan_id: planId,
-                            b2b_plan_id: planId
-                        }
+                        finished_redirect_url: self.location.href
                       };
 
     var checkout = new Taxamo.Checkout(transaction, metadata);
     checkout.overlay(function(data) { //you can also use .redirect() here
-        console.log(JSON.stringify(data, null, '\t'));
+
     });
 }
 </script>
