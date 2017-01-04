@@ -34,14 +34,14 @@ public class CommandCenterController extends Controller {
     private final GetApplicationById getApplicationById;
     private final GetKeyMetrics getKeyMetrics;
     private final GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName;
-    private final GetBilling getBilling;
+    private final GetBillingInformation getBillingInformation;
 
 
     @Inject
     public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity,
                                    GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById,
                                    GetKeyMetrics getKeyMetrics, GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName,
-                                   GetBilling getBilling) {
+                                   GetBillingInformation getBillingInformation) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
@@ -49,7 +49,7 @@ public class CommandCenterController extends Controller {
         this.getApplicationById = getApplicationById;
         this.getKeyMetrics = getKeyMetrics;
         this.getLatestAndroidSDKVersionName = getLatestAndroidSDKVersionName;
-        this.getBilling = getBilling;
+        this.getBillingInformation = getBillingInformation;
     }
 
     public CompletionStage<Result> index() {
@@ -101,7 +101,7 @@ public class CommandCenterController extends Controller {
         User user = getUserByAuthUserIdentity.execute(authUser);
         return getPrimaryOrganization.execute(user)
                 .thenCompose(organization ->
-                        getBilling.execute(organization).thenApply(billingInformation ->
+                        getBillingInformation.execute(organization).thenApply(billingInformation ->
                                 ok(billing.render(user, organization.getApplications(), organization.getBillingId(), billingInformation))));
     }
 

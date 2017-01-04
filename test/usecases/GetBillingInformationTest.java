@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GetBillingTest extends WithFlowUpApplication {
+public class GetBillingInformationTest extends WithFlowUpApplication {
 
     @Override
     protected Application provideApplication() {
@@ -39,18 +39,18 @@ public class GetBillingTest extends WithFlowUpApplication {
 
     @Mock
     private TaxamoClient taxamoClient;
-    private GetBilling getBilling;
+    private GetBillingInformation getBillingInformation;
 
     @Before
     public void setUp() {
-        getBilling = this.app.injector().instanceOf(GetBilling.class);
+        getBillingInformation = this.app.injector().instanceOf(GetBillingInformation.class);
     }
 
     @Test
     public void whenOrganizationHasNoBillingIdThenBillingIsNull() throws Exception {
         Organization organization = givenAnOrganizationWithBillingId(NO_BILLING_ID);
 
-        Billing billing = getBilling.execute(organization).toCompletableFuture().get();
+        Billing billing = getBillingInformation.execute(organization).toCompletableFuture().get();
 
         assertNull(billing);
     }
@@ -60,7 +60,7 @@ public class GetBillingTest extends WithFlowUpApplication {
         givenTaxamoClientReturnsValidTransaction(ANY_BILLING_ID);
         Organization organization = givenAnOrganizationWithBillingId(ANY_BILLING_ID);
 
-        Billing billing = getBilling.execute(organization).toCompletableFuture().get();
+        Billing billing = getBillingInformation.execute(organization).toCompletableFuture().get();
 
         assertBillingIsCorrect(billing);
     }
@@ -70,7 +70,7 @@ public class GetBillingTest extends WithFlowUpApplication {
         givenTaxamoClientFails(ANY_BILLING_ID);
         Organization organization = givenAnOrganizationWithBillingId(ANY_BILLING_ID);
 
-        Billing billing = getBilling.execute(organization).toCompletableFuture().get();
+        Billing billing = getBillingInformation.execute(organization).toCompletableFuture().get();
 
         assertNull(billing);
     }

@@ -30,7 +30,7 @@ public class OrganizationDatasource {
     }
 
     public Organization create(String name, String googleAccount) {
-        String billingId = UUID.randomUUID().toString().replaceAll("-", "");
+        String billingId = UUID.randomUUID().toString();
         return create(name, googleAccount, apiKeyRepository.create(), billingId);
     }
 
