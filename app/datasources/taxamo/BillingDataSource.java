@@ -27,8 +27,11 @@ public class BillingDataSource {
 
     @Nullable
     private Billing getSyncBilling(String billingId) {
-        Billing billing = null;
+        if (billingId == null) {
+            return null;
+        }
 
+        Billing billing = null;
         try {
             ListTransactionsOut transactionsResult = client.getAllTransactions(billingId);
             if (transactionsResult != null) {
