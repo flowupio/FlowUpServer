@@ -1,23 +1,59 @@
 @import java.util
 @(billingId: String)
 
-<button onclick="onCompanyPlanClick()">
-    Company plan
-</button>
+<p>You are now using the <strong>Developer</strong> free plan.</p>
 
-<button onclick="onEnterprisePlanClick()">
-    Enterprise plan
-</button>
+<div class="sm-space"></div>
+
+<div class="col-md-4">
+    <div class="well plan">
+        <h3 class="text-center"><strong>Professional</strong></h3>
+        <hr class="sm-margin">
+        <p class="text-center">1000 Daily Active Users</p>
+        <hr class="sm-margin">
+        <p class="text-center"><strong>€ 150.00/mo</strong></p>
+        <hr class="sm-margin">
+        <a id="professional" class="btn btn-block btn-action">Select</a>
+    </div>
+</div>
+
+<div class="col-md-4">
+    <div class="well plan">
+        <h3 class="text-center"><strong>Business</strong></h3>
+        <hr class="sm-margin">
+        <p class="text-center">10000 Daily Active Users</p>
+        <hr class="sm-margin">
+        <p class="text-center"><strong>€ 1500.00/mo</strong></p>
+        <hr class="sm-margin">
+        <a id="business" class="btn btn-block btn-action">Select</a>
+    </div>
+</div>
+
+<div class="col-md-4">
+    <div class="well plan">
+        <h3 class="text-center"><strong>Enterprise</strong></h3>
+        <hr class="sm-margin">
+        <p class="text-center">+10000 Daily Active Users</p>
+        <hr class="sm-margin">
+        <p class="text-center"><strong>Negotiable</strong></p>
+        <hr class="sm-margin">
+        <a href="mailto:support@@flowup.io?Subject=Subscribe%20to%20the%20enterprise%20plan"
+           class="btn btn-block btn-action">Contact us</a>
+    </div>
+</div>
 
 <script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>
 <script type="text/javascript">
 Taxamo.initialize('public_test_9QC3z9tNxxPOTze4GJzd4GC9JsVJJvv5OxW5v2t2BIo');
 
-function onCompanyPlanClick() {
+document.getElementById("professional").onclick = onProfessionalPlanClicked;
+document.getElementById("business").onclick = onBusinessPlanClicked;
+
+function onProfessionalPlanClicked() {
     onPlanClicked("company_plan");
 }
 
-function onEnterprisePlanClick() {
+function onBusinessPlanClicked() {
     onPlanClicked("enterprise_plan");
 }
 
@@ -39,8 +75,8 @@ function onPlanClicked(planId) {
                       };
 
     var checkout = new Taxamo.Checkout(transaction, metadata);
-    checkout.overlay(function(data) { //you can also use .redirect() here
-
+    checkout.overlay(function(data) {
+        setTimeout(location.reload.bind(location), 1000);
     });
 }
 </script>
