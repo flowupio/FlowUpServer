@@ -22,11 +22,11 @@ public class BillingDataSource {
     }
 
     public CompletionStage<Billing> getBilling(String billingId) {
-        return CompletableFuture.supplyAsync(() -> getSyncBilling(billingId));
+        return CompletableFuture.supplyAsync(() -> getBillingSync(billingId));
     }
 
     @Nullable
-    private Billing getSyncBilling(String billingId) {
+    private Billing getBillingSync(String billingId) {
         if (billingId == null) {
             return null;
         }

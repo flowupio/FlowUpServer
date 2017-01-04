@@ -41,7 +41,7 @@ class BillingMapper {
                 mostRecentTransaction.getInvoiceAddress().getPostalCode(),
                 mostRecentTransaction.getInvoiceAddress().getCity(),
                 mapCountryCode(mostRecentTransaction.getBillingCountryCode()),
-                mapCreditCardPrefix(mostRecentTransaction),
+                mapCreditCardPrefix(mostRecentTransaction.getBuyerCreditCardPrefix()),
                 transactionsMapper.mapPlan(mostRecentTransaction),
                 transactions
         );
@@ -60,8 +60,8 @@ class BillingMapper {
         }).findFirst().orElse(transactions.get(0));
     }
 
-    private String mapCreditCardPrefix(Transactions mostRecentTransaction) {
-        String creditCardWithWildcards = mostRecentTransaction.getBuyerCreditCardPrefix() + StringUtils.repeat("*", 11);
+    private String mapCreditCardPrefix(String buyerCreditCardPrefix) {
+        String creditCardWithWildcards = buyerCreditCardPrefix + StringUtils.repeat("*", 16 - buyerCreditCardPrefix.length());
         return String.format(
                 "%s %s %s %s",
                 creditCardWithWildcards.substring(0, 4),
