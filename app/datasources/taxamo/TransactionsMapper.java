@@ -35,12 +35,12 @@ class TransactionsMapper {
         switch (braintreePlanId) {
             case "company_plan":
             case "company_plan_untaxed":
-                return "Company";
+                return "Professional";
             case "enterprise_plan":
             case "enterprise_plan_untaxed":
-                return "Enterprise";
+                return "Business";
             default:
-                return "Unknown";
+                return "Enterprise";
         }
     }
 
