@@ -1,5 +1,7 @@
 package controllers;
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.user.AuthUser;
 import com.spotify.futures.CompletableFutures;
@@ -93,6 +95,7 @@ public class CommandCenterController extends Controller {
                 redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()])));
     }
 
+    @Restrict(@Group("admin"))
     public CompletionStage<Result> billing() {
         AuthUser authUser = auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
