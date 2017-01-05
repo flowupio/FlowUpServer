@@ -9,6 +9,7 @@ import datasources.grafana.GrafanaProxy;
 import models.Application;
 import models.Organization;
 import models.User;
+import play.Configuration;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -20,6 +21,7 @@ import views.html.commandcenter.billing;
 import views.html.commandcenter.home;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
@@ -35,13 +37,14 @@ public class CommandCenterController extends Controller {
     private final GetKeyMetrics getKeyMetrics;
     private final GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName;
     private final GetBillingInformation getBillingInformation;
+    private final String taxamoPublicApiKey;
 
 
     @Inject
     public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity,
                                    GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById,
                                    GetKeyMetrics getKeyMetrics, GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName,
-                                   GetBillingInformation getBillingInformation) {
+                                   GetBillingInformation getBillingInformation, @Named("taxamo") Configuration configuration) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
@@ -50,6 +53,7 @@ public class CommandCenterController extends Controller {
         this.getKeyMetrics = getKeyMetrics;
         this.getLatestAndroidSDKVersionName = getLatestAndroidSDKVersionName;
         this.getBillingInformation = getBillingInformation;
+        this.taxamoPublicApiKey = configuration.getString("public_api_key");
     }
 
     public CompletionStage<Result> index() {
@@ -102,7 +106,7 @@ public class CommandCenterController extends Controller {
         return getPrimaryOrganization.execute(user)
                 .thenCompose(organization ->
                         getBillingInformation.execute(organization).thenApply(billingInformation ->
-                                ok(billing.render(user, organization.getApplications(), organization.getBillingId(), billingInformation))));
+                                ok(billing.render(user, organization.getApplications(), organization.getBillingId(), taxamoPublicApiKey, billingInformation))));
     }
 
     public Result grafana() {

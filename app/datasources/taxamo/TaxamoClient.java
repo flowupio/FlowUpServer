@@ -14,7 +14,7 @@ public class TaxamoClient {
 
     @Inject
     public TaxamoClient(@Named("taxamo") Configuration configuration) {
-        this.api = new TaxamoApi(configuration.getString("api_key"));
+        this.api = new TaxamoApi(configuration.getString("private_api_key"));
     }
 
     public ListTransactionsOut getAllTransactions(String customKey) throws ApiException {
