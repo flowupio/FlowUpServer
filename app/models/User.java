@@ -129,6 +129,10 @@ public class User extends Model implements Subject, Serializable {
         return LinkedAccount.findByProviderKey(this, providerKey);
     }
 
+    public boolean isAdmin() {
+        return getRoles().stream().anyMatch(role -> role.getName().equals("admin"));
+    }
+
     @Override
     public List<? extends Role> getRoles() {
         return this.roles;

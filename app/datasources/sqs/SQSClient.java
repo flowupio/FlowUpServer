@@ -7,7 +7,6 @@ import com.amazonaws.services.sqs.model.*;
 import com.google.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import play.Configuration;
-import play.Logger;
 
 import javax.inject.Named;
 import java.nio.charset.Charset;

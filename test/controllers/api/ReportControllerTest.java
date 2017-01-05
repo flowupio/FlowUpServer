@@ -2,19 +2,17 @@ package controllers.api;
 
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;
-import usecases.DashboardsClient;
 import models.ApiKey;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import play.Application;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
+import usecases.DashboardsClient;
 import usecases.repositories.ApiKeyRepository;
 import utils.WithDashboardsClient;
 import utils.WithFlowUpApplication;
@@ -28,9 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
@@ -201,7 +197,7 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
 
     private ApiKey setupDatabaseWithApiKey(boolean enabled) {
         ApiKey apiKey = apiKeyRepository.create(API_KEY_VALUE, enabled);
-        new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey);
+        new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey, "");
         return apiKey;
     }
 

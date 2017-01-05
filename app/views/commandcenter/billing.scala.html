@@ -1,0 +1,27 @@
+@import java.util
+@import usecases.models.Billing
+@(user: models.User, applications: util.List[Application], billingId: String, billing: Billing)
+
+@views.html.commandcenter.main("Command Center", user) {
+<div class="row">
+
+    @commandcenter.sidebar(user, applications)
+
+    <div class="col-sm-9 col-sm-offset-3 main content">
+
+        <div class="dashhead">
+            <div class="dashhead-titles">
+                <h1 class="dashhead-title">Billing</h1>
+            </div>
+        </div>
+
+        <hr class="m-t">
+
+        @if(billing == null) {
+            @commandcenter.plans(billingId)
+        } else {
+            @commandcenter.billinginfo(billing)
+        }
+    </div>
+</div>
+}

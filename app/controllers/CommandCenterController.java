@@ -1,5 +1,7 @@
 package controllers;
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.user.AuthUser;
 import com.spotify.futures.CompletableFutures;
@@ -14,6 +16,7 @@ import play.mvc.Security;
 import usecases.*;
 import usecases.models.KeyStatCard;
 import views.html.commandcenter.application;
+import views.html.commandcenter.billing;
 import views.html.commandcenter.home;
 
 import javax.inject.Inject;
@@ -31,12 +34,14 @@ public class CommandCenterController extends Controller {
     private final GetApplicationById getApplicationById;
     private final GetKeyMetrics getKeyMetrics;
     private final GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName;
+    private final GetBillingInformation getBillingInformation;
 
 
     @Inject
     public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity,
                                    GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById,
-                                   GetKeyMetrics getKeyMetrics, GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName) {
+                                   GetKeyMetrics getKeyMetrics, GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName,
+                                   GetBillingInformation getBillingInformation) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
@@ -44,6 +49,7 @@ public class CommandCenterController extends Controller {
         this.getApplicationById = getApplicationById;
         this.getKeyMetrics = getKeyMetrics;
         this.getLatestAndroidSDKVersionName = getLatestAndroidSDKVersionName;
+        this.getBillingInformation = getBillingInformation;
     }
 
     public CompletionStage<Result> index() {
@@ -87,6 +93,16 @@ public class CommandCenterController extends Controller {
 
         return grafanaProxy.retreiveSessionCookies(localUser).thenApply(cookies ->
                 redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()])));
+    }
+
+    @Restrict(@Group("admin"))
+    public CompletionStage<Result> billing() {
+        AuthUser authUser = auth.getUser(session());
+        User user = getUserByAuthUserIdentity.execute(authUser);
+        return getPrimaryOrganization.execute(user)
+                .thenCompose(organization ->
+                        getBillingInformation.execute(organization).thenApply(billingInformation ->
+                                ok(billing.render(user, organization.getApplications(), organization.getBillingId(), billingInformation))));
     }
 
     public Result grafana() {

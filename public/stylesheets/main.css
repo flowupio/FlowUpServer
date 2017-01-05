@@ -69,7 +69,6 @@
     margin-top: 0;
 }
 
-
 /*
  * Placeholder dashboard ideas
  */
@@ -113,6 +112,11 @@ hr {
     margin-bottom: 30px;
 }
 
+hr.sm-margin {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
 .navbar-fixed-top,
 .navbar-static-top {
     border-bottom: 0;
@@ -137,4 +141,39 @@ code {
 
 .statcard-number {
     font-size: 26px;
+}
+
+.sm-space {
+    margin-top: 30px;
+}
+
+/* Billing plans */
+.plan {
+    background-color: white;
+    color: #555;
+    font-family: "Proxima Nova","Arial Black", Verdana, "Droid Sans", sans-serif;
+    min-height: 236px;
+}
+
+.plan hr {
+    border-top: 1px solid #EEEEEE;
+}
+
+.btn-action {
+    color: white;
+    background-color: #FF196E;
+}
+
+.btn-action:hover, .btn-action:focus {
+    color: #333;
+}
+
+.btn-neg-action {
+    color: white;
+    background-color: #333743;
+}
+
+.btn-neg-action:hover, .btn-neg-action:focus {
+    color: white;
+    background-color: #51586a;
 }

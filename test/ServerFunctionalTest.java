@@ -78,7 +78,7 @@ public class ServerFunctionalTest extends WithServer implements WithResources, W
         ApiKeyRepository apiKeyRepository = new ApiKeyRepository(app.injector().instanceOf(CacheApi.class),
                 new ApiKeyDatasource(new Time()), new Time());
         this.apiKey = apiKeyRepository.create(API_KEY_VALUE);
-        this.organization = new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey);
+        this.organization = new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey, "");
     }
 
     private void setupElasticsearchClient() {

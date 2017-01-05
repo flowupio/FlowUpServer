@@ -1,0 +1,48 @@
+@import java.util
+@(billingId: String)
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="well plan">
+            <h3 class="text-center"><strong>Developer</strong></h3>
+            <hr class="sm-margin">
+            <p class="text-center">20 Daily Active Users</p>
+            <hr class="sm-margin">
+            <p class="text-center"><strong>Free</strong></p>
+            <hr class="sm-margin">
+            <a href="#" class="btn btn-block btn-neg-action disabled">Current plan</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="well plan">
+            <h3 class="text-center"><strong>Professional</strong></h3>
+            <hr class="sm-margin">
+            <p class="text-center">1.000 Daily Active Users</p>
+            <hr class="sm-margin">
+            <p class="text-center"><strong>€ 150,00/mo</strong></p>
+            <hr class="sm-margin">
+            <a id="professional" class="btn btn-block btn-action" data-billing-id="@billingId">Select</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="well plan">
+            <h3 class="text-center"><strong>Business</strong></h3>
+            <hr class="sm-margin">
+            <p class="text-center">10.000 Daily Active Users</p>
+            <hr class="sm-margin">
+            <p class="text-center"><strong>€ 1500,00/mo</strong></p>
+            <hr class="sm-margin">
+            <a id="business" class="btn btn-block btn-action" data-billing-id="@billingId">Select</a>
+        </div>
+    </div>
+</div>
+
+<div class="row col-md-12">
+    <p>Need a larger plan, a higher level of support, or don't know which plan is right for you? Send us an
+        email to <a class="email" href="mailto:sales@@flowup.io">sales@@flowup.io</a>.</p>
+</div>
+
+<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>
+<script src="@routes.Assets.versioned("javascripts/plans.js")"></script>

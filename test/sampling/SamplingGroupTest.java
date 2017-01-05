@@ -100,7 +100,7 @@ public class SamplingGroupTest {
     private ApiKey givenAnApiKeyWithAllowedUUIDs(String apiKey, String uuid) {
         AllowedUUID allowedUUID = new AllowedUUID();
         allowedUUID.setInstallationUUID(uuid);
-        Set<AllowedUUID> allowedUuids = new HashSet();
+        Set<AllowedUUID> allowedUuids = new HashSet<>();
         allowedUuids.add(allowedUUID);
         return givenAnApiKey(true, apiKey, allowedUuids);
     }
