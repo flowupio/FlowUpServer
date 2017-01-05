@@ -1,7 +1,7 @@
 @import java.util
-@(billingId: String)
+@(billingId: String, taxamoPublicApiKey: String)
 
-<div class="row">
+<div id="plans" class="row" data-taxamo-public-api-key="@taxamoPublicApiKey">
     <div class="col-md-4">
         <div class="well plan">
             <h3 class="text-center"><strong>Developer</strong></h3>

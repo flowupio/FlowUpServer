@@ -1,7 +1,9 @@
-Taxamo.initialize('public_test_9QC3z9tNxxPOTze4GJzd4GC9JsVJJvv5OxW5v2t2BIo');
-
+var plansDiv = document.getElementById("plans");
 var professionalPlanButton = document.getElementById("professional");
 var businessPlanButton = document.getElementById("business");
+
+var taxamoPublicApiKey = plansDiv.dataset.taxamoPublicApiKey;
+Taxamo.initialize(taxamoPublicApiKey);
 
 professionalPlanButton.onclick = onProfessionalPlanClicked;
 businessPlanButton.onclick = onBusinessPlanClicked;
