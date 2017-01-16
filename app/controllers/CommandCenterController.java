@@ -99,7 +99,6 @@ public class CommandCenterController extends Controller {
                 redirect(grafanaProxy.getHomeUrl()).withCookies(cookies.toArray(new Http.Cookie[cookies.size()])));
     }
 
-    @Restrict(@Group("admin"))
     public CompletionStage<Result> billing() {
         AuthUser authUser = auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
