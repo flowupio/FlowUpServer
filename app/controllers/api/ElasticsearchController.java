@@ -21,7 +21,7 @@ public class ElasticsearchController extends Controller {
         this.elasticsearch = elasticsearch;
     }
 
-    //@BodyParser.Of(SNSMessageBodyParser.class)
+    @BodyParser.Of(SNSMessageBodyParser.class)
     public CompletionStage<Result> deleteOldDataPoints() {
         return elasticsearch.deleteOldDataPoints().thenApply(result -> ok());
     }
