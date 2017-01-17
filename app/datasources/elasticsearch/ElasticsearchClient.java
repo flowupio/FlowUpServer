@@ -14,11 +14,12 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.concurrent.CompletableFuture.completedFuture;
 
 
 public class ElasticsearchClient {
@@ -41,20 +42,24 @@ public class ElasticsearchClient {
 
     public CompletionStage<Void> deleteOldDataPoints() {
         CompletionStage<SearchResponse> response = getOldDataPoints();
-        return response.thenCompose(new Function<SearchResponse, CompletionStage<Void>>() {
-            @Override
-            public CompletionStage<Void> apply(SearchResponse searchResponse) {
-                List<DeleteRequest> indexesToDelete = mapToDeleteRequests(searchResponse.getHits());
-                return deleteBulk(indexesToDelete).thenApply(wsResponse -> null);
-            }
+        return response.thenCompose(searchResponse -> {
+            List<DeleteRequest> indexesToDelete = mapToDeleteRequests(searchResponse.getHits());
+            return deleteBulk(indexesToDelete).thenCompose(deleteResponse -> {
+                Hits hits = searchResponse.getHits();
+                if (hits.getTotal() > hits.getHits().size()) {
+                    Logger.debug("-------------> LET'S CONTINUE REMOVING DATA");
+                    return deleteOldDataPoints();
+                }
+                return CompletableFuture.completedFuture(null);
+            });
         });
     }
 
-    private CompletionStage<WSResponse> deleteBulk(List<DeleteRequest> deleteRequests) {
+    private CompletionStage<Void> deleteBulk(List<DeleteRequest> deleteRequests) {
         List<JsonNode> jsonNodes = deleteRequests.stream().map(Json::toJson).collect(Collectors.toList());
         String content = StringUtils.join(jsonNodes, "\n") + "\n";
         Logger.debug(content);
-        return ws.url(baseUrl + BULK_ENDPOINT).post(content);
+        return ws.url(baseUrl + BULK_ENDPOINT).post(content).thenApply(response -> null);
     }
 
     public CompletionStage<BulkResponse> postBulk(List<IndexRequest> indexRequestList) {
@@ -85,7 +90,7 @@ public class ElasticsearchClient {
         range.setTimestamp(timestamp);
         bodyQuery.setRange(range);
         SearchBody searchBody = new SearchBody();
-        searchBody.setSize(10000);
+        searchBody.setSize(5);
         searchBody.setQuery(bodyQuery);
         String content = StringUtils.join(Json.toJson(searchBody), "\n", "\n");
         return ws.url(baseUrl + SEARCH_ENDPOINT).setContentType("application/x-www-form-urlencoded").post(content).thenApply(
