@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-public class DeleteRequest implements ElasticsearchRequest {
+public class DeleteRequest {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("delete")

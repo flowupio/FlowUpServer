@@ -2,12 +2,9 @@ package datasources.elasticsearch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
-import play.libs.Json;
-
-import java.io.Serializable;
 
 @Data
-public class IndexRequest implements ElasticsearchRequest {
+public class IndexRequest {
 
     private final IndexAction action;
     private JsonNode source;
