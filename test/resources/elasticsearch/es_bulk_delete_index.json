@@ -1,0 +1,2 @@
+{"delete": { "_index" : "a", "_type" : "b", "_id" : "c"}}
+{"delete": { "_index" : "d", "_type" : "e", "_id" : "a"}}

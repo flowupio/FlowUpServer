@@ -1,4 +1,4 @@
-# FlowUpServer
+# FlowUpServer [![Build Status](https://travis-ci.com/Karumi/FlowUpServer.svg?token=Kb2RqPaWxFZ8XPxpqvqz&branch=master)](https://travis-ci.com/Karumi/FlowUpServer)
 
 ## How to deploy AWS ?
 
@@ -34,13 +34,21 @@ Test your setup http://asquera.de/blog/2013-07-10/an-elasticsearch-workflow/
 
 `docker run -p 3000:3000 -d grafana/grafana`
 
-#  How to setup redis locally
+##  How to setup redis locally
 `docker run -p 127.0.0.1:6379:6379 -d redis:3.2`
 
-### How to execute the stress tests
+## How to execute the stress tests
 
 `sbt gatling:test`
 
-### How to send a report to local instance of play
+## How to execute just one test
+
+`sbt "test-only *AnyPatterRelatedToTheClassName"`
+
+An example based on this project could be:
+
+`sbt "test-only *ElasticsearchClientTest"`
+
+## How to send a report to local instance of play
 
 `curl -XPOST http://localhost:9000/report -H 'Content-Type: application/json;charset=UTF-8' -H 'X-Api-Key: 7fe70e07761e4ea5a6039e7e0371022d' -H 'X-UUID: 9c2a2994-b2b9-4297-81eb-231984ad056e' -d @test/resources/reportRequest.json`
