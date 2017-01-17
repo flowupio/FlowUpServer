@@ -67,10 +67,8 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         }
     }
 
-
     public void deleteOldDataPoints() {
-        List<IndexRequest> deletes = new LinkedList<>();
-        elasticsearchClient.postBulk(deletes);
+        elasticsearchClient.deleteOldDataPoints();
     }
 
     private CompletionStage<InsertResult> postBulkIndexRequests(List<IndexRequest> indexRequestList) {

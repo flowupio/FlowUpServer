@@ -6,28 +6,28 @@ import play.Configuration;
 import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
-import scala.Console;
+import utils.Time;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+
 
 public class ElasticsearchClient {
 
     private static final String BULK_ENDPOINT = "/_bulk";
     private static final String MSEARCH_ENDPOINT = "/_msearch";
+    private static final String SEARCH_ENDPOINT = "/_search";
 
     private final WSClient ws;
-    private final Configuration elasticsearchConf;
     private final String baseUrl;
 
     @Inject
     public ElasticsearchClient(WSClient ws, @Named("elasticsearch") Configuration elasticsearchConf) {
         this.ws = ws;
-        this.elasticsearchConf = elasticsearchConf;
-
         String scheme = elasticsearchConf.getString("scheme");
         String host = elasticsearchConf.getString("host");
         String port = elasticsearchConf.getString("port");
@@ -43,16 +43,39 @@ public class ElasticsearchClient {
         return sendBulkRequest(jsonNodes);
     }
 
-    public CompletionStage<BulkResponse> deleteBulk(List<DeleteAction> deletes) {
-        List<JsonNode> jsonNodes = new ArrayList<>();
-        for (DeleteAction deleteAction: deletes) {
-            jsonNodes.add(Json.toJson(deleteAction));
-        }
-        return sendBulkRequest(jsonNodes);
+    public void deleteOldDataPoints() {
+        CompletionStage<SearchResponse> response = getOldDataPoints();
+        response.thenApply(new Function<SearchResponse, Void>() {
+            @Override
+            public Void apply(SearchResponse searchResponse) {
+                Logger.debug("--------> " + searchResponse.getHits().getTotal());
+                return null;
+            }
+        });
+    }
+
+    private CompletionStage<SearchResponse> getOldDataPoints() {
+        SearchBodyQuery bodyQuery = new SearchBodyQuery();
+        SearchRange range = new SearchRange();
+        SearchTimestamp timestamp = new SearchTimestamp();
+        Time time = new Time();
+        long startDeletingDate = time.daysAgo(30).toDate().getTime();
+        timestamp.setLte(startDeletingDate);
+        range.setTimestamp(timestamp);
+        bodyQuery.setRange(range);
+        SearchBody searchBody = new SearchBody();
+        searchBody.setSize(10000);
+        searchBody.setQuery(bodyQuery);
+        String content = StringUtils.join(Json.toJson(searchBody), "\n", "\n");
+        return ws.url(baseUrl + SEARCH_ENDPOINT).setContentType("application/x-www-form-urlencoded").post(content).thenApply(
+                response -> {
+                    Logger.debug(response.getBody());
+                    return Json.fromJson(response.asJson(), SearchResponse.class);
+                }
+        );
     }
 
     public CompletionStage<MSearchResponse> multiSearch(List<SearchQuery> indexRequestList) {
-
         List<JsonNode> jsonNodes = new ArrayList<>();
         for (SearchQuery indexRequest : indexRequestList) {
             jsonNodes.add(Json.toJson(indexRequest.getSearchIndex()));
@@ -73,9 +96,7 @@ public class ElasticsearchClient {
 
     private CompletionStage<BulkResponse> sendBulkRequest(List<JsonNode> jsonNodes) {
         String content = StringUtils.join(jsonNodes, "\n") + "\n";
-        Logger.debug("----------->");
         Logger.debug(content);
-        Logger.debug("----------->");
         return ws.url(baseUrl + BULK_ENDPOINT).setContentType("application/x-www-form-urlencoded").post(content).thenApply(
                 response -> {
                     Logger.debug(response.getBody());
@@ -83,5 +104,6 @@ public class ElasticsearchClient {
                 }
         );
     }
+
 
 }
