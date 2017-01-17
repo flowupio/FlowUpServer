@@ -1,6 +1,7 @@
 package controllers.api;
 
 import datasources.elasticsearch.ElasticSearchDatasource;
+import play.libs.ws.WSResponse;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -8,6 +9,8 @@ import play.mvc.Result;
 import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class ElasticsearchController extends Controller {
 
@@ -20,9 +23,6 @@ public class ElasticsearchController extends Controller {
 
     //@BodyParser.Of(SNSMessageBodyParser.class)
     public CompletionStage<Result> deleteOldDataPoints() {
-        return CompletableFuture.supplyAsync(() -> {
-            elasticsearch.deleteOldDataPoints();
-            return ok();
-        });
+        return elasticsearch.deleteOldDataPoints().thenApply(result -> ok());
     }
 }

@@ -7,7 +7,7 @@ import play.libs.Json;
 import java.io.Serializable;
 
 @Data
-public class IndexRequest {
+public class IndexRequest implements ElasticsearchRequest {
 
     private final IndexAction action;
     private JsonNode source;

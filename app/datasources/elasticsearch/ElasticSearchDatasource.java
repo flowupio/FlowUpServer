@@ -10,6 +10,7 @@ import play.Configuration;
 import play.Logger;
 import play.libs.F;
 import play.libs.Json;
+import play.libs.ws.WSResponse;
 import usecases.InsertResult;
 import usecases.MetricsDatasource;
 import usecases.SingleStatQuery;
@@ -19,7 +20,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -67,8 +67,8 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         }
     }
 
-    public void deleteOldDataPoints() {
-        elasticsearchClient.deleteOldDataPoints();
+    public CompletionStage<Void> deleteOldDataPoints() {
+        return elasticsearchClient.deleteOldDataPoints();
     }
 
     private CompletionStage<InsertResult> postBulkIndexRequests(List<IndexRequest> indexRequestList) {
