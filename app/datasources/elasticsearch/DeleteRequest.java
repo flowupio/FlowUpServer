@@ -6,14 +6,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 public class DeleteRequest {
-    private static final long serialVersionUID = 1L;
 
     @JsonProperty("delete")
     private final DeleteRequest.Metadata indexToDelete;
 
     @Data
     static class Metadata implements Serializable {
-        private static final long serialVersionUID = 1L;
 
         @JsonProperty("_index")
         private final String index;
