@@ -92,8 +92,12 @@ public class ElasticsearchClient {
         range.setTimestamp(timestamp);
         bodyQuery.setRange(range);
         SearchBody searchBody = new SearchBody();
-        searchBody.setSize(5);
+        searchBody.setSize(10000);
         searchBody.setQuery(bodyQuery);
+        return search(searchBody);
+    }
+
+    public CompletionStage<SearchResponse> search(SearchBody searchBody) {
         String content = StringUtils.join(Json.toJson(searchBody), "\n", "\n");
         return ws.url(baseUrl + SEARCH_ENDPOINT).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
                 response -> {
