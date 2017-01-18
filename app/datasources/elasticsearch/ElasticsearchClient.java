@@ -106,4 +106,12 @@ public class ElasticsearchClient {
                 }
         );
     }
+
+    public CompletionStage<List<Index>> getEmptyIndexes() {
+        return null;
+    }
+
+    public CompletionStage<Void> deleteIndex(String indexName) {
+        return null;
+    }
 }

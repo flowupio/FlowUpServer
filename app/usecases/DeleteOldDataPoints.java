@@ -4,6 +4,7 @@ import datasources.elasticsearch.ElasticSearchDatasource;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 
 public class DeleteOldDataPoints {
 
@@ -15,6 +16,7 @@ public class DeleteOldDataPoints {
     }
 
     public CompletionStage<Void> execute() {
-        return elasticsearch.deleteOldDataPoints();
+        return elasticsearch.deleteOldDataPoints()
+                .thenCompose(result -> elasticsearch.deleteEmptyIndexes());
     }
 }

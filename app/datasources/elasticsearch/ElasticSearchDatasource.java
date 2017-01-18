@@ -3,6 +3,7 @@ package datasources.elasticsearch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.spotify.futures.CompletableFutures;
 import datasources.sqs.SQSClient;
 import models.Application;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -343,4 +345,12 @@ public class ElasticSearchDatasource implements MetricsDatasource {
         return deletes;
     }
 
+    public CompletionStage<List<Void>> deleteEmptyIndexes() {
+        return elasticsearchClient.getEmptyIndexes().thenCompose(emptyIndexes -> {
+            List<CompletionStage<Void>> deletes = emptyIndexes.stream()
+                    .map(index -> elasticsearchClient.deleteIndex(index.getName()))
+                    .collect(Collectors.toCollection(LinkedList::new));
+            return CompletableFutures.allAsList(deletes);
+        });
+    }
 }
