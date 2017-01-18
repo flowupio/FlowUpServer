@@ -3,6 +3,7 @@ package datasources.elasticsearch;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -27,6 +28,7 @@ class SearchIndex {
 class SearchBody {
     private long size;
     private SearchBodyQuery query;
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     private AggregationMap aggs;
 }
 
@@ -79,7 +81,10 @@ class ExtendedBounds {
 
 @Data
 class SearchBodyQuery {
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     private SearchBodyQueryFiltered filtered;
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+    private SearchRange range;
 
 }
 
@@ -100,4 +105,15 @@ class QueryString {
     @JsonProperty("analyze_wildcard")
     private boolean analyzeWildcard;
     private String query;
+}
+
+@Data
+class SearchRange {
+    @JsonProperty("@timestamp")
+    SearchTimestamp timestamp;
+}
+
+@Data
+class SearchTimestamp {
+    private long lte;
 }

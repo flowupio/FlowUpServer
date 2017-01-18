@@ -48,3 +48,4 @@ GET         /config                                controllers.api.ConfigControl
 POST        /pulse                                 controllers.api.FindBugsController.index
 POST        /allowedUUIDs                          controllers.api.AllowedUUIDsController.deleteOldAllowedUUIDs()
 POST        /bufferedReports                       controllers.api.ProcessSQSController.index
+POST        /oldDataPoints                         controllers.api.ElasticsearchController.deleteOldDataPoints()

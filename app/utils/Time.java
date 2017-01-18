@@ -15,6 +15,12 @@ public class Time {
         return tomorrow.withTimeAtStartOfDay();
     }
 
+    public DateTime daysAgo(int daysAgo) {
+        DateTimeZone timeZone = getTimeZone();
+        DateTime pastDay = new DateTime(timeZone).minusDays(daysAgo);
+        return pastDay;
+    }
+
     public DateTime getTodayMidnightDate() {
         DateTimeZone timeZone = getTimeZone();
         return new DateTime(timeZone).withTimeAtStartOfDay();
@@ -33,4 +39,5 @@ public class Time {
     private DateTimeZone getTimeZone() {
         return DateTimeZone.forID("Europe/Berlin");
     }
+
 }
