@@ -49,6 +49,6 @@ An example based on this project could be:
 
 `sbt "test-only *ElasticsearchClientTest"`
 
-## How to send a report to local instance of play
+## How to work with Elasticsearch
 
-`curl -XPOST http://localhost:9000/report -H 'Content-Type: application/json;charset=UTF-8' -H 'X-Api-Key: 7fe70e07761e4ea5a6039e7e0371022d' -H 'X-UUID: 9c2a2994-b2b9-4297-81eb-231984ad056e' -d @test/resources/reportRequest.json`
+Full documentation [here](./ELASTICSEARCH_TIPS.md).

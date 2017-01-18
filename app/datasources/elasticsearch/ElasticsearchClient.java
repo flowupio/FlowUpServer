@@ -27,6 +27,7 @@ public class ElasticsearchClient {
 
     private final WSClient ws;
     private final String baseUrl;
+    private final int documentsTTL;
 
     @Inject
     public ElasticsearchClient(WSClient ws, @Named("elasticsearch") Configuration elasticsearchConf) {
@@ -35,6 +36,7 @@ public class ElasticsearchClient {
         String host = elasticsearchConf.getString("host");
         String port = elasticsearchConf.getString("port");
         this.baseUrl = scheme + "://" + host + ":" + port;
+        this.documentsTTL = elasticsearchConf.getInt("documents_ttl_in_days");
     }
 
     public CompletionStage<BulkResponse> postBulk(List<IndexRequest> indexRequestList) {
@@ -100,7 +102,7 @@ public class ElasticsearchClient {
         SearchRange range = new SearchRange();
         SearchTimestamp timestamp = new SearchTimestamp();
         Time time = new Time();
-        long startDeletingDate = time.daysAgo(30).toDate().getTime();
+        long startDeletingDate = time.daysAgo(documentsTTL).toDate().getTime();
         timestamp.setLte(startDeletingDate);
         range.setTimestamp(timestamp);
         bodyQuery.setRange(range);
