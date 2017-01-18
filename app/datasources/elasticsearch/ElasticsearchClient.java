@@ -22,11 +22,13 @@ public class ElasticsearchClient {
     private static final String MSEARCH_ENDPOINT = "/_msearch";
     private static final String SEARCH_ENDPOINT = "/_search";
     private static final String ELASTIC_CONTENT_TYPE = "application/x-www-form-urlencoded";
+    private static final String INDEXES_ENDPOINT = "/_cat/indicies?v";
     private static final int MIN_DOCUMENTS_TTL = 30;
 
     private final WSClient ws;
     private final String baseUrl;
     private final int documentsTTL;
+    private final IndexParser indexParser;
 
     @Inject
     public ElasticsearchClient(WSClient ws, @Named("elasticsearch") Configuration elasticsearchConf) {
@@ -36,6 +38,7 @@ public class ElasticsearchClient {
         String port = elasticsearchConf.getString("port");
         this.baseUrl = scheme + "://" + host + ":" + port;
         this.documentsTTL = Math.max(MIN_DOCUMENTS_TTL, elasticsearchConf.getInt("documents_ttl_in_days"));
+        this.indexParser = new IndexParser();
     }
 
     public CompletionStage<BulkResponse> postBulk(List<IndexRequest> indexRequestList) {
@@ -108,10 +111,21 @@ public class ElasticsearchClient {
     }
 
     public CompletionStage<List<Index>> getEmptyIndexes() {
-        return null;
+        return ws.url(baseUrl + INDEXES_ENDPOINT).setContentType(ELASTIC_CONTENT_TYPE).get().thenApply(
+                response -> {
+                    Logger.debug(response.getBody());
+                    List<Index> indexes = indexParser.toIndexes(response.getBody());
+                    return indexes;
+                }
+        );
     }
 
     public CompletionStage<Void> deleteIndex(String indexName) {
-        return null;
+        return ws.url(baseUrl + indexName).setContentType(ELASTIC_CONTENT_TYPE).delete().thenApply(
+                response -> {
+                    Logger.debug(response.getBody());
+                    return null;
+                }
+        );
     }
 }
