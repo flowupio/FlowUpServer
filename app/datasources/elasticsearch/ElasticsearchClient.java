@@ -11,9 +11,7 @@ import utils.Time;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -24,6 +22,7 @@ public class ElasticsearchClient {
     private static final String MSEARCH_ENDPOINT = "/_msearch";
     private static final String SEARCH_ENDPOINT = "/_search";
     private static final String ELASTIC_CONTENT_TYPE = "application/x-www-form-urlencoded";
+    private static final int MIN_DOCUMENTS_TTL = 30;
 
     private final WSClient ws;
     private final String baseUrl;
@@ -36,7 +35,7 @@ public class ElasticsearchClient {
         String host = elasticsearchConf.getString("host");
         String port = elasticsearchConf.getString("port");
         this.baseUrl = scheme + "://" + host + ":" + port;
-        this.documentsTTL = elasticsearchConf.getInt("documents_ttl_in_days");
+        this.documentsTTL = Math.max(MIN_DOCUMENTS_TTL, elasticsearchConf.getInt("documents_ttl_in_days"));
     }
 
     public CompletionStage<BulkResponse> postBulk(List<IndexRequest> indexRequestList) {
@@ -55,20 +54,6 @@ public class ElasticsearchClient {
                     return Json.fromJson(response.asJson(), BulkResponse.class);
                 }
         );
-    }
-
-    public CompletionStage<Void> deleteOldDataPoints() {
-        CompletionStage<SearchResponse> response = getOldDataPoints();
-        return response.thenCompose(searchResponse -> {
-            List<DeleteRequest> indexesToDelete = mapToDeleteRequests(searchResponse.getHits());
-            return deleteBulk(indexesToDelete).thenCompose(deleteResponse -> {
-                Hits hits = searchResponse.getHits();
-                if (hits.getTotal() > hits.getHits().size()) {
-                    return deleteOldDataPoints();
-                }
-                return CompletableFuture.completedFuture(null);
-            });
-        });
     }
 
     public CompletionStage<MSearchResponse> multiSearch(List<SearchQuery> indexRequestList) {
@@ -90,14 +75,14 @@ public class ElasticsearchClient {
         );
     }
 
-    private CompletionStage<Void> deleteBulk(List<DeleteRequest> deleteRequests) {
+    public CompletionStage<Void> deleteBulk(List<DeleteRequest> deleteRequests) {
         List<JsonNode> jsonNodes = deleteRequests.stream().map(Json::toJson).collect(Collectors.toList());
         String content = StringUtils.join(jsonNodes, "\n") + "\n";
         Logger.debug(content);
         return ws.url(baseUrl + BULK_ENDPOINT).post(content).thenApply(response -> null);
     }
 
-    private CompletionStage<SearchResponse> getOldDataPoints() {
+    public CompletionStage<SearchResponse> getOldDataPoints() {
         SearchBodyQuery bodyQuery = new SearchBodyQuery();
         SearchRange range = new SearchRange();
         SearchTimestamp timestamp = new SearchTimestamp();
@@ -117,16 +102,4 @@ public class ElasticsearchClient {
                 }
         );
     }
-
-    private List<DeleteRequest> mapToDeleteRequests(Hits hits) {
-        List<DeleteRequest> deletes = new LinkedList<>();
-        for (JsonNode hit : hits.getHits()) {
-            String index = hit.get("_index").asText();
-            String type = hit.get("_type").asText();
-            String id = hit.get("_id").asText();
-            deletes.add(new DeleteRequest(index, type, id));
-        }
-        return deletes;
-    }
-
 }

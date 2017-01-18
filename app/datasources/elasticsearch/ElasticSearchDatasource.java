@@ -20,7 +20,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -68,7 +70,17 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     public CompletionStage<Void> deleteOldDataPoints() {
-        return elasticsearchClient.deleteOldDataPoints();
+        CompletionStage<SearchResponse> response = elasticsearchClient.getOldDataPoints();
+        return response.thenCompose(searchResponse -> {
+            List<DeleteRequest> indexesToDelete = mapToDeleteRequests(searchResponse.getHits());
+            return elasticsearchClient.deleteBulk(indexesToDelete).thenCompose(deleteResponse -> {
+                Hits hits = searchResponse.getHits();
+                if (hits.getTotal() > hits.getHits().size()) {
+                    return deleteOldDataPoints();
+                }
+                return CompletableFuture.completedFuture(null);
+            });
+        });
     }
 
     private CompletionStage<InsertResult> postBulkIndexRequests(List<IndexRequest> indexRequestList) {
@@ -107,15 +119,15 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     private List<IndexRequest> populateIndexRequest(Report report, Application application) {
-        return report.getMetrics().stream().map (metric ->
+        return report.getMetrics().stream().map(metric ->
                 metric.getDataPoints().stream().map(datapoint -> {
-            IndexRequest indexRequest = new IndexRequest(indexName(report.getAppPackage(), application.getOrganization().getId().toString()), metric.getName());
+                    IndexRequest indexRequest = new IndexRequest(indexName(report.getAppPackage(), application.getOrganization().getId().toString()), metric.getName());
 
-            ObjectNode source = mapSource(datapoint);
+                    ObjectNode source = mapSource(datapoint);
 
-            indexRequest.setSource(source);
-            return indexRequest;
-        }).collect(Collectors.toList())).reduce(new ArrayList<>(), (indexRequests, indexRequests2) -> {
+                    indexRequest.setSource(source);
+                    return indexRequest;
+                }).collect(Collectors.toList())).reduce(new ArrayList<>(), (indexRequests, indexRequests2) -> {
             indexRequests.addAll(indexRequests2);
             return indexRequests;
         });
@@ -319,4 +331,16 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     public static String indexName(String appPackage, String organizationId) {
         return String.join(DELIMITER, FLOWUP, organizationId, appPackage).toLowerCase();
     }
+
+    private List<DeleteRequest> mapToDeleteRequests(Hits hits) {
+        List<DeleteRequest> deletes = new LinkedList<>();
+        for (JsonNode hit : hits.getHits()) {
+            String index = hit.get("_index").asText();
+            String type = hit.get("_type").asText();
+            String id = hit.get("_id").asText();
+            deletes.add(new DeleteRequest(index, type, id));
+        }
+        return deletes;
+    }
+
 }
