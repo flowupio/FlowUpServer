@@ -31,9 +31,10 @@ public class ElasticsearchClient {
     private final String baseUrl;
     private final int documentsTTL;
     private final IndexParser indexParser;
+    private final Time time;
 
     @Inject
-    public ElasticsearchClient(WSClient ws, @Named("elasticsearch") Configuration elasticsearchConf) {
+    public ElasticsearchClient(WSClient ws, @Named("elasticsearch") Configuration elasticsearchConf, Time time) {
         this.ws = ws;
         String scheme = elasticsearchConf.getString("scheme");
         String host = elasticsearchConf.getString("host");
@@ -41,6 +42,7 @@ public class ElasticsearchClient {
         this.baseUrl = scheme + "://" + host + ":" + port;
         this.documentsTTL = Math.max(MIN_DOCUMENTS_TTL, elasticsearchConf.getInt("documents_ttl_in_days"));
         this.indexParser = new IndexParser();
+        this.time = time;
     }
 
     public CompletionStage<BulkResponse> postBulk(List<IndexRequest> indexRequestList) {
@@ -91,7 +93,6 @@ public class ElasticsearchClient {
         SearchBodyQuery bodyQuery = new SearchBodyQuery();
         SearchRange range = new SearchRange();
         SearchTimestamp timestamp = new SearchTimestamp();
-        Time time = new Time();
         long startDeletingDate = time.daysAgo(documentsTTL).toDate().getTime();
         timestamp.setLte(startDeletingDate);
         range.setTimestamp(timestamp);
@@ -104,6 +105,7 @@ public class ElasticsearchClient {
 
     public CompletionStage<SearchResponse> search(SearchBody searchBody) {
         String content = StringUtils.join(Json.toJson(searchBody), "\n", "\n");
+        Logger.debug("--------> " + content);
         return ws.url(baseUrl + SEARCH_ENDPOINT).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
                 response -> {
                     Logger.debug(response.getBody());
