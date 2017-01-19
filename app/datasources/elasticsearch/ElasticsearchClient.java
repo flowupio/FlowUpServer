@@ -112,14 +112,11 @@ public class ElasticsearchClient {
         );
     }
 
-    public CompletionStage<List<Index>> getEmptyIndexes() {
+    public CompletionStage<List<Index>> getIndexes() {
         return ws.url(baseUrl + INDEXES_ENDPOINT).setContentType(ELASTIC_CONTENT_TYPE).get().thenApply(
                 response -> {
                     Logger.debug(response.getBody());
-                    List<Index> indexes = indexParser.toIndexes(response.getBody());
-                    return indexes.stream()
-                            .filter(index -> index.isEmpty())
-                            .collect(Collectors.toList());
+                    return indexParser.toIndexes(response.getBody());
                 }
         );
     }

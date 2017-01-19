@@ -11,7 +11,6 @@ import play.Configuration;
 import play.Logger;
 import play.libs.F;
 import play.libs.Json;
-import play.libs.ws.WSResponse;
 import usecases.InsertResult;
 import usecases.MetricsDatasource;
 import usecases.SingleStatQuery;
@@ -25,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -346,11 +344,14 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     public CompletionStage<Void> deleteEmptyIndexes() {
-        return elasticsearchClient.getEmptyIndexes().thenCompose(emptyIndexes -> {
-            if (emptyIndexes.isEmpty()) {
+        return elasticsearchClient.getIndexes().thenCompose(indexList -> {
+            indexList = indexList.stream()
+                    .filter(index -> index.isEmpty())
+                    .collect(Collectors.toList());
+            if (indexList.isEmpty()) {
                 return CompletableFuture.completedFuture(null);
             }
-            List<CompletionStage<Void>> deletes = emptyIndexes.stream()
+            List<CompletionStage<Void>> deletes = indexList.stream()
                     .map(index -> elasticsearchClient.deleteIndex(index.getName()))
                     .collect(Collectors.toList());
             return CompletableFutures.allAsList(deletes).thenApply(result -> null);
