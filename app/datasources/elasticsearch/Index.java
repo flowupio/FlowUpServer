@@ -1,6 +1,5 @@
 package datasources.elasticsearch;
 
-
 import lombok.Data;
 
 @Data
