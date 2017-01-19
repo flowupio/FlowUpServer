@@ -13,6 +13,7 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -22,8 +23,9 @@ public class ElasticsearchClient {
     private static final String MSEARCH_ENDPOINT = "/_msearch";
     private static final String SEARCH_ENDPOINT = "/_search";
     private static final String ELASTIC_CONTENT_TYPE = "application/x-www-form-urlencoded";
-    private static final String INDEXES_ENDPOINT = "/_cat/indicies?v";
+    private static final String INDEXES_ENDPOINT = "/_cat/indices?v";
     private static final int MIN_DOCUMENTS_TTL = 30;
+    private static final int MAX_ELASTICSEARCH_QUERY_SIZE = 10000;
 
     private final WSClient ws;
     private final String baseUrl;
@@ -95,7 +97,7 @@ public class ElasticsearchClient {
         range.setTimestamp(timestamp);
         bodyQuery.setRange(range);
         SearchBody searchBody = new SearchBody();
-        searchBody.setSize(10000);
+        searchBody.setSize(MAX_ELASTICSEARCH_QUERY_SIZE);
         searchBody.setQuery(bodyQuery);
         return search(searchBody);
     }
@@ -115,13 +117,15 @@ public class ElasticsearchClient {
                 response -> {
                     Logger.debug(response.getBody());
                     List<Index> indexes = indexParser.toIndexes(response.getBody());
-                    return indexes;
+                    return indexes.stream()
+                            .filter(index -> index.isEmpty())
+                            .collect(Collectors.toList());
                 }
         );
     }
 
     public CompletionStage<Void> deleteIndex(String indexName) {
-        return ws.url(baseUrl + indexName).setContentType(ELASTIC_CONTENT_TYPE).delete().thenApply(
+        return ws.url(baseUrl +"/" + indexName).setContentType(ELASTIC_CONTENT_TYPE).delete().thenApply(
                 response -> {
                     Logger.debug(response.getBody());
                     return null;

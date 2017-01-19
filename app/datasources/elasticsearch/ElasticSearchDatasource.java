@@ -347,10 +347,13 @@ public class ElasticSearchDatasource implements MetricsDatasource {
 
     public CompletionStage<Void> deleteEmptyIndexes() {
         return elasticsearchClient.getEmptyIndexes().thenCompose(emptyIndexes -> {
+            if (emptyIndexes.isEmpty()) {
+                return CompletableFuture.completedFuture(null);
+            }
             List<CompletionStage<Void>> deletes = emptyIndexes.stream()
                     .map(index -> elasticsearchClient.deleteIndex(index.getName()))
-                    .collect(Collectors.toCollection(LinkedList::new));
-            return CompletableFutures.allAsList(deletes).thenCompose(result -> null);
+                    .collect(Collectors.toList());
+            return CompletableFutures.allAsList(deletes).thenApply(result -> null);
         });
     }
 }
