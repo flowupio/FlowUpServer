@@ -122,7 +122,7 @@ public class ElasticsearchClient {
     }
 
     public CompletionStage<Void> deleteIndex(String indexName) {
-        return ws.url(baseUrl +"/" + indexName).setContentType(ELASTIC_CONTENT_TYPE).delete().thenApply(
+        return ws.url(baseUrl + "/" + indexName).setContentType(ELASTIC_CONTENT_TYPE).delete().thenApply(
                 response -> {
                     Logger.debug(response.getBody());
                     return null;

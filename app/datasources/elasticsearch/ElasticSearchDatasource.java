@@ -346,7 +346,7 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     public CompletionStage<Void> deleteEmptyIndexes() {
         return elasticsearchClient.getIndexes().thenCompose(indexList -> {
             indexList = indexList.stream()
-                    .filter(index -> index.isEmpty())
+                    .filter(Index::isEmpty)
                     .collect(Collectors.toList());
             if (indexList.isEmpty()) {
                 return CompletableFuture.completedFuture(null);
