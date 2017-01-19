@@ -1,0 +1,3 @@
+health status index  pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   index1   5   1          0            0     38.7kb         38.7kb
+yellow open   index2   5   1          0            0     38.7kb         38.7kb

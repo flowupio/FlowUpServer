@@ -2,21 +2,15 @@ package datasources.elasticsearch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Application;
-import models.Organization;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.F;
 import play.libs.Json;
-import play.test.WithApplication;
-import usecases.DashboardsClient;
 import usecases.InsertResult;
 import usecases.SingleStatQuery;
 import usecases.models.*;
-import usecases.repositories.ApiKeyRepository;
 import utils.WithFlowUpApplication;
 import utils.WithResources;
 
@@ -30,14 +24,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static play.inject.Bindings.bind;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ElasticSearchDatasourceTest extends WithFlowUpApplication implements WithResources {
 
     private static final String ANY_FIELD = "AnyField";
+    private static final int ANY_NUMBER_OF_INDEXES = 10;
+    private static final int ANY_NUMBER_OF_DOCUMENTS = 20;
 
     @Override
     protected play.Application provideApplication() {
@@ -155,6 +149,46 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         assertEquals(new InsertResult(false, true, items), insertResult);
     }
 
+    @Test
+    public void doesNotDeleteAnyIndexIfTheIndexAreNotEmpty() throws Exception {
+        ElasticSearchDatasource datasource = givenAElasticSearchDatasource();
+        givenThereAreNoEmptyIndexes();
+
+        datasource.deleteEmptyIndexes();
+
+        verify(elasticsearchClient, never()).deleteIndex(anyString());
+    }
+
+    @Test
+    public void deletesEmptyIndexes() throws Exception {
+        ElasticSearchDatasource datasource = givenAElasticSearchDatasource();
+        List<Index> indexes = givenThereAreSomeEmptyIndexes();
+
+        datasource.deleteEmptyIndexes();
+
+        for (Index index : indexes) {
+            verify(elasticsearchClient).deleteIndex(index.getName());
+        }
+    }
+
+    private List<Index> givenThereAreSomeEmptyIndexes() {
+        return givenSomeIndexes(ANY_NUMBER_OF_INDEXES, 0);
+    }
+
+    @NotNull
+    private List<Index> givenThereAreNoEmptyIndexes() {
+        return givenSomeIndexes(ANY_NUMBER_OF_INDEXES, ANY_NUMBER_OF_DOCUMENTS);
+    }
+
+    private List<Index> givenSomeIndexes(int anyNumberOfIndexes, int anyNumberOfDocuments) {
+        List<Index> indexes = new LinkedList<>();
+        for (int i = 0; i < anyNumberOfIndexes; i++) {
+            indexes.add(new Index("Index-" + i, anyNumberOfDocuments));
+        }
+        when(elasticsearchClient.getIndexes()).thenReturn(CompletableFuture.completedFuture(indexes));
+        return indexes;
+    }
+
     @NotNull
     private ElasticSearchDatasource givenElasticSearchDatasourceThatReturnTwoItems() {
         ActionWriteResponse networkDataResponse = new IndexResponse("flowup-network_data", "counter", "AVe4CB89xL5tw_jvDTTd", 1, true);
@@ -164,10 +198,14 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         BulkItemResponse[] responses = {new BulkItemResponse(0, "index", networkDataResponse), new BulkItemResponse(0, "index", uiDataResponse)};
         BulkResponse bulkResponse = new BulkResponse(responses, 67);
 
-        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
+        ElasticSearchDatasource elasticSearchDatasource = givenAElasticSearchDatasource();
         when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
         return elasticSearchDatasource;
+    }
+
+    private ElasticSearchDatasource givenAElasticSearchDatasource() {
+        return app.injector().instanceOf(ElasticSearchDatasource.class);
     }
 
     @NotNull
@@ -203,7 +241,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         JsonNode postBulkResult = Json.parse(getFile(fileName));
         BulkResponse bulkResponse = Json.fromJson(postBulkResult, BulkResponse.class);
 
-        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
+        ElasticSearchDatasource elasticSearchDatasource = givenAElasticSearchDatasource();
         when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
         return elasticSearchDatasource;
@@ -214,7 +252,7 @@ public class ElasticSearchDatasourceTest extends WithFlowUpApplication implement
         JsonNode postMSearchResult = Json.parse(getFile(fileName));
         MSearchResponse mSearchResponse = Json.fromJson(postMSearchResult, MSearchResponse.class);
 
-        ElasticSearchDatasource elasticSearchDatasource = app.injector().instanceOf(ElasticSearchDatasource.class);
+        ElasticSearchDatasource elasticSearchDatasource = givenAElasticSearchDatasource();
         when(elasticsearchClient.multiSearch(any()))
                 .thenReturn(CompletableFuture.completedFuture(mSearchResponse));
         return elasticSearchDatasource;
