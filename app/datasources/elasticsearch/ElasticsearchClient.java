@@ -105,7 +105,6 @@ public class ElasticsearchClient {
 
     public CompletionStage<SearchResponse> search(SearchBody searchBody) {
         String content = StringUtils.join(Json.toJson(searchBody), "\n", "\n");
-        Logger.debug("--------> " + content);
         return ws.url(baseUrl + SEARCH_ENDPOINT).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
                 response -> {
                     Logger.debug(response.getBody());
