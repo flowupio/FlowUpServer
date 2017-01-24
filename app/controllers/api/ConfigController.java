@@ -1,6 +1,8 @@
 package controllers.api;
 
+import models.Version;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import security.ApiKeySecuredAction;
@@ -30,9 +32,11 @@ public class ConfigController {
     }
 
     private CompletionStage<ApiKeyConfig> getApiKeyConfig() {
-        String apiKeyValue = request().getHeader(X_API_KEY);
-        String uuid = request().getHeader(HeaderParsers.X_UUID);
-        return getConfig.execute(apiKeyValue, uuid);
+        Http.Request request = request();
+        String apiKeyValue = request.getHeader(X_API_KEY);
+        String uuid = request.getHeader(HeaderParsers.X_UUID);
+        Version version = Version.fromString(request.getHeader(HeaderParsers.USER_AGENT));
+        return getConfig.execute(apiKeyValue, uuid, version);
     }
 
 }

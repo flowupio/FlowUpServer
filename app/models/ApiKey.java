@@ -31,7 +31,7 @@ public class ApiKey extends Model implements Serializable {
 
     private boolean enabled = true;
 
-    private String minAndroidSDKSupported;
+    private String minAndroidSdkSupported = "FlowUpAndroidSDK/0.0.0";
 
     private int numberOfAllowedUUIDs = 20;
 
@@ -78,10 +78,10 @@ public class ApiKey extends Model implements Serializable {
     }
 
     public String getMinAndroidSDKSupported() {
-        return minAndroidSDKSupported;
+        return minAndroidSdkSupported;
     }
 
     public void setMinAndroidSDKSupported(String minAndroidSDKSupported) {
-        this.minAndroidSDKSupported = minAndroidSDKSupported;
+        this.minAndroidSdkSupported = minAndroidSDKSupported;
     }
 }

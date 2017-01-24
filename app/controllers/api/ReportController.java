@@ -1,6 +1,7 @@
 package controllers.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import models.Version;
 import play.Configuration;
 import play.Logger;
 import play.libs.Json;
@@ -37,7 +38,8 @@ public class ReportController extends Controller {
 
         String apiKey = request().getHeader(HeaderParsers.X_API_KEY);
         String uuid = request().getHeader(HeaderParsers.X_UUID);
-        if (!samplingGroup.isIn(apiKey, uuid)) {
+        String userAgent = request().getHeader(HeaderParsers.USER_AGENT);
+        if (!samplingGroup.isIn(apiKey, uuid, Version.fromString(userAgent))) {
             Integer statusCode = flowupConf.getInt("not_in_sampling_group_status_code", PRECONDITION_FAILED);
             return CompletableFuture.completedFuture(status(statusCode));
         }

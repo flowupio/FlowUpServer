@@ -1,10 +1,11 @@
 package models;
 
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 import play.Logger;
 
 @Data
-public class Version {
+public class Version implements Comparable<Version> {
 
     static final Version UNKNOWN_VERSION = new Version(0, 0, 0, Platform.UNKNOWN);
 
@@ -29,5 +30,29 @@ public class Version {
             return UNKNOWN_VERSION;
         }
     }
+
+    @Override
+    public int compareTo(@NotNull Version o) {
+        if (this.platform != o.platform) {
+            return -1;
+        } else if (getVersionNumber() > o.getVersionNumber()) {
+            return 1;
+        } else if (getVersionNumber() < o.getVersionNumber()) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public String toString() {
+        String clientName = platform == Platform.ANDROID ? "FlowUpAndroidSDK" : "FlowUpIOSSDK";
+        return clientName + "/" + getMajor() + "." + getMinor() + "." + getPatch();
+    }
+
+    private int getVersionNumber() {
+        return (getMajor() * 10000) + (getMinor() * 100 + getPatch());
+    }
+
 
 }

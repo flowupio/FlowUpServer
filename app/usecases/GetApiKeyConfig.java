@@ -1,5 +1,6 @@
 package usecases;
 
+import models.Version;
 import sampling.SamplingGroup;
 import usecases.models.ApiKeyConfig;
 import usecases.repositories.ApiKeyRepository;
@@ -18,11 +19,11 @@ public class GetApiKeyConfig {
         this.samplingGroup = samplingGroup;
     }
 
-    public CompletionStage<ApiKeyConfig> execute(String apiKeyValue, String uuid) {
+    public CompletionStage<ApiKeyConfig> execute(String apiKeyValue, String uuid, Version version) {
         return repository.getApiKeyAsync(apiKeyValue).thenApply(apiKey -> {
             boolean isApiKeyEnabled = apiKey != null &&
                     apiKey.isEnabled() &&
-                    samplingGroup.isIn(apiKeyValue, uuid);
+                    samplingGroup.isIn(apiKeyValue, uuid, version);
 
             return new ApiKeyConfig(isApiKeyEnabled);
         });

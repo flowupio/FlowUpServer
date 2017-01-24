@@ -1,6 +1,7 @@
 package sampling;
 
 import models.ApiKey;
+import models.Version;
 import usecases.repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
@@ -14,7 +15,7 @@ public class SamplingGroup {
         this.apiKeyRepository = apiKeyRepository;
     }
 
-    public boolean isIn(String apiKeyValue, String uuid) {
+    public boolean isIn(String apiKeyValue, String uuid, Version version) {
         ApiKey apiKey = apiKeyRepository.getApiKey(apiKeyValue);
         if (apiKey == null) {
             return false;
@@ -25,11 +26,15 @@ public class SamplingGroup {
         if (uuid == null) {
             return true;
         }
-        return isInSamplingGroup(apiKey, uuid);
+        return isInSamplingGroup(apiKey, uuid, version);
     }
 
-    private boolean isInSamplingGroup(ApiKey apiKey, String uuid) {
+    private boolean isInSamplingGroup(ApiKey apiKey, String uuid, Version version) {
         if (!apiKey.isEnabled()) {
+            return false;
+        }
+        Version minApiKeyVersionSupported = Version.fromString(apiKey.getMinAndroidSDKSupported());
+        if (minApiKeyVersionSupported.compareTo(version) >= 0) {
             return false;
         }
         if (hasExceededTheNumberOfAllowedUUIDs(apiKey)) {
