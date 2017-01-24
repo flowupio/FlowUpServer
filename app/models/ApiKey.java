@@ -31,6 +31,8 @@ public class ApiKey extends Model implements Serializable {
 
     private boolean enabled = true;
 
+    private String minAndroidSDKSupported;
+
     private int numberOfAllowedUUIDs = 20;
 
     public static Finder<UUID, ApiKey> find = new Finder<>(ApiKey.class);
@@ -75,4 +77,11 @@ public class ApiKey extends Model implements Serializable {
         this.numberOfAllowedUUIDs = numberOfAllowedUUIDs;
     }
 
+    public String getMinAndroidSDKSupported() {
+        return minAndroidSDKSupported;
+    }
+
+    public void setMinAndroidSDKSupported(String minAndroidSDKSupported) {
+        this.minAndroidSDKSupported = minAndroidSDKSupported;
+    }
 }
