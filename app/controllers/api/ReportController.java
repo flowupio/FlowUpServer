@@ -40,7 +40,7 @@ public class ReportController extends Controller {
         String uuid = request().getHeader(HeaderParsers.X_UUID);
         String userAgent = request().getHeader(HeaderParsers.USER_AGENT);
         if (!samplingGroup.isIn(apiKey, uuid, Version.fromString(userAgent))) {
-            Integer statusCode = flowupConf.getInt("not_in_sampling_group_status_code", PRECONDITION_FAILED);
+            Integer statusCode = flowupConf.getInt("not_in_sampling_group_status_code", FORBIDDEN);
             return CompletableFuture.completedFuture(status(statusCode));
         }
 

@@ -3,6 +3,8 @@ package controllers.api;
 import datasources.database.OrganizationDatasource;
 import datasources.elasticsearch.*;
 import models.ApiKey;
+import models.Platform;
+import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,9 @@ import static play.test.Helpers.*;
 public class ReportControllerTest extends WithFlowUpApplication implements WithResources, WithDashboardsClient {
 
     private static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
+    private static final Version VERSION_1 = new Version(0, 2, 8, Platform.ANDROID);
+    private static final Version VERSION_2 = new Version(0, 3, 0, Platform.ANDROID);
+    private static final String ANY_UUID = "12345";
 
     @Captor
     private ArgumentCaptor<List<IndexRequest>> argument;
@@ -66,11 +71,7 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
 
         Result result = route(requestBuilder);
 
-        verify(elasticsearchClient).postBulk(argument.capture());
-        assertEquals(5, argument.getValue().size());
-        assertEquals(CREATED, result.status());
-        String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"hasFailures\":false,\"items\":[{\"name\":\"\",\"successful\":1}],\"error\":false}}";
-        assertEqualsString(expect, result);
+        assertRegularReportIsSaved(result);
     }
 
     @Test
@@ -185,6 +186,54 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
         assertEqualsString(expect, result);
     }
 
+    @Test
+    public void acceptsReportsIfTheAndroidSDKVersionUsedAsUserAgentHeaderContainsTheSameVersion() {
+        setupDatabaseWithApiKey(true, VERSION_1);
+        setupSuccessfulElasticsearchClient();
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json")
+                .header("X-UUID", ANY_UUID)
+                .header("User-Agent", VERSION_1.toString());
+
+        Result result = route(requestBuilder);
+
+        assertRegularReportIsSaved(result);
+    }
+
+    @Test
+    public void acceptsReportsIfTheAndroidSDKVersionUsedAsUserAgentIsSupported() {
+        setupDatabaseWithApiKey(true, VERSION_1);
+        setupSuccessfulElasticsearchClient();
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json")
+                .header("X-UUID", ANY_UUID)
+                .header("User-Agent", VERSION_2.toString());
+
+        Result result = route(requestBuilder);
+
+        assertRegularReportIsSaved(result);
+    }
+
+    @Test
+    public void doesNotAcceptReportsIfTheAndroidSDKVersionUsedAsUserAgentIsNotSupported() {
+        setupDatabaseWithApiKey(true, VERSION_2);
+        setupSuccessfulElasticsearchClient();
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json")
+                .header("X-UUID", ANY_UUID)
+                .header("User-Agent", VERSION_1.toString());
+
+        Result result = route(requestBuilder);
+
+        assertEquals(FORBIDDEN, result.status());
+    }
+
     private void configureAFullSamplingGroup(ApiKey apiKey) {
         for (int i = 0; i < 50; i++) {
             apiKeyRepository.addAllowedUUID(apiKey, UUID.randomUUID().toString());
@@ -196,7 +245,11 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
     }
 
     private ApiKey setupDatabaseWithApiKey(boolean enabled) {
-        ApiKey apiKey = apiKeyRepository.create(API_KEY_VALUE, enabled);
+        return setupDatabaseWithApiKey(enabled, null);
+    }
+
+    private ApiKey setupDatabaseWithApiKey(boolean enabled, Version minAndroidSdkVersion) {
+        ApiKey apiKey = apiKeyRepository.create(API_KEY_VALUE, enabled, minAndroidSdkVersion);
         new OrganizationDatasource(apiKeyRepository).create("example", "@example.com", apiKey, "");
         return apiKey;
     }
@@ -224,4 +277,13 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
         when(elasticsearchClient.postBulk(anyListOf(IndexRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(bulkResponse));
     }
+
+    private void assertRegularReportIsSaved(Result result) {
+        verify(elasticsearchClient).postBulk(argument.capture());
+        assertEquals(5, argument.getValue().size());
+        assertEquals(CREATED, result.status());
+        String expect = "{\"message\":\"Metrics Inserted\",\"result\":{\"hasFailures\":false,\"items\":[{\"name\":\"\",\"successful\":1}],\"error\":false}}";
+        assertEqualsString(expect, result);
+    }
+
 }

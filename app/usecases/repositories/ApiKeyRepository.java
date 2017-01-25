@@ -3,6 +3,7 @@ package usecases.repositories;
 import datasources.database.ApiKeyDatasource;
 import models.AllowedUUID;
 import models.ApiKey;
+import models.Version;
 import play.cache.CacheApi;
 import utils.Time;
 
@@ -48,7 +49,12 @@ public class ApiKeyRepository {
 
     @NotNull
     public ApiKey create(String value, boolean enabled) {
-        ApiKey apiKey = apiKeyDatasource.create(value, enabled);
+        return create(value, enabled, null);
+    }
+
+    @NotNull
+    public ApiKey create(String value, boolean enabled, Version minAndroidSdkSupportedVersion) {
+        ApiKey apiKey = apiKeyDatasource.create(value, enabled, minAndroidSdkSupportedVersion);
         flushApiKeyCache(apiKey);
         return apiKey;
     }

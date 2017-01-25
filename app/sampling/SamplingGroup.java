@@ -34,7 +34,7 @@ public class SamplingGroup {
             return false;
         }
         Version minApiKeyVersionSupported = Version.fromString(apiKey.getMinAndroidSDKSupported());
-        if (minApiKeyVersionSupported.compareTo(version) >= 0) {
+        if (minApiKeyVersionSupported.compareTo(version) > 0) {
             return false;
         }
         if (hasExceededTheNumberOfAllowedUUIDs(apiKey)) {

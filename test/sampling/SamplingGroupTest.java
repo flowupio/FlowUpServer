@@ -118,6 +118,13 @@ public class SamplingGroupTest {
         assertTrue(samplingGroup.isIn(ANY_API_KEY, ANY_UUID, VERSION_TWO));
     }
 
+    @Test
+    public void theSameVersionShouldBePartOfTheSamplingGroup() {
+        givenAnApiKeyWithMinAndroidVersionSupported(VERSION_ONE);
+
+        assertTrue(samplingGroup.isIn(ANY_API_KEY, ANY_UUID, VERSION_ONE));
+    }
+
     private ApiKey givenAnApiKeyWithMinAndroidVersionSupported(Version version) {
         return givenAnApiKey(true, ANY_API_KEY, new HashSet<>(), version.toString());
     }
