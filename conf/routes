@@ -15,20 +15,13 @@ GET         /command-center/dashboards             controllers.CommandCenterCont
 GET         /command-center/billing                controllers.CommandCenterController.billing
 
 # Admin Website
-GET         /admin/                                controllers.admin.UserController.index()
+GET         /admin/                                controllers.admin.AdminController.index()
 
 GET         /admin/users                           controllers.admin.UserController.list(p:Int ?= 0, s ?= "name", o ?= "asc", f ?= "")
-GET         /admin/users/new                       controllers.admin.UserController.create()
-POST        /admin/users                           controllers.admin.UserController.save()
-GET         /admin/users/:id                       controllers.admin.UserController.edit(id)
-POST        /admin/users/:id                       controllers.admin.UserController.update(id)
 POST        /admin/users/:id/delete                controllers.admin.UserController.delete(id)
 POST        /admin/users/:id/activate              controllers.admin.UserController.activate(id)
 
 GET         /admin/application                     controllers.admin.ApplicationController.list(p:Int ?= 0, s ?= "app_package", o ?= "asc", f ?= "")
-POST        /admin/application                     controllers.admin.ApplicationController.save()
-GET         /admin/application/:id                 controllers.admin.ApplicationController.edit(id)
-POST        /admin/application/:id                 controllers.admin.ApplicationController.update(id)
 POST        /admin/application/:id/delete          controllers.admin.ApplicationController.delete(id)
 
 

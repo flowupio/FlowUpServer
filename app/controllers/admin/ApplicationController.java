@@ -62,59 +62,6 @@ public class ApplicationController extends Controller {
         );
     }
 
-    public Result edit(String id) {
-        UUID uuid = UUID.fromString(id);
-        Form<Application> form = formFactory.form(Application.class).fill(
-                Application.find.byId(uuid)
-        );
-        return ok(
-                views.html.admin.application.editForm.render(id, form)
-        );
-    }
-
-    public Result update(String id) throws PersistenceException {
-        UUID uuid = UUID.fromString(id);
-        Form<Application> form = formFactory.form(Application.class).bindFromRequest();
-        if(form.hasErrors()) {
-            return badRequest(views.html.admin.application.editForm.render(id, form));
-        }
-
-        Transaction txn = Ebean.beginTransaction();
-        try {
-            Application saved = Application.find.byId(uuid);
-            if (saved != null) {
-                Application newData = form.get();
-                saved.setGrafanaOrgId(newData.getGrafanaOrgId());
-                saved.setOrganization(newData.getOrganization());
-
-                saved.update();
-                flash("success", "Application " + form.get().getAppPackage() + " has been updated");
-                txn.commit();
-            }
-        } finally {
-            txn.end();
-        }
-
-        return GO_HOME;
-    }
-
-    public Result create() {
-        Form<Application> form = formFactory.form(Application.class);
-        return ok(
-                views.html.admin.application.createForm.render(form)
-        );
-    }
-
-    public Result save() {
-        Form<Application> form = formFactory.form(Application.class).bindFromRequest();
-        if (form.hasErrors()) {
-            return badRequest(views.html.admin.application.createForm.render(form));
-        }
-        form.get().save();
-        flash("success", "Application " + form.get().getAppPackage() + " has been created");
-        return GO_HOME;
-    }
-
     public Result delete(String id) {
         UUID uuid = UUID.fromString(id);
         Application.find.ref(uuid).delete();

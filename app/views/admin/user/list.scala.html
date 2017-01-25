@@ -1,44 +1,41 @@
 @(currentPage: com.avaje.ebean.PagedList[User], currentSortBy: String, currentOrder: String, currentFilter: String)
-@****************************************
-* Helper generating navigation links *
-****************************************@
-@link(newPage: Int, newSortBy: String) = @{
+    @****************************************
+    * Helper generating navigation links *
+    ****************************************@
+    @link(newPage: Int, newSortBy: String) = @{
 
-    var sortBy = currentSortBy
-    var order = currentOrder
+        var sortBy = currentSortBy
+        var order = currentOrder
 
-    if(newSortBy != null) {
-        sortBy = newSortBy
-        if(currentSortBy == newSortBy) {
-            if(currentOrder == "asc") {
-                order = "desc"
+        if(newSortBy != null) {
+            sortBy = newSortBy
+            if(currentSortBy == newSortBy) {
+                if(currentOrder == "asc") {
+                    order = "desc"
+                } else {
+                    order = "asc"
+                }
             } else {
                 order = "asc"
             }
-        } else {
-            order = "asc"
         }
+
+        // Generate the link
+        controllers.admin.routes.UserController.list(newPage, sortBy, order, currentFilter)
+
     }
 
-    // Generate the link
-    controllers.admin.routes.UserController.list(newPage, sortBy, order, currentFilter)
-
-}
-
-    @**********************************
-    * Helper generating table headers *
-    ***********************************@
-@header(key: String, title: String) = {
-    <th class="@key.replace(".", "_") header @if(currentSortBy == key) @{
-        if(currentOrder == "asc") "headerSortDown" else "headerSortUp"
-    }">
-        <a href="@link(0, key)">@title</a>
-    </th>
-}
-
-
+        @**********************************
+        * Helper generating table headers *
+        ***********************************@
+    @header(key: String, title: String) = {
+        <th class="@key.replace(".", "_") header @if(currentSortBy == key) @{
+            if(currentOrder == "asc") "headerSortDown" else "headerSortUp"
+        }">
+            <a href="@link(0, key)">@title</a>
+        </th>
+    }
 @views.html.admin.main {
-
     <h1 id="homeTitle">@Messages("Users", currentPage.getTotalRowCount)</h1>
 
     @if(flash.containsKey("success")) {
@@ -61,8 +58,6 @@
             </div>
         </form>
 
-        <a class="btn success" id="add" href="@controllers.admin.routes.UserController.create()">Add a new user</a>
-
     </div>
 
     @if(currentPage.getTotalRowCount == 0) {
@@ -74,37 +69,37 @@
     } else {
 
         <div class="table-responsive">
-        <table class="table" data-sort="table">
-            <thead>
-                <tr>
-                    @header("name", "name")
-                    @header("email", "email")
-                    @header("organization", "organization")
-                    @header("active", "active")
-                    @header("activate.user", "activate user")
-                </tr>
-            </thead>
-            <tbody>
+            <table class="table" data-sort="table">
+                <thead>
+                    <tr>
+                        @header("name", "name")
+                        @header("email", "email")
+                        @header("organization", "organization")
+                        @header("active", "active")
+                        @header("activate.user", "activate user")
+                    </tr>
+                </thead>
+                <tbody>
 
-            @for(user <- currentPage.getList) {
-                <tr>
-                    <td><a href="@controllers.admin.routes.UserController.edit(user.getId.toString)">@user.getName</a></td>
-                    <td>
-                    @if(user.getEmail == null) {
-                        <em>-</em>
-                    } else {
-                        @user.getEmail
-                    }
-                    </td>
-                    <td>
-                        @for(org <- user.getOrganizations){
+                @for(user <- currentPage.getList) {
+                    <tr>
+                        <td>@user.getName</td>
+                        <td>
+                        @if(user.getEmail == null) {
+                            <em>-</em>
+                        } else {
+                            @user.getEmail
+                        }
+                        </td>
+                        <td>
+                        @for(org <- user.getOrganizations) {
                             @org.getName,
                         }
-                    </td>
-                    <td>
-                    @user.isActive
-                    </td>
-                    <td>
+                        </td>
+                        <td>
+                        @user.isActive
+                        </td>
+                        <td>
                         @if(user.isActive) {
                             <input type="submit" disabled="disabled" value="Already active" class="btn btn-primary-outline">
                         } else {
@@ -112,13 +107,13 @@
                                 <input type="submit" id="activatesubmit" value="Activate" class="btn btn-primary-outline">
                             </form>
                         }
-                    </td>
-                </tr>
-            }
+                        </td>
+                    </tr>
+                }
 
-            </tbody>
-        </table>
-</div>
+                </tbody>
+            </table>
+        </div>
         <div id="pagination" class="pagination">
             <ul>
                 @if(currentPage.hasPrev) {
@@ -148,5 +143,3 @@
     }
 
 }
-
-            

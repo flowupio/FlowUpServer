@@ -84,7 +84,7 @@
 
             @for(application <- currentPage.getList) {
                 <tr>
-                    <td><a href="@controllers.admin.routes.ApplicationController.edit(application.getId.toString)">@application.getAppPackage</a></td>
+                    <td>@application.getAppPackage</td>
                     <td>
                     @application.getOrganization.getName
                     </td>
