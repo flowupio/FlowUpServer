@@ -79,7 +79,7 @@
                 <tr>
                     @header("name", "name")
                     @header("email", "email")
-                    @header("emailValidated", "emailValidated")
+                    @header("organization", "organization")
                     @header("active", "active")
                     @header("activate.user", "activate user")
                 </tr>
@@ -97,7 +97,9 @@
                     }
                     </td>
                     <td>
-                    @user.isEmailValidated
+                        @for(org <- user.getOrganizations){
+                            @org.getName,
+                        }
                     </td>
                     <td>
                     @user.isActive
