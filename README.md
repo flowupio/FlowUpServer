@@ -52,3 +52,7 @@ An example based on this project could be:
 ## How to work with Elasticsearch
 
 Full documentation [here](./ELASTICSEARCH_TIPS.md).
+
+## How to become a FlowUp admin
+
+The permissions systems is implemented based on a library where the different security roles. If you want to become a user an administrator you have to create a new security role in the ``security_role`` table with any id and the security role name configured as ``admin`` and after that update the ``user_security_role`` table adding a new row with the user id and the admin security role id.
