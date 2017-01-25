@@ -7,7 +7,7 @@ import play.Logger;
 @Data
 public class Version implements Comparable<Version> {
 
-    static final Version UNKNOWN_VERSION = new Version(0, 0, 0, Platform.UNKNOWN);
+    public static final Version UNKNOWN_VERSION = new Version(0, 0, 0, Platform.UNKNOWN);
 
     private final int major;
     private final int minor;
@@ -15,6 +15,9 @@ public class Version implements Comparable<Version> {
     private final Platform platform;
 
     public static Version fromString(String value) {
+        if (value == null) {
+            return UNKNOWN_VERSION;
+        }
         try {
             Platform platform = value.startsWith("FlowUpAndroidSDK") ? Platform.ANDROID : Platform.IOS;
             int startIndex = value.indexOf('/') + 1;

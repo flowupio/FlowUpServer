@@ -1,6 +1,7 @@
 package sampling;
 
 import models.ApiKey;
+import models.Platform;
 import models.Version;
 import usecases.repositories.ApiKeyRepository;
 
@@ -34,17 +35,21 @@ public class SamplingGroup {
             return false;
         }
         Version minApiKeyVersionSupported = Version.fromString(apiKey.getMinAndroidSDKSupported());
-        if (minApiKeyVersionSupported.compareTo(version) > 0) {
+        if (!isVersionSupported(version, minApiKeyVersionSupported)) {
             return false;
         }
         if (hasExceededTheNumberOfAllowedUUIDs(apiKey)) {
             return apiKeyRepository.containsAllowedUUID(apiKey, uuid);
         } else {
-            if (!apiKeyRepository.containsAllowedUUID(apiKey,uuid)) {
+            if (!apiKeyRepository.containsAllowedUUID(apiKey, uuid)) {
                 apiKeyRepository.addAllowedUUID(apiKey, uuid);
             }
             return true;
         }
+    }
+
+    private boolean isVersionSupported(Version version, Version minApiKeyVersionSupported) {
+        return version != Version.UNKNOWN_VERSION && minApiKeyVersionSupported.compareTo(version) <= 0;
     }
 
     private boolean hasExceededTheNumberOfAllowedUUIDs(ApiKey apiKey) {

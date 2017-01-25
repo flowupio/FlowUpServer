@@ -234,6 +234,21 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
         assertEquals(FORBIDDEN, result.status());
     }
 
+    @Test
+    public void doesNotAcceptReportsWithoutTheUserAgentHeader() {
+        setupDatabaseWithApiKey(true, VERSION_1);
+        setupSuccessfulElasticsearchClient();
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json")
+                .header("X-UUID", ANY_UUID);
+
+        Result result = route(requestBuilder);
+
+        assertEquals(FORBIDDEN, result.status());
+    }
+
     private void configureAFullSamplingGroup(ApiKey apiKey) {
         for (int i = 0; i < 50; i++) {
             apiKeyRepository.addAllowedUUID(apiKey, UUID.randomUUID().toString());
