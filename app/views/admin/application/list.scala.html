@@ -39,7 +39,7 @@
 
 @views.html.admin.main {
 
-    <h1 id="homeTitle">@Messages("applications.list.title", currentPage.getTotalRowCount)</h1>
+    <h1 id="homeTitle">@Messages("Applications", currentPage.getTotalRowCount)</h1>
 
     @if(flash.containsKey("success")) {
         <div class="alert-message warning">
@@ -75,9 +75,9 @@
         <table class="table" data-sort="table">
             <thead>
                 <tr>
-                    @header("name", "appPackage")
-                    @header("email", "Organization")
-                    @header("emailValidated", "Grafana Org Id")
+                    @header("appPackage", "appPackage")
+                    @header("organization", "Organization")
+                    @header("organizationId", "Grafana Org Id")
                 </tr>
             </thead>
             <tbody>
@@ -86,7 +86,7 @@
                 <tr>
                     <td><a href="@controllers.admin.routes.ApplicationController.edit(application.getId.toString)">@application.getAppPackage</a></td>
                     <td>
-                    @application.getOrganization
+                    @application.getOrganization.getName
                     </td>
                     <td>
                     @application.getGrafanaOrgId
