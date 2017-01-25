@@ -54,7 +54,7 @@ public class Version implements Comparable<Version> {
     }
 
     private int getVersionNumber() {
-        return (getMajor() * 10000) + (getMinor() * 100 + getPatch());
+        return (getMajor() * 10000) + (getMinor() * 100) + getPatch();
     }
 
 

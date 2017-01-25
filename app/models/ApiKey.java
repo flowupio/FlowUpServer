@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 @Entity
 public class ApiKey extends Model implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     @Id
     private UUID id;
