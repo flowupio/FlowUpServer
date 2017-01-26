@@ -38,13 +38,8 @@ public class Version implements Comparable<Version> {
     public int compareTo(@NotNull Version o) {
         if (this.platform != o.platform) {
             return -1;
-        } else if (getVersionNumber() > o.getVersionNumber()) {
-            return 1;
-        } else if (getVersionNumber() < o.getVersionNumber()) {
-            return -1;
-        } else {
-            return 0;
         }
+        return getVersionNumber().compareTo(o.getVersionNumber());
     }
 
     @Override
@@ -53,7 +48,7 @@ public class Version implements Comparable<Version> {
         return clientName + "/" + getMajor() + "." + getMinor() + "." + getPatch();
     }
 
-    private int getVersionNumber() {
+    private Integer getVersionNumber() {
         return (getMajor() * 10000) + (getMinor() * 100) + getPatch();
     }
 
