@@ -8,9 +8,22 @@
 
         <title>Administration Panel</title>
 
+        <link rel="icon" type="image/x-icon" href="@routes.Assets.versioned("favicon/favicon.ico")">
         <link href="@routes.Assets.versioned("bootstrap-dashboard/toolkit-light.min.css")" rel="stylesheet">
+        <link href="@routes.Assets.versioned("bootstrap-dashboard/navbar.css")" rel="stylesheet">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="@routes.Assets.versioned("favicon/ms-icon-144x144.png")">
     </head>
     <body>
+
+        <nav class="navbar">
+            <ul class="navbar">
+                <li><a class="logo_navbar" href="@controllers.admin.routes.AdminController.index()"><img width="30" height="30" alt="FlowUp" src="/assets/images/logo-navbar.svg"></a></li>
+                <li><a href="@controllers.admin.routes.UserController.list()">Users</a></li>
+                <li><a href="@controllers.admin.routes.ApplicationController.list()">Applications</a></li>
+            </ul>
+        </nav>
+
         <div class="container">
         <header class="topbar">
             <h1 class="fill">
