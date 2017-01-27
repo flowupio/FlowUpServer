@@ -28,11 +28,15 @@
         @**********************************
         * Helper generating table headers *
         ***********************************@
-    @header(key: String, title: String) = {
+    @header(key: String, title: String, navigable: Boolean = true) = {
         <th class="@key.replace(".", "_") header @if(currentSortBy == key) @{
             if(currentOrder == "asc") "headerSortDown" else "headerSortUp"
         }">
+        @if(navigable) {
             <a href="@link(0, key)">@title</a>
+        }else {
+            @title
+        }
         </th>
     }
 @views.html.admin.main {
@@ -74,9 +78,9 @@
                     <tr>
                         @header("name", "Name")
                         @header("email", "Email")
-                        @header("organization", "Organization")
+                        @header("organization", "Organization", false)
                         @header("active", "Active")
-                        @header("activate.user", "Activate user")
+                        @header("activate.user", "Activate user", false)
                     </tr>
                 </thead>
                 <tbody>
@@ -92,9 +96,7 @@
                         }
                         </td>
                         <td>
-                        @for(org <- user.getOrganizations) {
-                            @org.getName,
-                        }
+                        @user.getOrganizations.get(0).getName
                         </td>
                         <td>
                         @user.isActive

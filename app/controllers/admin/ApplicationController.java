@@ -76,6 +76,6 @@ public class ApplicationController extends Controller {
         return CompletableFuture.supplyAsync(() -> {
             String version = form.getMinAndroidSdkSupported().trim();
             return updateSdk.execute(apiKeyId, version);
-        }).thenApply(apiKey -> GO_HOME);//TODO: Error handling?
+        }).thenApply(apiKey -> GO_HOME);
     }
 }

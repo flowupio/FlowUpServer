@@ -28,11 +28,15 @@
     @**********************************
     * Helper generating table headers *
     ***********************************@
-@header(key: String, title: String) = {
+@header(key: String, title: String, navigable: Boolean =true) = {
     <th class="@key.replace(".", "_") header @if(currentSortBy == key) @{
         if(currentOrder == "asc") "headerSortDown" else "headerSortUp"
     }">
-        <a href="@link(0, key)">@title</a>
+        @if(navigable) {
+            <a href="@link(0, key)">@title</a>
+        } else {
+            @title
+        }
     </th>
 }
 
@@ -77,8 +81,8 @@
                 <tr>
                     @header("appPackage", "App Package")
                     @header("organization", "Organization")
-                    @header("organizationId", "Api Key")
-                    @header("organizationId", "Min Android SDK Supported")
+                    @header("api_key_id", "Api Key", false)
+                    @header("minAndroidSdkSupported", "Min Android SDK Supported", false)
                 </tr>
             </thead>
             <tbody>
