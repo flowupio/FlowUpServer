@@ -1,7 +1,12 @@
 @views.html.admin.main {
 
-    <h1 id="homeTitle">@Messages("FlowUp Admin Panel")</h1>
+    <p>Welcome to the FlowUp administration panel. Remember, with great power comes great responsibility.</p>
 
+    <p>The list of features you will be able to access as a FlowUp admin are:</p>
+    <ul>
+        <li><a href="@controllers.admin.routes.UserController.list()">Manage users.</a></li>
+        <li><a href="@controllers.admin.routes.ApplicationController.list()">Manage applications.</a></li>
+    </ul>
 
 }
 
