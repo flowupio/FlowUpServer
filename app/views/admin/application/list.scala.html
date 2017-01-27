@@ -77,7 +77,8 @@
                 <tr>
                     @header("appPackage", "App Package")
                     @header("organization", "Organization")
-                    @header("organizationId", "Grafana Org Id")
+                    @header("organizationId", "Api Key")
+                    @header("organizationId", "Min Android SDK Supported")
                 </tr>
             </thead>
             <tbody>
@@ -89,7 +90,13 @@
                     @application.getOrganization.getName
                     </td>
                     <td>
-                    @application.getGrafanaOrgId
+                    @application.getOrganization.getApiKey.getValue
+                    </td>
+                    <td>
+                    <form method="post" action="@controllers.admin.routes.ApplicationController.updateMinAndroidSDKVersionSupported(application.getOrganization.getApiKey.getId.toString)">
+                        <input type="text" name="minAndroidSdkSupported" value="@application.getOrganization.getApiKey.getMinAndroidSDKSupported">
+                        <input type="submit" value="Update" class="btn btn-primary-outline">
+                    </form>
                     </td>
                 </tr>
             }

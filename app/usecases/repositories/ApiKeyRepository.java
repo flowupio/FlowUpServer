@@ -99,6 +99,12 @@ public class ApiKeyRepository {
         apiKeyDatasource.deleteAllowedUUIDs();
     }
 
+    public ApiKey updateMinAndroidSdkSupported(UUID id, Version version) {
+        ApiKey apiKey = apiKeyDatasource.updateApiKeyMinAndroidSdkSupported(id, version);
+        cache.set(getApiKeyCacheKey(apiKey.getValue()), apiKey, API_KEY_CACHE_TTL);
+        return apiKey;
+    }
+
     private void flushApiKeyCache(ApiKey apiKey) {
         cache.remove(getApiKeyCacheKey(apiKey.getValue()));
     }

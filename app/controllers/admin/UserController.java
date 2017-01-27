@@ -2,12 +2,8 @@ package controllers.admin;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Transaction;
 import controllers.Secured;
 import models.User;
-import play.data.Form;
-import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -16,7 +12,6 @@ import play.mvc.Security;
 import usecases.ActivateUser;
 
 import javax.inject.Inject;
-import javax.persistence.PersistenceException;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
@@ -24,13 +19,11 @@ import java.util.concurrent.CompletionStage;
 @Restrict(@Group("admin"))
 public class UserController extends Controller {
 
-    private FormFactory formFactory;
     private final ActivateUser activateUser;
     private final HttpExecutionContext ec;
 
     @Inject
-    public UserController(FormFactory formFactory, ActivateUser activateUser, HttpExecutionContext ec) {
-        this.formFactory = formFactory;
+    public UserController(ActivateUser activateUser, HttpExecutionContext ec) {
         this.activateUser = activateUser;
         this.ec = ec;
     }

@@ -10,6 +10,7 @@ import utils.Time;
 import javax.inject.Inject;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 
 public class ApiKeyDatasource {
 
@@ -68,6 +69,17 @@ public class ApiKeyDatasource {
         return getTodayAllowedUUIDQuery(apiKey).findSet();
     }
 
+    public ApiKey updateApiKeyMinAndroidSdkSupported(UUID id, Version version) {
+        ApiKey apiKey = findByApiKeyId(id);
+        apiKey.setMinAndroidSDKSupported(version.toString());
+        apiKey.update();
+        return apiKey;
+    }
+
+    private ApiKey findByApiKeyId(UUID id) {
+        return ApiKey.find.where().eq("id", id).findUnique();
+    }
+
     public void deleteAllowedUUIDs() {
         DateTime today = time.getTodayMidnightDate();
         AllowedUUID.find.where().le("created_at", today).delete();
@@ -78,4 +90,5 @@ public class ApiKeyDatasource {
         DateTime tomorrow = time.getTomorrowMidnightDate();
         return AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("created_at", today, tomorrow);
     }
+
 }

@@ -23,6 +23,7 @@ POST        /admin/users/:id/activate              controllers.admin.UserControl
 
 GET         /admin/applications                    controllers.admin.ApplicationController.list(p:Int ?= 0, s ?= "app_package", o ?= "asc", f ?= "")
 POST        /admin/application/:id/delete          controllers.admin.ApplicationController.delete(id)
+POST        /admin/application/apiKey/:id/updateMinAndroidSdkSupported controllers.admin.ApplicationController.updateMinAndroidSDKVersionSupported(id: String)
 
 
 # Authentication

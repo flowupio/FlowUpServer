@@ -2,33 +2,35 @@ package controllers.admin;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Transaction;
 import controllers.Secured;
+import controllers.admin.form.ChangeMinAndroidSDKVersion;
 import models.Application;
-import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Results;
 import play.mvc.Security;
+import usecases.UpdateMinAndroidSDKVersionSupported;
 
 import javax.inject.Inject;
-import javax.persistence.PersistenceException;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 @Security.Authenticated(Secured.class)
 @Restrict(@Group("admin"))
 public class ApplicationController extends Controller {
 
-    private FormFactory formFactory;
+    private final FormFactory formFactory;
     private final HttpExecutionContext ec;
+    private final UpdateMinAndroidSDKVersionSupported updateSdk;
 
     @Inject
-    public ApplicationController(FormFactory formFactory, HttpExecutionContext ec) {
+    public ApplicationController(FormFactory formFactory, HttpExecutionContext ec, UpdateMinAndroidSDKVersionSupported updateSdk) {
         this.formFactory = formFactory;
         this.ec = ec;
+        this.updateSdk = updateSdk;
     }
 
     /**
@@ -67,5 +69,13 @@ public class ApplicationController extends Controller {
         Application.find.ref(uuid).delete();
         flash("success", "Application has been deleted");
         return GO_HOME;
+    }
+
+    public CompletionStage<Result> updateMinAndroidSDKVersionSupported(String apiKeyId) {
+        ChangeMinAndroidSDKVersion form = formFactory.form(ChangeMinAndroidSDKVersion.class).bindFromRequest().get();
+        return CompletableFuture.supplyAsync(() -> {
+            String version = form.getMinAndroidSdkSupported().trim();
+            return updateSdk.execute(apiKeyId, version);
+        }).thenApply(apiKey -> GO_HOME);//TODO: Error handling?
     }
 }
