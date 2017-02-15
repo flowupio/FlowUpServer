@@ -33,11 +33,11 @@ public class SamplingGroupTest {
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
-    private SamplingGroup samplingGroup;
+    private ApiKeyPrivilege apiKeyPrivilege;
 
     @Before
     public void setUp() {
-        samplingGroup = new SamplingGroup(apiKeyRepository);
+        apiKeyPrivilege = new ApiKeyPrivilege(apiKeyRepository);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class SamplingGroupTest {
         ApiKey apiKey = givenAnApiKeyFullOfUsers(ANY_API_KEY);
         givenTheUUIDIsNotInTheGroup(apiKey, ANY_UUID);
 
-        boolean isUUIDIn = samplingGroup.isIn(ANY_API_KEY, ANY_UUID, ANY_VERSION);
+        boolean isUUIDIn = apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, ANY_VERSION);
 
         assertFalse(isUUIDIn);
     }
@@ -55,7 +55,7 @@ public class SamplingGroupTest {
         ApiKey apiKey = givenAnApiKeyFullOfUsers(ANY_API_KEY);
         givenTheUUIDIsInTheGroup(apiKey, ANY_UUID);
 
-        boolean isUUIDIn = samplingGroup.isIn(ANY_API_KEY, ANY_UUID, ANY_VERSION);
+        boolean isUUIDIn = apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, ANY_VERSION);
 
         assertTrue(isUUIDIn);
     }
@@ -64,7 +64,7 @@ public class SamplingGroupTest {
     public void returnsIsNotInTheSamplingGroupIfTheApiKeyIsDisabled() {
         givenADisabledApiKey(ANY_API_KEY);
 
-        boolean isUUIDIn = samplingGroup.isIn(ANY_API_KEY, ANY_UUID, ANY_VERSION);
+        boolean isUUIDIn = apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, ANY_VERSION);
 
         assertFalse(isUUIDIn);
     }
@@ -73,7 +73,7 @@ public class SamplingGroupTest {
     public void returnsIsInTheSamplingGroupIfTheApiKeyHasTheUUIDAsPartOfTheAllowedUUIDList() {
         givenAnApiKeyWithAllowedUUIDs(ANY_API_KEY, ANY_UUID);
 
-        boolean isUUIDIn = samplingGroup.isIn(ANY_API_KEY, ANY_UUID, ANY_VERSION);
+        boolean isUUIDIn = apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, ANY_VERSION);
 
         assertTrue(isUUIDIn);
     }
@@ -82,7 +82,7 @@ public class SamplingGroupTest {
     public void returnsIsInTheSamplingGroupIfIsANewUUIDButTheGroupIsNotFull() {
         givenAnApiKeyWithSpaceInTheSamplingGroup(ANY_API_KEY);
 
-        boolean isUUIDIn = samplingGroup.isIn(ANY_API_KEY, ANY_UUID, ANY_VERSION);
+        boolean isUUIDIn = apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, ANY_VERSION);
 
         assertTrue(isUUIDIn);
     }
@@ -91,7 +91,7 @@ public class SamplingGroupTest {
     public void updatesTheApiKeyWithTheNewUUIDIfTheSamplingGroupIsNotFull() {
         ApiKey apiKey = givenAnApiKeyWithSpaceInTheSamplingGroup(ANY_API_KEY);
 
-        samplingGroup.isIn(ANY_API_KEY, ANY_UUID, ANY_VERSION);
+        apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, ANY_VERSION);
 
         verify(apiKeyRepository).addAllowedUUID(apiKey, ANY_UUID);
     }
@@ -108,21 +108,21 @@ public class SamplingGroupTest {
     public void nonSupportedVersionsShouldNotBeInTheSamplingGroup() {
         givenAnApiKeyWithMinAndroidVersionSupported(VERSION_TWO);
 
-        assertFalse(samplingGroup.isIn(ANY_API_KEY, ANY_UUID, VERSION_ONE));
+        assertFalse(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_ONE));
     }
 
     @Test
     public void supportedVersionsShouldBePartOfTheSamplingGroup() {
         givenAnApiKeyWithMinAndroidVersionSupported(VERSION_ONE);
 
-        assertTrue(samplingGroup.isIn(ANY_API_KEY, ANY_UUID, VERSION_TWO));
+        assertTrue(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_TWO));
     }
 
     @Test
     public void theSameVersionShouldBePartOfTheSamplingGroup() {
         givenAnApiKeyWithMinAndroidVersionSupported(VERSION_ONE);
 
-        assertTrue(samplingGroup.isIn(ANY_API_KEY, ANY_UUID, VERSION_ONE));
+        assertTrue(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_ONE));
     }
 
     private ApiKey givenAnApiKeyWithMinAndroidVersionSupported(Version version) {

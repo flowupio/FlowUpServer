@@ -1,22 +1,21 @@
 package sampling;
 
 import models.ApiKey;
-import models.Platform;
 import models.Version;
 import usecases.repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
 
-public class SamplingGroup {
+public class ApiKeyPrivilege {
 
     private final ApiKeyRepository apiKeyRepository;
 
     @Inject
-    public SamplingGroup(ApiKeyRepository apiKeyRepository) {
+    public ApiKeyPrivilege(ApiKeyRepository apiKeyRepository) {
         this.apiKeyRepository = apiKeyRepository;
     }
 
-    public boolean isIn(String apiKeyValue, String uuid, Version version) {
+    public boolean isAllowed(String apiKeyValue, String uuid, Version version) {
         ApiKey apiKey = apiKeyRepository.getApiKey(apiKeyValue);
         if (apiKey == null) {
             return false;
@@ -27,10 +26,10 @@ public class SamplingGroup {
         if (uuid == null) {
             return true;
         }
-        return isInSamplingGroup(apiKey, uuid, version);
+        return hasPrivilege(apiKey, uuid, version);
     }
 
-    private boolean isInSamplingGroup(ApiKey apiKey, String uuid, Version version) {
+    private boolean hasPrivilege(ApiKey apiKey, String uuid, Version version) {
         if (!apiKey.isEnabled()) {
             return false;
         }
