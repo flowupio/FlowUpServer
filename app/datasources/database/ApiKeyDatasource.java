@@ -3,6 +3,7 @@ package datasources.database;
 import com.avaje.ebean.ExpressionList;
 import models.AllowedUUID;
 import models.ApiKey;
+import models.Version;
 import org.joda.time.DateTime;
 import utils.Time;
 
@@ -33,7 +34,14 @@ public class ApiKeyDatasource {
     }
 
     public ApiKey create(String value, boolean enabled) {
+        return create(value, enabled, null);
+    }
+
+    public ApiKey create(String value, boolean enabled, Version minAndroidSdkSupported) {
         ApiKey apiKey = new ApiKey();
+        if (minAndroidSdkSupported != null) {
+            apiKey.setMinAndroidSDKSupported(minAndroidSdkSupported.toString());
+        }
         apiKey.setValue(value);
         apiKey.setEnabled(enabled);
         apiKey.save();

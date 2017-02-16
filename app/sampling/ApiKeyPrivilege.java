@@ -1,20 +1,21 @@
 package sampling;
 
 import models.ApiKey;
+import models.Version;
 import usecases.repositories.ApiKeyRepository;
 
 import javax.inject.Inject;
 
-public class SamplingGroup {
+public class ApiKeyPrivilege {
 
     private final ApiKeyRepository apiKeyRepository;
 
     @Inject
-    public SamplingGroup(ApiKeyRepository apiKeyRepository) {
+    public ApiKeyPrivilege(ApiKeyRepository apiKeyRepository) {
         this.apiKeyRepository = apiKeyRepository;
     }
 
-    public boolean isIn(String apiKeyValue, String uuid) {
+    public boolean isAllowed(String apiKeyValue, String uuid, Version version) {
         ApiKey apiKey = apiKeyRepository.getApiKey(apiKeyValue);
         if (apiKey == null) {
             return false;
@@ -25,21 +26,29 @@ public class SamplingGroup {
         if (uuid == null) {
             return true;
         }
-        return isInSamplingGroup(apiKey, uuid);
+        return hasPrivilege(apiKey, uuid, version);
     }
 
-    private boolean isInSamplingGroup(ApiKey apiKey, String uuid) {
+    private boolean hasPrivilege(ApiKey apiKey, String uuid, Version version) {
         if (!apiKey.isEnabled()) {
+            return false;
+        }
+        Version minApiKeyVersionSupported = Version.fromString(apiKey.getMinAndroidSDKSupported());
+        if (!isVersionSupported(version, minApiKeyVersionSupported)) {
             return false;
         }
         if (hasExceededTheNumberOfAllowedUUIDs(apiKey)) {
             return apiKeyRepository.containsAllowedUUID(apiKey, uuid);
         } else {
-            if (!apiKeyRepository.containsAllowedUUID(apiKey,uuid)) {
+            if (!apiKeyRepository.containsAllowedUUID(apiKey, uuid)) {
                 apiKeyRepository.addAllowedUUID(apiKey, uuid);
             }
             return true;
         }
+    }
+
+    private boolean isVersionSupported(Version version, Version minApiKeyVersionSupported) {
+        return version != Version.UNKNOWN_VERSION && minApiKeyVersionSupported.compareTo(version) <= 0;
     }
 
     private boolean hasExceededTheNumberOfAllowedUUIDs(ApiKey apiKey) {

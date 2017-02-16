@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 @Entity
 public class ApiKey extends Model implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     @Id
     private UUID id;
@@ -30,6 +30,8 @@ public class ApiKey extends Model implements Serializable {
     private Organization organization;
 
     private boolean enabled = true;
+
+    private String minAndroidSdkSupported = "FlowUpAndroidSDK/0.0.0";
 
     private int numberOfAllowedUUIDs = 20;
 
@@ -75,4 +77,11 @@ public class ApiKey extends Model implements Serializable {
         this.numberOfAllowedUUIDs = numberOfAllowedUUIDs;
     }
 
+    public String getMinAndroidSDKSupported() {
+        return minAndroidSdkSupported;
+    }
+
+    public void setMinAndroidSDKSupported(String minAndroidSDKSupported) {
+        this.minAndroidSdkSupported = minAndroidSDKSupported;
+    }
 }
