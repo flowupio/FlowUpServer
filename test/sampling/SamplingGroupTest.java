@@ -154,7 +154,7 @@ public class SamplingGroupTest {
             allowedUUID.setInstallationUUID(String.valueOf(i));
             allowedUuids.add(allowedUUID);
         }
-        when(apiKeyRepository.getTodayAllowedUUIDCount(any(ApiKey.class))).thenReturn(ANY_NUMBER_OF_ALLOWED_UUID);
+        when(apiKeyRepository.getThisMonthAllowedUUIDCount(any(ApiKey.class))).thenReturn(ANY_NUMBER_OF_ALLOWED_UUID);
         return givenAnApiKey(true, apiKeyValue, allowedUuids);
     }
 
@@ -168,7 +168,7 @@ public class SamplingGroupTest {
         apiKey.setNumberOfAllowedUUIDs(ANY_NUMBER_OF_ALLOWED_UUID);
         apiKey.setMinAndroidSDKSupported(minAndroidVersion);
         when(apiKeyRepository.getApiKey(apiKeyValue)).thenReturn(apiKey);
-        when(apiKeyRepository.getTodayAllowedUUIDS(apiKey)).thenReturn(allowedUuids);
+        when(apiKeyRepository.getThisMonthAllowedUUIDS(apiKey)).thenReturn(allowedUuids);
         return apiKey;
     }
 

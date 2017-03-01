@@ -96,8 +96,8 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
         apiKeyRepository.addAllowedUUID(apiKey, ANY_OTHER_UUID);
 
-        assertEquals(2, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
-        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
+        assertEquals(2, apiKeyRepository.getThisMonthAllowedUUIDCount(apiKey));
+        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getThisMonthAllowedUUIDS(apiKey);
         assertEquals(2, allowedUUIDs.size());
     }
 
@@ -108,11 +108,11 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
         apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
         apiKeyRepository.addAllowedUUID(apiKey, ANY_OTHER_UUID);
 
-        givenTodayIsTomorrow();
+        givenTodayIsNextMonth();
         apiKeyRepository.deleteOldAllowedUUIDs();
 
-        assertEquals(0, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
-        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getTodayAllowedUUIDS(apiKey);
+        assertEquals(0, apiKeyRepository.getThisMonthAllowedUUIDCount(apiKey));
+        Set<AllowedUUID> allowedUUIDs = apiKeyRepository.getThisMonthAllowedUUIDS(apiKey);
         assertEquals(0, allowedUUIDs.size());
     }
 
@@ -130,30 +130,30 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
 
         apiKeyRepository.deleteOldAllowedUUIDs();
 
-        assertEquals(0, apiKeyRepository.getTodayAllowedUUIDCount(apiKey));
+        assertEquals(0, apiKeyRepository.getThisMonthAllowedUUIDCount(apiKey));
     }
 
     private void givenTodayIsYesterday() {
         when(time.getTodayNumericDay()).thenReturn(defaultTime.now().minusDays(1).getDayOfMonth());
         when(time.now()).thenReturn(defaultTime.now().minusDays(1));
         when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().minusDays(1));
-        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate().minusDays(1));
+        when(time.getMonthAgoMidnightDate()).thenReturn(defaultTime.getMonthAgoMidnightDate().minusDays(1));
         when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().minusDays(1));
     }
 
-    private void givenTodayIsTomorrow() {
-        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().plusDays(1).getDayOfMonth());
-        when(time.now()).thenReturn(defaultTime.now().plusDays(1));
-        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().plusDays(1));
-        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate().plusDays(1));
-        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().plusDays(1));
+    private void givenTodayIsNextMonth() {
+        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().plusMonths(1).plusDays(1).getDayOfMonth());
+        when(time.now()).thenReturn(defaultTime.now().plusMonths(1).plusDays(1));
+        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().plusMonths(1).plusDays(1));
+        when(time.getMonthAgoMidnightDate()).thenReturn(defaultTime.getMonthAgoMidnightDate().plusMonths(1).plusDays(1));
+        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().plusMonths(1).plusDays(1));
     }
 
     private void givenTodayIsToday() {
         when(time.getTodayNumericDay()).thenReturn(defaultTime.getTodayNumericDay());
         when(time.now()).thenReturn(defaultTime.now());
         when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate());
-        when(time.getTodayMidnightDate()).thenReturn(defaultTime.getTodayMidnightDate());
+        when(time.getMonthAgoMidnightDate()).thenReturn(defaultTime.getMonthAgoMidnightDate());
         when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate());
     }
 

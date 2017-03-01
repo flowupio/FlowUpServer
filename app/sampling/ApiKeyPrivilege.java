@@ -52,7 +52,7 @@ public class ApiKeyPrivilege {
     }
 
     private boolean hasExceededTheNumberOfAllowedUUIDs(ApiKey apiKey) {
-        int allowedUUIDCount = apiKeyRepository.getTodayAllowedUUIDCount(apiKey);
+        int allowedUUIDCount = apiKeyRepository.getThisMonthAllowedUUIDCount(apiKey);
         return allowedUUIDCount >= apiKey.getNumberOfAllowedUUIDs();
     }
 }
