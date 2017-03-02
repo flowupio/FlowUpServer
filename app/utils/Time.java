@@ -32,6 +32,12 @@ public class Time {
         return tomorrow.withTimeAtStartOfDay();
     }
 
+    public DateTime getMonthAgoMidnightDate() {
+        DateTimeZone timeZone = getTimeZone();
+        DateTime tomorrow = new DateTime(timeZone).minusMonths(1);
+        return tomorrow.withTimeAtStartOfDay();
+    }
+
     public int getTodayNumericDay() {
         return now().dayOfMonth().get();
     }

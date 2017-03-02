@@ -60,22 +60,22 @@ public class ApiKeyDatasource {
         allowedUUID.save();
     }
 
-    public int getTodayAllowedUUIDsCount(ApiKey apiKey) {
-        return getTodayAllowedUUIDQuery(apiKey).findRowCount();
+    public int getThisMonthAllowedUUIDsCount(ApiKey apiKey) {
+        return getThisMonthAllowedUUIDQuery(apiKey).findRowCount();
     }
 
-    public Set<AllowedUUID> getTodayAllowedUUIDs(ApiKey apiKey) {
-        return getTodayAllowedUUIDQuery(apiKey).findSet();
+    public Set<AllowedUUID> getThisMonthAllowedUUIDs(ApiKey apiKey) {
+        return getThisMonthAllowedUUIDQuery(apiKey).findSet();
     }
 
     public void deleteAllowedUUIDs() {
-        DateTime today = time.getTodayMidnightDate();
+        DateTime today = time.getMonthAgoMidnightDate();
         AllowedUUID.find.where().le("created_at", today).delete();
     }
 
-    private ExpressionList<AllowedUUID> getTodayAllowedUUIDQuery(ApiKey apiKey) {
-        DateTime today = time.getTodayMidnightDate();
+    private ExpressionList<AllowedUUID> getThisMonthAllowedUUIDQuery(ApiKey apiKey) {
+        DateTime monthAgo = time.getMonthAgoMidnightDate();
         DateTime tomorrow = time.getTomorrowMidnightDate();
-        return AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("created_at", today, tomorrow);
+        return AllowedUUID.find.where().eq("api_key_id", apiKey.getId()).between("created_at", monthAgo, tomorrow);
     }
 }

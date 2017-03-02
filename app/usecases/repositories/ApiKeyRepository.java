@@ -76,22 +76,22 @@ public class ApiKeyRepository {
     }
 
     public boolean containsAllowedUUID(ApiKey apiKey, String uuid) {
-        Set<AllowedUUID> todayAllowedUUIDS = getTodayAllowedUUIDS(apiKey);
-        return todayAllowedUUIDS.stream()
+        Set<AllowedUUID> thisMonthAllowedUUIDS = getThisMonthAllowedUUIDS(apiKey);
+        return thisMonthAllowedUUIDS.stream()
                 .filter(allowedUUID ->
                         allowedUUID.getInstallationUUID().equals(uuid))
                 .count() > 0;
     }
 
-    public int getTodayAllowedUUIDCount(ApiKey apiKey) {
+    public int getThisMonthAllowedUUIDCount(ApiKey apiKey) {
         return cache.getOrElse(getAllowedUUIDCountCacheKey(apiKey.getValue()),
-                () -> apiKeyDatasource.getTodayAllowedUUIDsCount(apiKey),
+                () -> apiKeyDatasource.getThisMonthAllowedUUIDsCount(apiKey),
                 API_KEY_TODAY_ALLOWED_UUID_COUNT_TTL);
     }
 
-    public Set<AllowedUUID> getTodayAllowedUUIDS(ApiKey apiKey) {
+    public Set<AllowedUUID> getThisMonthAllowedUUIDS(ApiKey apiKey) {
         return cache.getOrElse(getAllowedUUIDsCacheKey(apiKey.getValue()),
-                () -> apiKeyDatasource.getTodayAllowedUUIDs(apiKey),
+                () -> apiKeyDatasource.getThisMonthAllowedUUIDs(apiKey),
                 ALLOWED_UUIDS_TTL);
     }
 
