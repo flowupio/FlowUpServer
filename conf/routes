@@ -49,3 +49,6 @@ POST        /pulse                                 controllers.api.FindBugsContr
 POST        /allowedUUIDs                          controllers.api.AllowedUUIDsController.deleteOldAllowedUUIDs()
 POST        /bufferedReports                       controllers.api.ProcessSQSController.index
 POST        /oldDataPoints                         controllers.api.ElasticsearchController.deleteOldDataPoints()
+
+# Crash Reporter
+POST        /errorReport                           controllers.api.CrashReporterController.reportClientError()
