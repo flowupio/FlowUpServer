@@ -10,4 +10,6 @@ public class ErrorReport {
     private final boolean batterySaverOn;
     private final String message;
     private final String stackTrace;
+
+
 }

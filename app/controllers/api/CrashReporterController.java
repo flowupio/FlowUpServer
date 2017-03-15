@@ -1,10 +1,7 @@
 package controllers.api;
 
 import play.libs.Json;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.With;
+import play.mvc.*;
 import security.ApiKeySecuredAction;
 import usecases.ReportClientError;
 import usecases.models.ErrorReport;
@@ -24,9 +21,9 @@ public class CrashReporterController extends Controller {
     }
 
     public CompletionStage<Result> reportClientError() {
+        Http.RequestBody body = request().body();
+        ErrorReport errorReport = Json.fromJson(body.asJson(), ErrorReport.class);
         return CompletableFuture.supplyAsync(() -> {
-            Http.RequestBody body = request().body();
-            ErrorReport errorReport = body.as(ErrorReport.class);
             reportClientError.execute(errorReport);
             return created(Json.toJson(errorReport));
         });
