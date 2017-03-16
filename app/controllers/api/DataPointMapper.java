@@ -176,7 +176,7 @@ public class DataPointMapper {
          * In the case of the CPU metric, the min API supported is 19.
          */
         AndroidAPI metricAndroidAPI = AndroidAPI.fromString(processingUnit.getAndroidOSVersion());
-        if (metricAndroidAPI.compareTo(minAPISupported) > 0) {
+        if (minAPISupported != null && metricAndroidAPI.compareTo(minAPISupported) > 0) {
             return;
         }
         List<F.Tuple<String, Value>> measurements = new ArrayList<>();

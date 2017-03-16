@@ -10,7 +10,7 @@ class AndroidAPI implements Comparable<AndroidAPI> {
         this.apiValue = apiValue;
     }
 
-    public Integer getApiValue() {
+    Integer getApiValue() {
         return apiValue;
     }
 
