@@ -19,12 +19,27 @@ class AndroidAPI implements Comparable<AndroidAPI> {
             int apiValue = Integer.parseInt(value.replace("API", ""));
             return new AndroidAPI(apiValue);
         } catch (NumberFormatException e) {
-            return new AndroidAPI(Integer.MAX_VALUE);//TODO: Review this
+            return new AndroidAPI(Integer.MAX_VALUE);
         }
     }
 
     @Override
     public int compareTo(@NotNull AndroidAPI other) {
         return getApiValue().compareTo(other.getApiValue());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AndroidAPI)) return false;
+
+        AndroidAPI that = (AndroidAPI) o;
+
+        return getApiValue().equals(that.getApiValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return getApiValue().hashCode();
     }
 }
