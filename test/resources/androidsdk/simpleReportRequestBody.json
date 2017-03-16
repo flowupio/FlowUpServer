@@ -11,7 +11,7 @@
       "bytesDownloaded": 2048,
       "timestamp": 123456789,
       "appVersionName": "1.0.0",
-      "androidOSVersion": "API24",
+      "androidOSVersion": "API19",
       "batterySaverOn": true
     }
   ],
@@ -60,7 +60,7 @@
       },
       "timestamp": 123456789,
       "appVersionName": "1.0.0",
-      "androidOSVersion": "API24",
+      "androidOSVersion": "API19",
       "batterySaverOn": true
     }
   ],
@@ -69,7 +69,7 @@
       "consumption": 10,
       "timestamp": 123456789,
       "appVersionName": "1.0.0",
-      "androidOSVersion": "API24",
+      "androidOSVersion": "API19",
       "batterySaverOn": true
     }
   ],
@@ -79,7 +79,7 @@
       "consumption": 3,
       "timestamp": 123456789,
       "appVersionName": "1.0.0",
-      "androidOSVersion": "API24",
+      "androidOSVersion": "API19",
       "batterySaverOn": true
     }
   ],
@@ -89,7 +89,7 @@
       "sharedPreferencesWrittenBytes": 1024,
       "timestamp": 123456789,
       "appVersionName": "1.0.0",
-      "androidOSVersion": "API24",
+      "androidOSVersion": "API19",
       "batterySaverOn": true
     }
   ]

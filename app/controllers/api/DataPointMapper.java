@@ -39,6 +39,7 @@ public class DataPointMapper {
     private static final String ON_ACTIVITY_PAUSED_TIME = "OnActivityPausedTime";
     private static final String ON_ACTIVITY_STOPPED_TIME = "OnActivityStoppedTime";
     private static final String ON_ACTIVITY_DESTROYED_TIME = "OnActivityDestroyedTime";
+    private static final AndroidAPI MIN_CPU_API_SUPPORTED = new AndroidAPI(19);
     private static final long MIN_FRAME_TIME_ALLOWED = TimeUnit.MILLISECONDS.toNanos(16);
 
     @NotNull
@@ -119,7 +120,7 @@ public class DataPointMapper {
         List<DataPoint> dataPoints = new ArrayList<>();
 
         reportRequest.getCpu().forEach((cpu) -> {
-            mapProcessingUnit(reportRequest, dataPoints, cpu);
+            mapProcessingUnit(reportRequest, dataPoints, cpu, MIN_CPU_API_SUPPORTED);
         });
 
         return dataPoints;
@@ -171,6 +172,18 @@ public class DataPointMapper {
     }
 
     private void mapProcessingUnit(ReportRequest reportRequest, List<DataPoint> dataPoints, ProcessingUnit processingUnit) {
+        mapProcessingUnit(reportRequest, dataPoints, processingUnit, null);
+    }
+
+    private void mapProcessingUnit(ReportRequest reportRequest, List<DataPoint> dataPoints, ProcessingUnit processingUnit, AndroidAPI minAPISupported) {
+        /* We have noticed a bug in the Android SDK and the client is reporting CPU consumption as 0 % always.
+         * Based on this bug we have decided to don't store some data points if the host API is not supported.
+         * In the case of the CPU metric, the min API supported is 19.
+         */
+        AndroidAPI metricAndroidAPI = AndroidAPI.fromString(processingUnit.getAndroidOSVersion());
+        if (minAPISupported != null && metricAndroidAPI.compareTo(minAPISupported) > 0) {
+            return;
+        }
         List<F.Tuple<String, Value>> measurements = new ArrayList<>();
         measurements.add(new F.Tuple<>(CONSUMPTION, Value.toBasicValue(processingUnit.getConsumption())));
 
