@@ -1,6 +1,7 @@
 package controllers.api;
 
 import org.jetbrains.annotations.NotNull;
+import play.Logger;
 import play.libs.F;
 import usecases.models.DataPoint;
 import usecases.models.Metric;
@@ -81,6 +82,8 @@ public class DataPointMapper {
             if (frameTime.getMean() >= MIN_FRAME_TIME_ALLOWED) {
                 measurements.add(new F.Tuple<>(FRAME_TIME, frameTime));
                 measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, computeFramesPerSecond(frameTime)));
+            } else {
+                Logger.error("Invalid frame time metric detected " + reportRequest);
             }
             measurements.add(new F.Tuple<>(ON_ACTIVITY_CREATED_TIME, ui.getOnActivityCreatedTime()));
             measurements.add(new F.Tuple<>(ON_ACTIVITY_STARTED_TIME, ui.getOnActivityStartedTime()));
