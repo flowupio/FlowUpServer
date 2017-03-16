@@ -10,6 +10,7 @@ import usecases.models.Value;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DataPointMapper {
 
@@ -38,6 +39,7 @@ public class DataPointMapper {
     private static final String ON_ACTIVITY_PAUSED_TIME = "OnActivityPausedTime";
     private static final String ON_ACTIVITY_STOPPED_TIME = "OnActivityStoppedTime";
     private static final String ON_ACTIVITY_DESTROYED_TIME = "OnActivityDestroyedTime";
+    private static final long MIN_FRAME_TIME_ALLOWED = TimeUnit.MILLISECONDS.toNanos(16);
 
     @NotNull
     public List<Metric> mapMetrics(ReportRequest reportRequest) {
@@ -74,8 +76,11 @@ public class DataPointMapper {
 
         reportRequest.getUi().forEach((ui) -> {
             List<F.Tuple<String, Value>> measurements = new ArrayList<>();
-            measurements.add(new F.Tuple<>(FRAME_TIME, ui.getFrameTime()));
-            measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, computeFramesPerSecond(ui.getFrameTime())));
+            StatisticalValue frameTime = ui.getFrameTime();
+            if (frameTime.getMean() >= MIN_FRAME_TIME_ALLOWED) {
+                measurements.add(new F.Tuple<>(FRAME_TIME, frameTime));
+                measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, computeFramesPerSecond(frameTime)));
+            }
             measurements.add(new F.Tuple<>(ON_ACTIVITY_CREATED_TIME, ui.getOnActivityCreatedTime()));
             measurements.add(new F.Tuple<>(ON_ACTIVITY_STARTED_TIME, ui.getOnActivityStartedTime()));
             measurements.add(new F.Tuple<>(ON_ACTIVITY_RESUMED_TIME, ui.getOnActivityResumedTime()));
@@ -95,7 +100,7 @@ public class DataPointMapper {
     }
 
     private StatisticalValue computeFramesPerSecond(StatisticalValue frameTime) {
-        if(frameTime == null) {
+        if (frameTime == null) {
             return null;
         }
         return new StatisticalValue(
