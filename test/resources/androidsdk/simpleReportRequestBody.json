@@ -19,9 +19,9 @@
     {
       "screen": "MainActivity",
       "frameTime": {
-        "mean": 60.0,
-        "p10": 60.0,
-        "p90": 60.0
+        "mean":16000000,
+        "p10": 16000000,
+        "p90": 16000000
       },
       "onActivityCreatedTime": {
         "mean": 60.0,

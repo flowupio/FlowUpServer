@@ -1,6 +1,7 @@
 package controllers.api;
 
 import org.jetbrains.annotations.NotNull;
+import play.Logger;
 import play.libs.F;
 import usecases.models.DataPoint;
 import usecases.models.Metric;
@@ -10,6 +11,7 @@ import usecases.models.Value;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DataPointMapper {
 
@@ -39,6 +41,7 @@ public class DataPointMapper {
     private static final String ON_ACTIVITY_STOPPED_TIME = "OnActivityStoppedTime";
     private static final String ON_ACTIVITY_DESTROYED_TIME = "OnActivityDestroyedTime";
     private static final AndroidAPI MIN_CPU_API_SUPPORTED = new AndroidAPI(19);
+    private static final long MIN_FRAME_TIME_ALLOWED = TimeUnit.MILLISECONDS.toNanos(16);
 
     @NotNull
     public List<Metric> mapMetrics(ReportRequest reportRequest) {
@@ -75,8 +78,13 @@ public class DataPointMapper {
 
         reportRequest.getUi().forEach((ui) -> {
             List<F.Tuple<String, Value>> measurements = new ArrayList<>();
-            measurements.add(new F.Tuple<>(FRAME_TIME, ui.getFrameTime()));
-            measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, computeFramesPerSecond(ui.getFrameTime())));
+            StatisticalValue frameTime = ui.getFrameTime();
+            if (frameTime.getMean() >= MIN_FRAME_TIME_ALLOWED) {
+                measurements.add(new F.Tuple<>(FRAME_TIME, frameTime));
+                measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, computeFramesPerSecond(frameTime)));
+            } else {
+                Logger.error("Invalid frame time metric detected " + reportRequest);
+            }
             measurements.add(new F.Tuple<>(ON_ACTIVITY_CREATED_TIME, ui.getOnActivityCreatedTime()));
             measurements.add(new F.Tuple<>(ON_ACTIVITY_STARTED_TIME, ui.getOnActivityStartedTime()));
             measurements.add(new F.Tuple<>(ON_ACTIVITY_RESUMED_TIME, ui.getOnActivityResumedTime()));
