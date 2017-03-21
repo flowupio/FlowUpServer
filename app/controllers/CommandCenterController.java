@@ -76,7 +76,7 @@ public class CommandCenterController extends Controller {
         CompletionStage<Organization> organizationFuture = getPrimaryOrganization.execute(user);
         CompletionStage<String> sdkVersionFuture = getLatestAndroidSDKVersionName.execute();
         return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
-                ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName))
+                ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, organization.hasApplications()))
         );
     }
 
