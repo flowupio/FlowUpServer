@@ -24,14 +24,14 @@ public class VersionTest {
     public void parsesADebugVersionOfTheAndroidClient() {
         Version version = Version.fromString("FlowUpAndroidSDK/0.2.7-DEBUG");
 
-        assertEquals(new Version(0, 2, 7, Platform.ANDROID), version);
+        assertEquals(new Version(0, 2, 7, Platform.ANDROID, true), version);
     }
 
     @Test
     public void parsesASnapshotAndDebugVersionOfTheAndroidClient() {
         Version version = Version.fromString("FlowUpAndroidSDK/0.2.8-SNAPSHOT-DEBUG");
 
-        assertEquals(new Version(0, 2, 8, Platform.ANDROID), version);
+        assertEquals(new Version(0, 2, 8, Platform.ANDROID, true), version);
     }
 
     @Test

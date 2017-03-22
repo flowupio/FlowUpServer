@@ -40,7 +40,7 @@ public class Version implements Comparable<Version> {
             int major = Integer.parseInt(versions[0]);
             int minor = Integer.parseInt(versions[1]);
             int patch = Integer.parseInt(versions[2]);
-            boolean debugVersion = value.contains("DEBUG");
+            boolean debugVersion = value.endsWith("DEBUG");
             return new Version(major, minor, patch, platform, debugVersion);
         } catch (Throwable e) {
             Logger.warn("Error parsing FlowUp user agent information", e);
