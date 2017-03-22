@@ -1,6 +1,7 @@
 package usecases.repositories;
 
 import com.feth.play.module.pa.user.AuthUser;
+import com.feth.play.module.pa.user.AuthUserIdentity;
 import com.feth.play.module.pa.user.EmailIdentity;
 import datasources.database.OrganizationDatasource;
 import datasources.database.UserDatasource;
@@ -88,5 +89,9 @@ public class UserRepository {
 
     public void setActive(User user) {
         userDatasource.setActive(user);
+    }
+
+    public User getByAuthUserIdentity(AuthUserIdentity identity) {
+        return User.findByAuthUserIdentity(identity);
     }
 }
