@@ -1,10 +1,12 @@
 @import java.util
 @(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User, apiKey: ApiKey, applications: util.List[Application], sdkVersion: String, autoRefresh: Boolean)
-
-
-
+    <script src="@routes.Assets.versioned("javascripts/reloadCommandCenter.js")"></script>
+    <script type="text/javascript">
+        if(@autoRefresh) {
+            reloadCommandCenterWhenDataReady()
+        }
+    </script>
     @views.html.commandcenter.main("Command Center", user) {
-
         @if(!user.isActive) {
             <div class="row">
 
