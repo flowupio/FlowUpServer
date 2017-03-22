@@ -37,6 +37,9 @@ public class ApiKeyPrivilege {
         if (!isVersionSupported(version, minApiKeyVersionSupported)) {
             return false;
         }
+        if (version.isDebugVersion()) {
+            return true;
+        }
         if (hasExceededTheNumberOfAllowedUUIDs(apiKey)) {
             return apiKeyRepository.containsAllowedUUID(apiKey, uuid);
         } else {

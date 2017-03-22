@@ -13,6 +13,19 @@ public class Version implements Comparable<Version> {
     private final int minor;
     private final int patch;
     private final Platform platform;
+    private final boolean debugVersion;
+
+    public Version(int major, int minor, int patch, Platform platform) {
+        this(major, minor, patch, platform, false);
+    }
+
+    public Version(int major, int minor, int patch, Platform platform, boolean debugVersion) {
+        this.major = major;
+        this.minor = minor;
+        this.patch = patch;
+        this.platform = platform;
+        this.debugVersion = debugVersion;
+    }
 
     public static Version fromString(String value) {
         if (value == null) {
@@ -27,7 +40,8 @@ public class Version implements Comparable<Version> {
             int major = Integer.parseInt(versions[0]);
             int minor = Integer.parseInt(versions[1]);
             int patch = Integer.parseInt(versions[2]);
-            return new Version(major, minor, patch, platform);
+            boolean debugVersion = value.contains("DEBUG");
+            return new Version(major, minor, patch, platform, debugVersion);
         } catch (Throwable e) {
             Logger.warn("Error parsing FlowUp user agent information", e);
             return UNKNOWN_VERSION;
