@@ -33,7 +33,7 @@ public class InsertDataPointsTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        useCase = new InsertDataPoints(metricsDatasourceMock, applicationRepositoryMock);
+        useCase = new InsertDataPoints(metricsDatasourceMock, applicationRepositoryMock, emailSender);
     }
 
     @DataProvider

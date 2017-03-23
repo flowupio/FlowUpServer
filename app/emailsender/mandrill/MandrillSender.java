@@ -104,7 +104,7 @@ public class MandrillSender implements EmailSender {
     }
 
     @Override
-    public CompletionStage<Boolean> sendKeyMetricsMessage(List<User> users, Application app) {
+    public CompletionStage<Boolean> sendFirstReportReceived(List<User> users, Application app) {
         return null;
     }
 }
