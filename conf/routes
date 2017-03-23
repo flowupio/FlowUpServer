@@ -54,4 +54,4 @@ POST        /oldDataPoints                         controllers.api.Elasticsearch
 POST        /errorReport                           controllers.api.CrashReporterController.reportClientError()
 
 # User
-GET         /user                                  controllers.api.UserController.get()
+GET         /user                                  controllers.webapi.UserController.get

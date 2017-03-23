@@ -1,7 +1,8 @@
-package controllers.api;
+package controllers.webapi;
 
 import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.user.AuthUser;
+import controllers.api.ApiCookieSecured;
 import models.Organization;
 import models.PublicUser;
 import models.User;
