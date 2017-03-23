@@ -16,7 +16,7 @@ import usecases.GetUserByAuthUserIdentity;
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
 
-@Security.Authenticated(ApiSecured.class)
+@Security.Authenticated(ApiCookieSecured.class)
 public class UserController extends Controller {
 
     private final PlayAuthenticate auth;

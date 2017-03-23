@@ -8,12 +8,12 @@ import play.mvc.Security;
 
 import javax.inject.Inject;
 
-public class ApiSecured extends Security.Authenticator {
+public class ApiCookieSecured extends Security.Authenticator {
 
     private final PlayAuthenticate auth;
 
     @Inject
-    public ApiSecured(final PlayAuthenticate auth) {
+    public ApiCookieSecured(final PlayAuthenticate auth) {
         this.auth = auth;
     }
 
