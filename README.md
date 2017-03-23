@@ -56,4 +56,4 @@ Full documentation [here](./ELASTICSEARCH_TIPS.md).
 
 ## How to work with email templates
 
-Full documentation [here](./MAILCHIMP_TIPS.md).
+Full documentation [here](./MANDRILL_TIPS.md).
