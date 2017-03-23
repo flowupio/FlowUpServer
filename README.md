@@ -57,3 +57,7 @@ Full documentation [here](./ELASTICSEARCH_TIPS.md).
 ## How to work with email templates
 
 Full documentation [here](./MANDRILL_TIPS.md).
+
+## Testing production
+
+To run the FlowUp server using a configuration similar to the production one where the assets are going to be versioned and the javascript minified you can run the server using this command ``sbt testProd``. This will build the server artifact and will start the service using a production like build you can run locally.
