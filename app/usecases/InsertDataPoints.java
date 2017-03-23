@@ -46,10 +46,16 @@ public class InsertDataPoints {
             futureApplication = completedFuture(application);
         }
         return futureApplication.thenCompose((app) -> {
-            List<User> users = app.getOrganization().getMembers();
-            emailSender.sendFirstReportReceived(users, app);
+            if(firstReport) {
+                sendFirstReportReceivedEmail(app);
+            }
             return metricsDatasource.writeDataPoints(report, app);
         });
+    }
+
+    private void sendFirstReportReceivedEmail(Application app) {
+        List<User> users = app.getOrganization().getMembers();
+        emailSender.sendFirstReportReceived(users, app);
     }
 
     @NotNull
