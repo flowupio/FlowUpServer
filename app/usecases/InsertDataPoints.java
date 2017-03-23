@@ -46,19 +46,19 @@ public class InsertDataPoints {
         boolean firstReport = application == null;
         if (firstReport) {
             futureApplication = applicationRepository.create(report.getApiKey(), report.getAppPackage());
+            sendFirstReportEmail(futureApplication);
         } else {
             futureApplication = completedFuture(application);
         }
         return writeDataPoints(report, futureApplication, firstReport);
     }
 
+    private void sendFirstReportEmail(CompletionStage<Application> futureApplication) {
+        futureApplication.thenCompose(emailSender::sendFirstReportReceived);
+    }
+
     private CompletionStage<InsertResult> writeDataPoints(Report report, CompletionStage<Application> futureApplication, boolean firstReport) {
-        return futureApplication.thenCompose((app) -> {
-            if (firstReport) {
-                emailSender.sendFirstReportReceived(app);
-            }
-            return metricsDatasource.writeDataPoints(report, app);
-        });
+        return futureApplication.thenCompose((app) -> metricsDatasource.writeDataPoints(report, app));
     }
 
     @NotNull
