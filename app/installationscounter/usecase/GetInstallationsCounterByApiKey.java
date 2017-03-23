@@ -5,12 +5,12 @@ import installationscounter.domain.InstallationsCounterRepository;
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
 
-public class GetCounterByApiKey {
+public class GetInstallationsCounterByApiKey {
 
     private final InstallationsCounterRepository repository;
 
     @Inject
-    public GetCounterByApiKey(InstallationsCounterRepository repository) {
+    public GetInstallationsCounterByApiKey(InstallationsCounterRepository repository) {
         this.repository = repository;
     }
 
