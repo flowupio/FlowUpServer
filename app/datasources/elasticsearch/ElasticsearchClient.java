@@ -63,6 +63,16 @@ public class ElasticsearchClient {
         );
     }
 
+    public CompletionStage<Boolean> post(String index, Object document) {
+        String content = Json.toJson(document).toString();
+        return ws.url(baseUrl + index).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
+                response -> {
+                    Logger.debug(response.getBody());
+                    return response.getStatus() == 201;
+                }
+        );
+    }
+
     public CompletionStage<MSearchResponse> multiSearch(List<SearchQuery> indexRequestList) {
         List<JsonNode> jsonNodes = new ArrayList<>();
         for (SearchQuery indexRequest : indexRequestList) {

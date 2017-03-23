@@ -19,7 +19,8 @@ public class InstallationsCounterApiClient {
     }
 
     public CompletionStage<Installation> incrementCounter(Installation installation) {
-        return null;
+        return elasticClient.post(INSTALLATIONS_COUNTER_INDEX, installation)
+                .thenApply(result -> installation);
     }
 
     public CompletionStage<Long> getInstallationCounter(String apiKey) {
