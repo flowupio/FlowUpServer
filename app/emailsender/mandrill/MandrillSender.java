@@ -1,10 +1,11 @@
-package datasources.mandrill;
+package emailsender.mandrill;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import models.Application;
 import models.User;
 import play.Configuration;
-import usecases.EmailSender;
+import emailsender.EmailSender;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -100,5 +101,10 @@ public class MandrillSender implements EmailSender {
                 globalMergeVars);
         TemplateContent main = new TemplateContent(MAIN, topMetricsHtml);
         return this.client.sendMessageWithTemplate(this.pulseTemplate, Collections.singletonList(main), message).thenApply(response -> response.getCode() == 200);
+    }
+
+    @Override
+    public CompletionStage<Boolean> sendKeyMetricsMessage(List<User> users, Application app) {
+        return null;
     }
 }

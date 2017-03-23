@@ -3,14 +3,14 @@ import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import datasources.elasticsearch.ElasticSearchDatasource;
-import datasources.mandrill.MandrillSender;
-import datasources.mandrill.TwirlEmailTemplateRenderer;
+import emailsender.mandrill.MandrillSender;
+import emailsender.mandrill.TwirlEmailTemplateRenderer;
 import usecases.DashboardsClient;
 import datasources.grafana.GrafanaClient;
 import play.Configuration;
 import play.Environment;
-import usecases.EmailSender;
-import usecases.EmailTemplateRenderer;
+import emailsender.EmailSender;
+import emailsender.EmailTemplateRenderer;
 import usecases.MetricsDatasource;
 
 public class Module extends AbstractModule {
