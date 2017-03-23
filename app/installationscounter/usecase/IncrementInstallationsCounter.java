@@ -1,21 +1,21 @@
 package installationscounter.usecase;
 
 import installationscounter.domain.Installation;
-import installationscounter.domain.InstallationsCounterRepository;
+import installationscounter.domain.InstallationsCounter;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
 
 public class IncrementInstallationsCounter {
 
-    private final InstallationsCounterRepository repository;
+    private final InstallationsCounter installationsCounter;
 
     @Inject
-    public IncrementInstallationsCounter(InstallationsCounterRepository repository) {
-        this.repository = repository;
+    public IncrementInstallationsCounter(InstallationsCounter installationsCounter) {
+        this.installationsCounter = installationsCounter;
     }
 
     public CompletionStage<Installation> execute(Installation installation) {
-        return null;
+        return installationsCounter.increment(installation);
     }
 }
