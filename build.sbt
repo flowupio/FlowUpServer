@@ -5,10 +5,12 @@ name := "flowupserver"
 
 version := "1.0"
 
-lazy val `flowupserver` = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
+lazy val `flowupserver` = (project in file(".")).enablePlugins(PlayJava, PlayEbean, SbtWeb)
   .enablePlugins(GatlingPlugin)
   .configs(GatlingTest)
   .settings(inConfig(GatlingTest)(Defaults.testSettings): _*)
+
+pipelineStages := Seq(rjs, digest, gzip)
 
 scalaVersion := "2.11.8"
 
