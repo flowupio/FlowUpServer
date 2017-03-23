@@ -24,3 +24,5 @@ function getUser(callback) {
     xmlHttp.open("GET", "/user", true);
     xmlHttp.send(null);
 }
+
+reloadCommandCenterWhenDataReady();
