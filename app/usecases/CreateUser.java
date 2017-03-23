@@ -3,6 +3,7 @@ package usecases;
 import com.feth.play.module.pa.user.AuthUser;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import emailsender.EmailSender;
 import models.Organization;
 import models.User;
 import play.Configuration;

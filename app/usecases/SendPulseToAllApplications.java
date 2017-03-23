@@ -2,10 +2,11 @@ package usecases;
 
 import com.google.inject.Inject;
 import com.spotify.futures.CompletableFutures;
+import emailsender.EmailSender;
+import emailsender.EmailTemplateRenderer;
 import models.Application;
 import models.User;
 import usecases.models.KeyStatCard;
-import usecases.models.StatCard;
 import usecases.repositories.ApplicationRepository;
 
 import java.time.ZonedDateTime;

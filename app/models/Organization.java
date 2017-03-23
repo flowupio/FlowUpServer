@@ -91,4 +91,9 @@ public class Organization extends Model implements Serializable {
     public void setBillingId(String billingId) {
         this.billingId = billingId;
     }
+
+    public boolean hasApplications() {
+        List<Application> apps = getApplications();
+        return apps != null && !apps.isEmpty();
+    }
 }

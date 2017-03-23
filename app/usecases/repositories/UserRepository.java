@@ -1,13 +1,14 @@
 package usecases.repositories;
 
 import com.feth.play.module.pa.user.AuthUser;
+import com.feth.play.module.pa.user.AuthUserIdentity;
 import com.feth.play.module.pa.user.EmailIdentity;
 import datasources.database.OrganizationDatasource;
 import datasources.database.UserDatasource;
 import usecases.DashboardsClient;
 import models.Organization;
 import models.User;
-import usecases.EmailSender;
+import emailsender.EmailSender;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -88,5 +89,9 @@ public class UserRepository {
 
     public void setActive(User user) {
         userDatasource.setActive(user);
+    }
+
+    public User getByAuthUserIdentity(AuthUserIdentity identity) {
+        return User.findByAuthUserIdentity(identity);
     }
 }

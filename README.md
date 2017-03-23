@@ -52,3 +52,8 @@ An example based on this project could be:
 ## How to work with Elasticsearch
 
 Full documentation [here](./ELASTICSEARCH_TIPS.md).
+
+
+## How to work with email templates
+
+Full documentation [here](./MANDRILL_TIPS.md).

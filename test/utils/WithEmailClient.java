@@ -1,10 +1,7 @@
 package utils;
 
-import datasources.mandrill.MandrillClient;
-import datasources.mandrill.MessagesSendTemplateResponse;
-import models.Application;
-import models.User;
-import usecases.DashboardsClient;
+import emailsender.mandrill.MandrillClient;
+import emailsender.mandrill.MessagesSendTemplateResponse;
 
 import java.util.concurrent.CompletableFuture;
 

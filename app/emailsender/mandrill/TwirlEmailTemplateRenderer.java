@@ -1,9 +1,8 @@
-package datasources.mandrill;
+package emailsender.mandrill;
 
 import models.Application;
-import usecases.EmailTemplateRenderer;
+import emailsender.EmailTemplateRenderer;
 import usecases.models.KeyStatCard;
-import usecases.models.StatCard;
 import views.html.api.findbugs;
 
 import java.util.List;

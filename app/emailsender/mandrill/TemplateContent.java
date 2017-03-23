@@ -1,4 +1,4 @@
-package datasources.mandrill;
+package emailsender.mandrill;
 
 import lombok.Data;
 

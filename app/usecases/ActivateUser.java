@@ -1,6 +1,7 @@
 package usecases;
 
 import com.google.inject.Inject;
+import emailsender.EmailSender;
 import models.User;
 import usecases.repositories.UserRepository;
 
