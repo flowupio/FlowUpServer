@@ -1,4 +1,4 @@
-package datasources.mandrill;
+package emailsender.mandrill;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

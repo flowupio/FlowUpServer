@@ -1,4 +1,4 @@
-package usecases;
+package emailsender;
 
 import models.Application;
 import usecases.models.KeyStatCard;

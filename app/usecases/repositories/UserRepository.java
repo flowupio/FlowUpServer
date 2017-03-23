@@ -8,7 +8,7 @@ import datasources.database.UserDatasource;
 import usecases.DashboardsClient;
 import models.Organization;
 import models.User;
-import usecases.EmailSender;
+import emailsender.EmailSender;
 
 import javax.inject.Inject;
 import java.util.Collections;

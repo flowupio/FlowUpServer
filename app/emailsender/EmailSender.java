@@ -1,5 +1,6 @@
-package usecases;
+package emailsender;
 
+import models.Application;
 import models.User;
 
 import java.time.ZonedDateTime;
@@ -10,4 +11,5 @@ public interface EmailSender {
     CompletionStage<Boolean> sendSigningUpDisabledMessage(User user);
     CompletionStage<Boolean> sendSignUpApprovedMessage(User user);
     CompletionStage<Boolean> sendKeyMetricsMessage(List<User> users, String appPackage, ZonedDateTime dateTime, String topMetricsHtml);
+    CompletionStage<Boolean> sendFirstReportReceived(Application app);
 }
