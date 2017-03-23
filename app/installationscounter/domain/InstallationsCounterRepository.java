@@ -24,7 +24,7 @@ public class InstallationsCounterRepository {
     }
 
     CompletionStage<Installation> increment(Installation installation) {
-        return null;//TODO: Use the api client here to post a new installation value.
+        return apiClient.incrementCounter(installation).thenApply(createdInstallation -> createdInstallation);
     }
 
     CompletionStage<Long> getInstallationCounter(String apiKey) {
@@ -33,9 +33,13 @@ public class InstallationsCounterRepository {
             return completedFuture(counter);
         }
         return apiClient.getInstallationCounter(apiKey).thenApply(counterValue -> {
-            cache.set(getApiKeyCacheKey(apiKey), counterValue, CACHE_TTL);
+            updateInstallationsCounterCache(apiKey, counterValue);
             return counterValue;
         });
+    }
+
+    private void updateInstallationsCounterCache(String apiKey, Long counterValue) {
+        cache.set(getApiKeyCacheKey(apiKey), counterValue, CACHE_TTL);
     }
 
 
