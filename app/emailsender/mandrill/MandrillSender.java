@@ -101,7 +101,8 @@ public class MandrillSender implements EmailSender {
     }
 
     @Override
-    public CompletionStage<Boolean> sendFirstReportReceived(List<User> users, Application app) {
+    public CompletionStage<Boolean> sendFirstReportReceived(Application app) {
+        List<User> users = app.getOrganization().getMembers();
         List<Recipient> recipients = extractUserEmails(users);
         Var[] vars = appendVar(new Var(APP_PACKAGE, app.getAppPackage()));
         Message message = new Message(

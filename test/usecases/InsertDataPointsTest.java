@@ -3,7 +3,10 @@ package usecases;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import emailsender.EmailSender;
 import models.Application;
+import models.Organization;
+import models.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +14,9 @@ import org.mockito.Mock;
 import usecases.models.Report;
 import usecases.repositories.ApplicationRepository;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -24,16 +30,18 @@ import static utils.fixtures.ReportFixtures.*;
 public class InsertDataPointsTest {
 
     @Mock
-    private MetricsDatasource metricsDatasourceMock;
+    private MetricsDatasource metricsDatasource;
     @Mock
-    private ApplicationRepository applicationRepositoryMock;
+    private ApplicationRepository applicationRepository;
+    @Mock
+    private EmailSender emailSender;
 
     private InsertDataPoints useCase;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        useCase = new InsertDataPoints(metricsDatasourceMock, applicationRepositoryMock, emailSender);
+        useCase = new InsertDataPoints(metricsDatasource, applicationRepository, emailSender);
     }
 
     @DataProvider
@@ -48,10 +56,9 @@ public class InsertDataPointsTest {
     @Test
     @UseDataProvider("invalidReportProvider")
     public void nonAllowedReportShouldNotBeStored(Report report) throws Exception {
-        CompletionStage<InsertResult> futureResult = useCase.execute(report);
-        InsertResult result = futureResult.toCompletableFuture().get();
+        InsertResult result = sendReport(report);
 
-        verify(metricsDatasourceMock, never()).writeDataPoints(any(Report.class), any(Application.class));
+        verify(metricsDatasource, never()).writeDataPoints(any(Report.class), any(Application.class));
         assertEquals(InsertResult.successEmpty(), result);
     }
 
@@ -67,45 +74,87 @@ public class InsertDataPointsTest {
     @UseDataProvider("validReportProvider")
     public void allowedReportForFoundApplicationShouldBeStored(Report report) throws Exception {
         Application application = new Application();
-        givenApplicationRepositoryToFindApplication(application);
-        givenMetricsDataSourceToWriteDataPoints(report, application);
+        givenThereIsAnApplicationAlreadyCreated(application);
+        givenDataPointsAreWritenProperly(report, application);
 
-        CompletionStage<InsertResult> futureResult = useCase.execute(report);
-        InsertResult result = futureResult.toCompletableFuture().get();
+        InsertResult result = sendReport(report);
         assertEquals(InsertResult.successEmpty(), result);
 
-        verify(metricsDatasourceMock, times(1)).writeDataPoints(report, application);
+        verify(metricsDatasource, times(1)).writeDataPoints(report, application);
     }
 
     @Test
     @UseDataProvider("validReportProvider")
     public void allowedReportForNotFoundApplicationShouldBeStoredAfterCreateTheApplication(Report report) throws Exception {
-        Application application = new Application();
-        givenApplicationRepositoryToFindApplication(null);
-        givenApplicationRepositoryToCreateAnAppliation(application);
-        givenMetricsDataSourceToWriteDataPoints(report, application);
+        Application app = givenAnApplication();
+        givenTheApplicationIsCreatedProperly(app);
+        givenDataPointsAreWritenProperly(report, app);
 
-        CompletionStage<InsertResult> futureResult = useCase.execute(report);
-        InsertResult result = futureResult.toCompletableFuture().get();
+        InsertResult result = sendReport(report);
         assertEquals(InsertResult.successEmpty(), result);
 
-        verify(applicationRepositoryMock, times(1)).create(report.getApiKey(), report.getAppPackage());
-        verify(metricsDatasourceMock, times(1)).writeDataPoints(report, application);
+        verify(applicationRepository, times(1)).create(report.getApiKey(), report.getAppPackage());
+        verify(metricsDatasource, times(1)).writeDataPoints(report, app);
     }
 
-    private void givenApplicationRepositoryToFindApplication(Application application) {
-        when(applicationRepositoryMock.getApplicationByApiKeyValueAndAppPackage(anyString(), anyString()))
+    @Test
+    @UseDataProvider("validReportProvider")
+    public void sendsAFirstReportPersistedEmailIfTheReportReceivedIsTheFirstOne(Report report) throws Exception {
+        Application app = givenAnApplication();
+        givenTheApplicationIsCreatedProperly(app);
+        givenDataPointsAreWritenProperly(report, app);
+
+        sendReport(report);
+
+        verify(emailSender).sendFirstReportReceived(app);
+    }
+
+    @Test
+    @UseDataProvider("validReportProvider")
+    public void doesNotSendsTheFirstReportPersistedEmailIfTheReportReceivedIsNotTheFirstOne(Report report) throws Exception {
+        Application app = givenAnApplication();
+        givenThereIsAnApplicationAlreadyCreated(app);
+        givenDataPointsAreWritenProperly(report, app);
+
+        sendReport(report);
+
+        verify(emailSender, never()).sendFirstReportReceived(app);
+    }
+
+    private InsertResult sendReport(Report report) throws InterruptedException, java.util.concurrent.ExecutionException {
+        CompletionStage<InsertResult> futureResult = useCase.execute(report);
+        return futureResult.toCompletableFuture().get();
+    }
+
+    private void givenThereIsAnApplicationAlreadyCreated(Application application) {
+        when(applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyString(), anyString()))
                 .thenReturn(application);
     }
 
-    private void givenApplicationRepositoryToCreateAnAppliation(Application application) {
-        when(applicationRepositoryMock.create(anyString(), anyString()))
+    private void givenTheApplicationIsCreatedProperly(Application application) {
+        when(applicationRepository.create(anyString(), anyString()))
                 .thenReturn(CompletableFuture.completedFuture(application));
     }
 
-    private void givenMetricsDataSourceToWriteDataPoints(Report report, Application application) {
-        when(metricsDatasourceMock.writeDataPoints(report, application))
+    private void givenDataPointsAreWritenProperly(Report report, Application application) {
+        when(metricsDatasource.writeDataPoints(report, application))
                 .thenReturn(CompletableFuture.completedFuture(InsertResult.successEmpty()));
+    }
+
+    private Application givenAnApplication() {
+        List<User> members = new LinkedList<>();
+        User user = new User();
+        user.setName("Paco");
+        user.setEmail("paco@karumi.com");
+        members.add(user);
+        Organization organization = new Organization();
+        organization.setId(UUID.randomUUID());
+        organization.setMembers(members);
+        Application app = new Application();
+        app.setId(UUID.randomUUID());
+        app.setAppPackage("io.flowup.example");
+        app.setOrganization(organization);
+        return app;
     }
 
 }

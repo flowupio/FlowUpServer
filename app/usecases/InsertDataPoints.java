@@ -37,25 +37,28 @@ public class InsertDataPoints {
         if (report.isDiscardable()) {
             return emptyInsertResult();
         }
-        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
+        return insertReport(report);
+    }
+
+    private CompletionStage<InsertResult> insertReport(Report report) {
         CompletionStage<Application> futureApplication;
-        final boolean firstReport = application == null;
+        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
+        boolean firstReport = application == null;
         if (firstReport) {
             futureApplication = applicationRepository.create(report.getApiKey(), report.getAppPackage());
         } else {
             futureApplication = completedFuture(application);
         }
+        return writeDataPoints(report, futureApplication, firstReport);
+    }
+
+    private CompletionStage<InsertResult> writeDataPoints(Report report, CompletionStage<Application> futureApplication, boolean firstReport) {
         return futureApplication.thenCompose((app) -> {
-            if(firstReport) {
-                sendFirstReportReceivedEmail(app);
+            if (firstReport) {
+                emailSender.sendFirstReportReceived(app);
             }
             return metricsDatasource.writeDataPoints(report, app);
         });
-    }
-
-    private void sendFirstReportReceivedEmail(Application app) {
-        List<User> users = app.getOrganization().getMembers();
-        emailSender.sendFirstReportReceived(users, app);
     }
 
     @NotNull
