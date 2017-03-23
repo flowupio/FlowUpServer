@@ -15,22 +15,6 @@ public class SearchQuery {
     private SearchBody searchBody;
 }
 
-@Data
-class SearchIndex {
-    private String index;
-    @JsonProperty("search_type")
-    private String searchType;
-    @JsonProperty("ignore_unavailable")
-    private boolean ignoreUnavailable;
-}
-
-@Data
-class SearchBody {
-    private long size;
-    private SearchBodyQuery query;
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    private AggregationMap aggs;
-}
 
 class AggregationMap extends HashMap<String, Aggregation> {
     static AggregationMap singleton(String name, Aggregation aggsObject) {
@@ -77,21 +61,6 @@ class TermsAggregation {
 class ExtendedBounds {
     private final long min;
     private final long max;
-}
-
-@Data
-class SearchBodyQuery {
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    private SearchBodyQueryFiltered filtered;
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    private SearchRange range;
-
-}
-
-@Data
-class SearchBodyQueryFiltered {
-    private SearchBodyQueryFilteredQuery query;
-    private JsonNode filter;
 }
 
 @Data

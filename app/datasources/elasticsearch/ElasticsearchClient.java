@@ -104,8 +104,12 @@ public class ElasticsearchClient {
     }
 
     public CompletionStage<SearchResponse> search(SearchBody searchBody) {
-        String content = StringUtils.join(Json.toJson(searchBody), "\n", "\n");
-        return ws.url(baseUrl + SEARCH_ENDPOINT).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
+        return performQuery(SEARCH_ENDPOINT, searchBody);
+    }
+
+    public CompletionStage<SearchResponse> performQuery(String index, SearchBody body) {
+        String content = StringUtils.join(Json.toJson(body), "\n", "\n");
+        return ws.url(baseUrl + index).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
                 response -> {
                     Logger.debug(response.getBody());
                     return Json.fromJson(response.asJson(), SearchResponse.class);
@@ -130,4 +134,5 @@ public class ElasticsearchClient {
                 }
         );
     }
+
 }
