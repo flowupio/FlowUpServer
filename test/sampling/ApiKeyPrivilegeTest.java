@@ -17,19 +17,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SamplingGroupTest {
+public class ApiKeyPrivilegeTest {
 
     private static final Version ANY_VERSION = new Version(0, 1, 2, Platform.ANDROID);
+    private static final Version ANY_DEBUG_VERSION = new Version(0, 1, 2, Platform.ANDROID, true);
 
     private static final String ANY_API_KEY = "12345";
     private static final String ANY_UUID = "abcd";
     private static final int ANY_NUMBER_OF_ALLOWED_UUID = 50;
     private static final Version VERSION_ONE = new Version(0, 0, 1, Platform.ANDROID);
+    private static final Version VERSION_ONE_DEBUG = new Version(0, 0, 1, Platform.ANDROID, true);
     private static final Version VERSION_TWO = new Version(0, 2, 1, Platform.ANDROID);
+
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
@@ -123,6 +127,33 @@ public class SamplingGroupTest {
         givenAnApiKeyWithMinAndroidVersionSupported(VERSION_ONE);
 
         assertTrue(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_ONE));
+    }
+
+    @Test
+    public void debugReportsShouldBeSavedButNotAddedToTheSamplingGroupEvenIfTheSamplingGroupIsFull() {
+        givenAnApiKeyFullOfUsers(ANY_API_KEY);
+
+        boolean isUUIDIn = apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, ANY_DEBUG_VERSION);
+
+        assertTrue(isUUIDIn);
+        verify(apiKeyRepository, never()).addAllowedUUID(any(), any());
+    }
+
+    @Test
+    public void debugReportsShouldBeSavedButNotAddedToTheSamplingGroupEvenIfTheSamplingGroupIsNotFull() {
+        givenAnApiKeyWithSpaceInTheSamplingGroup(ANY_API_KEY);
+
+        boolean isUUIDIn = apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, ANY_DEBUG_VERSION);
+
+        assertTrue(isUUIDIn);
+        verify(apiKeyRepository, never()).addAllowedUUID(any(), any());
+    }
+
+    @Test
+    public void doesNotAcceptInvalidVersionsEvenIfTheVersionUsedIsTheDebugOne() {
+        givenAnApiKeyWithMinAndroidVersionSupported(VERSION_TWO);
+
+        assertFalse(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_ONE_DEBUG));
     }
 
     private ApiKey givenAnApiKeyWithMinAndroidVersionSupported(Version version) {

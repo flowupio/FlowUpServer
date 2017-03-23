@@ -38,7 +38,9 @@ import static play.test.Helpers.*;
 public class ReportControllerTest extends WithFlowUpApplication implements WithResources, WithDashboardsClient {
 
     private static final String API_KEY_VALUE = "35e25a2d1eaa464bab565f7f5e4bb029";
+    private static final Version ANY_DEBUG_VERSION = new Version(0, 2, 8, Platform.ANDROID, true);
     private static final Version VERSION_1 = new Version(0, 2, 8, Platform.ANDROID);
+    private static final Version VERSION_1_DEBUG = new Version(0, 2, 8, Platform.ANDROID, true);
     private static final Version VERSION_2 = new Version(0, 3, 0, Platform.ANDROID);
     private static final String ANY_UUID = "12345";
 
@@ -169,6 +171,39 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
     }
 
     @Test
+    public void savesReportsIfTheVersionIsDebuggableEvenIfTheSamplingGroupIsFull() {
+        ApiKey apiKey = setupDatabaseWithApiKey(true);
+        configureAFullSamplingGroup(apiKey);
+        setupSuccessfulElasticsearchClient();
+
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json")
+                .header("User-Agent", ANY_DEBUG_VERSION.toString());
+
+        Result result = route(requestBuilder);
+
+        assertEquals(CREATED, result.status());
+    }
+
+    @Test
+    public void savesReportsIfTheVersionIsDebuggableEvenIfTheSamplingGroupIsNotFull() {
+        setupDatabaseWithApiKey(true);
+        setupSuccessfulElasticsearchClient();
+
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json")
+                .header("User-Agent", ANY_DEBUG_VERSION.toString());
+
+        Result result = route(requestBuilder);
+
+        assertEquals(CREATED, result.status());
+    }
+
+    @Test
     public void testReportAPIInBackgroundAndDebugModeWontInsertAnyMetric() {
         setupDatabaseWithApiKey();
         setupSuccessfulElasticsearchClient();
@@ -228,6 +263,22 @@ public class ReportControllerTest extends WithFlowUpApplication implements WithR
                 .header("Content-Type", "application/json")
                 .header("X-UUID", ANY_UUID)
                 .header("User-Agent", VERSION_1.toString());
+
+        Result result = route(requestBuilder);
+
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void doesNotAcceptReportsIfTheAndroidSDKVersionUsedAsUserAgentIsNotSupportedEvenIfIsDebuggable() {
+        setupDatabaseWithApiKey(true, VERSION_2);
+        setupSuccessfulElasticsearchClient();
+        Http.RequestBuilder requestBuilder = fakeRequest("POST", "/report")
+                .bodyText(getFile("reportRequest.json"))
+                .header("X-Api-Key", API_KEY_VALUE)
+                .header("Content-Type", "application/json")
+                .header("X-UUID", ANY_UUID)
+                .header("User-Agent", VERSION_1_DEBUG.toString());
 
         Result result = route(requestBuilder);
 
