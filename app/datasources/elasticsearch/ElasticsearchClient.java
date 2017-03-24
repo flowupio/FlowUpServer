@@ -68,7 +68,7 @@ public class ElasticsearchClient {
         return ws.url(baseUrl + index).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
                 response -> {
                     Logger.debug(response.getBody());
-                    return response.getStatus() == 201;
+                    return response.getStatus() == 201 || response.getStatus() == 200;
                 }
         );
     }

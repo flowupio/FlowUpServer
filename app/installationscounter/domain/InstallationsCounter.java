@@ -21,7 +21,7 @@ public class InstallationsCounter {
 
     public CompletionStage<Installation> increment(Installation installation) {
         return existApiKey(installation.getApiKey()).thenCompose(exist -> {
-            if (exist) {
+            if (!exist) {
                 return completedFuture(installation);
             }
             return installationsRepository.increment(installation);
