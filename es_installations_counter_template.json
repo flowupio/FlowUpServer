@@ -29,6 +29,9 @@
         },
         "@timestamp": {
           "type": "date"
+        },
+        "apiKey": {
+          "type": "string"
         }
       }
     }

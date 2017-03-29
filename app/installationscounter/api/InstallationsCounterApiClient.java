@@ -31,9 +31,9 @@ public class InstallationsCounterApiClient {
 
     public CompletionStage<Long> getInstallationCounter(String apiKey) {
         SearchQuery query = getInstallationsQuery(apiKey);
-        return elasticClient.performQuery(INSTALLATIONS_COUNTER_INDEX + "_search?q=apiKey:" + apiKey,
+        return elasticClient.performQuery(INSTALLATIONS_COUNTER_INDEX + "_search?",
                 query.getSearchBody()).thenApply(result -> {
-                    List<SearchBucket> buckets = result.getAggregations().getGroupByState().getBuckets();
+                    JsonNode buckets = result.getAggregations().get("group_by_state").get("buckets");
                     return buckets == null ? 0L : buckets.size();
                 }
         );
@@ -48,6 +48,11 @@ public class InstallationsCounterApiClient {
         SearchBodyQuery bodyQuery = new SearchBodyQuery();
         SearchBodyQueryFiltered filtered = new SearchBodyQueryFiltered();
         JsonNode jsonFilter = Json.toJson("{" +
+                "  \"filter\": {" +
+                "  \"term\": {" +
+                "  \"apiKey\": \"" + apiKey + "\"" +
+                "  }" +
+                "  }," +
                 "  \"aggs\": {" +
                 "    \"group_by_state\": {" +
                 "      \"terms\": {" +
@@ -55,7 +60,7 @@ public class InstallationsCounterApiClient {
                 "      }" +
                 "    }" +
                 "  }" +
-                "}'");
+                "}");
         filtered.setFilter(jsonFilter);
         bodyQuery.setFiltered(filtered);
         SearchRange range = new SearchRange();

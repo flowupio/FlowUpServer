@@ -1,6 +1,12 @@
 {
-  "apiKey": "12345678",
-  "uuid": "9c2a2994-b2b9-4297-81eb-231984ad056g",
-  "version": "FlowUpAndroidSDK/DEBUG-0.3.0",
+  "apiKey": "8daa1ec115de4c67b1695d79b45fbd78",
+  "uuid": "9c2a2994-b2b9-4297-81eb-231984ad056ASDFASDFASDF",
+  "version": {
+    "debugVersion": false,
+    "major": 7,
+    "minor": 49,
+    "patch": 1,
+    "platform": "IOS"
+  },
   "@timestamp": 1
 }
