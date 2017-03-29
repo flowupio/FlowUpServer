@@ -2,7 +2,7 @@
   "template": "installations",
   "settings": {
     "index.codec": "best_compression",
-    "refresh_interval": "60s"
+    "refresh_interval": "1s"
   },
   "mappings": {
     "_default_": {
@@ -31,7 +31,8 @@
           "type": "date"
         },
         "apiKey": {
-          "type": "string"
+          "type": "string",
+          "index": "not_analyzed"
         }
       }
     }

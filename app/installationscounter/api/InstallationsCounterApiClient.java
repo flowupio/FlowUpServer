@@ -31,9 +31,13 @@ public class InstallationsCounterApiClient {
 
     public CompletionStage<Long> getInstallationCounter(String apiKey) {
         SearchQuery query = getInstallationsQuery(apiKey);
-        return elasticClient.performQuery(INSTALLATIONS_COUNTER_INDEX + "_search?",
+        return elasticClient.performQuery(INSTALLATIONS_COUNTER_INDEX + "/_search",
                 query.getSearchBody()).thenApply(result -> {
-                    JsonNode buckets = result.getAggregations().get("group_by_state").get("buckets");
+                    JsonNode aggregations = result.getAggregations();
+                    if (aggregations == null) {
+                        return 0L;
+                    }
+                    JsonNode buckets = aggregations.get("group_by_state").get("buckets");
                     return buckets == null ? 0L : buckets.size();
                 }
         );
@@ -44,32 +48,28 @@ public class InstallationsCounterApiClient {
         SearchIndex searchIndex = new SearchIndex();
         searchIndex.setIndex(INSTALLATIONS_COUNTER_INDEX);
         searchQuery.setSearchIndex(searchIndex);
-        SearchBody searchBody = searchQuery.getSearchBody();
+        SearchBody searchBody = new SearchBody();
         SearchBodyQuery bodyQuery = new SearchBodyQuery();
-        SearchBodyQueryFiltered filtered = new SearchBodyQueryFiltered();
-        JsonNode jsonFilter = Json.toJson("{" +
-                "  \"filter\": {" +
+        JsonNode filter = Json.parse("{" +
                 "  \"term\": {" +
-                "  \"apiKey\": \"" + apiKey + "\"" +
-                "  }" +
-                "  }," +
-                "  \"aggs\": {" +
-                "    \"group_by_state\": {" +
-                "      \"terms\": {" +
-                "        \"field\": \"uuid\"" +
-                "      }" +
-                "    }" +
+                "       \"apiKey\": \"" + apiKey + "\"" +
                 "  }" +
                 "}");
-        filtered.setFilter(jsonFilter);
-        bodyQuery.setFiltered(filtered);
+        searchBody.setFilter(filter);
         SearchRange range = new SearchRange();
         SearchTimestamp timestamp = new SearchTimestamp();
         long startDeletingDate = time.daysAgo(INSTALLATIONS_COUNTER_TTL).toDate().getTime();
-        timestamp.setLte(startDeletingDate);
+        timestamp.setGte(startDeletingDate);
         range.setTimestamp(timestamp);
         bodyQuery.setRange(range);
         searchBody.setQuery(bodyQuery);
+        Aggregation termsAgg = new Aggregation();
+        TermsAggregation terms = new TermsAggregation();
+        terms.setField("uuid");
+        termsAgg.setTerms(terms);
+        AggregationMap aggs = AggregationMap.singleton("group_by_state", termsAgg);
+        searchBody.setAggs(aggs);
+        searchQuery.setSearchBody(searchBody);
         return searchQuery;
     }
 }

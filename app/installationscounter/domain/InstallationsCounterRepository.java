@@ -11,7 +11,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 
 public class InstallationsCounterRepository {
 
-    private static final String API_KEY_CACHE_KEY = "apiKey.value.";
+    private static final String INSTALLATIONS_COUNTER_CACHE_KEY = "installationsCounter.value.";
     private static final int CACHE_TTL = Math.toIntExact(TimeUnit.HOURS.toSeconds(1));
 
     private final CacheApi cache;
@@ -29,9 +29,9 @@ public class InstallationsCounterRepository {
 
     CompletionStage<Long> getInstallationCounter(String apiKey) {
         Long counter = cache.get(getApiKeyCacheKey(apiKey));
-        if (counter != null) {
-            return completedFuture(counter);
-        }
+        //if (counter != null) {
+        //    return completedFuture(counter);
+        //}
         return apiClient.getInstallationCounter(apiKey).thenApply(counterValue -> {
             updateInstallationsCounterCache(apiKey, counterValue);
             return counterValue;
@@ -44,6 +44,6 @@ public class InstallationsCounterRepository {
 
 
     private String getApiKeyCacheKey(String apiKey) {
-        return API_KEY_CACHE_KEY + apiKey;
+        return INSTALLATIONS_COUNTER_CACHE_KEY + apiKey;
     }
 }
