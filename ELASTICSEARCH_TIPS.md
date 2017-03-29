@@ -35,6 +35,12 @@ Using any file as body:
 curl -XPOST http://localhost:9200/installations/counter -d @test/resources/installationscounter/incrementInstallationsCounter.json
 ```
 
+### Delete an index
+
+```
+curl -XDELETE http://localhost:9200/installations/
+```
+
 ### List every index in the database
 
 `curl 'localhost:9200/_cat/indices?v'`

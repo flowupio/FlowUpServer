@@ -76,13 +76,3 @@ class QueryString {
     private String query;
 }
 
-@Data
-class SearchRange {
-    @JsonProperty("@timestamp")
-    SearchTimestamp timestamp;
-}
-
-@Data
-class SearchTimestamp {
-    private long lte;
-}

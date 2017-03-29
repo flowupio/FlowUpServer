@@ -10,6 +10,7 @@ import play.mvc.With;
 import security.ApiKeySecuredAction;
 import usecases.GetApiKeyConfig;
 import usecases.models.ApiKeyConfig;
+import utils.Time;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
@@ -26,11 +27,13 @@ public class ConfigController {
 
     private final GetApiKeyConfig getConfig;
     private final IncrementInstallationsCounter incrementInstallationsCounter;
+    private final Time time;
 
     @Inject
-    public ConfigController(GetApiKeyConfig getConfig, IncrementInstallationsCounter incrementInstallationsCounter) {
+    public ConfigController(GetApiKeyConfig getConfig, IncrementInstallationsCounter incrementInstallationsCounter, Time time) {
         this.getConfig = getConfig;
         this.incrementInstallationsCounter = incrementInstallationsCounter;
+        this.time = time;
     }
 
     public CompletionStage<Result> getConfig() {
@@ -49,7 +52,7 @@ public class ConfigController {
         String apiKeyValue = getApiKey(request);
         String uuid = getUUID(request);
         Version version = getVersion(request);
-        incrementInstallationsCounter.execute(new Installation(apiKeyValue, uuid, version));
+        incrementInstallationsCounter.execute(new Installation(apiKeyValue, uuid, version, time.now().getMillis()));
         return getConfig.execute(apiKeyValue, uuid, version);
     }
 
