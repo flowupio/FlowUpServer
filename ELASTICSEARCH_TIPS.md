@@ -10,9 +10,42 @@ Do you need to work with Elasticsearch and you have no idea about how to use thi
 
 You can start a FlowUp instance, register a user and get an API key before to send this request.
 
-### List every index in the database:
+### Write a new document
+
+`curl -XPOST 'localhost:9200/INDEX_NAME/TYPE -d ANY_JSON}`
+
+or
+ 
+`curl -XPOST 'localhost:9200/INDEX_NAME/TYPE -d @ANY_PATH_TO_ANY_JSON_FILE}`
+
+Here you have two examples.
+
+Using raw json:
+```
+curl -XPOST 'localhost:9200/website/blog' -H 'Content-Type: application/json' -d
+'{
+  "title": "My second blog entry",
+  "text":  "Still trying this out...",
+  "date":  "2014/01/01"
+}'
+```
+
+Using any file as body:
+```
+curl -XPOST http://localhost:9200/installations/counter -d @test/resources/installationscounter/incrementInstallationsCounter.json
+```
+
+### List every index in the database
 
 `curl 'localhost:9200/_cat/indices?v'`
+
+### List documents for a given index
+
+`curl 'localhost:9200/<any_index>'`
+
+### Perform a search query
+
+`curl 'localhost:9200/installationscounter/_search?q=apiKey:ba49d1c5c531481ca2420ba0254d377e'`
 
 ### List old documents:
 

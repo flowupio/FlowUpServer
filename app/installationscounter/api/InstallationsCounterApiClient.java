@@ -10,7 +10,7 @@ import java.util.concurrent.CompletionStage;
 
 public class InstallationsCounterApiClient {
 
-    private static final String INSTALLATIONS_COUNTER_INDEX = "/installationscounter";
+    private static final String INSTALLATIONS_COUNTER_INDEX = "/installations/counter";
     private final ElasticsearchClient elasticClient;
 
     @Inject
