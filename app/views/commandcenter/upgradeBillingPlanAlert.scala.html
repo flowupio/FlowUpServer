@@ -2,6 +2,6 @@
 @(upgradeBillingPlanInfo: UpgradeBillingPlanInfo)
 @if(upgradeBillingPlanInfo != null && upgradeBillingPlanInfo.shouldShowMessage()) {
     <div class="alert alert-danger col-sm-9 col-sm-offset-3" role="alert">
-        Your current plan only supports @upgradeBillingPlanInfo.getNumberOfAllowedUUIDs users. You have @upgradeBillingPlanInfo.getCurrentDevices monthly active users. <a href="@routes.CommandCenterController.billing()" class="alert-link">Upgrade your plan.</a>
+        Your current plan only supports @upgradeBillingPlanInfo.getNumberOfAllowedUUIDs() users. You have @upgradeBillingPlanInfo.getCurrentDevices() monthly active users. <a href="@routes.CommandCenterController.billing()" class="alert-link">Upgrade your plan.</a>
     </div>
 }
