@@ -61,5 +61,4 @@ public class GetInstallationsCounterByApiKeyTest {
         when(apiKeyRepository.getApiKeyAsync(apiKey)).thenReturn(completedFuture(null));
     }
 
-
 }
