@@ -102,7 +102,7 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     }
 
     @Test
-    public void removesTheAllowedUUIDsCreatedYesterday() {
+    public void removesTheAllowedUUIDsCreatedOneMonthAgo() {
         ApiKey apiKey = givenAnApiKey();
         givenTodayIsToday();
         apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
