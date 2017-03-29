@@ -23,11 +23,11 @@ public class InstallationsCounterRepository {
         this.apiClient = apiClient;
     }
 
-    CompletionStage<Installation> increment(Installation installation) {
+    public CompletionStage<Installation> increment(Installation installation) {
         return apiClient.incrementCounter(installation).thenApply(createdInstallation -> createdInstallation);
     }
 
-    CompletionStage<Long> getInstallationCounter(String apiKey) {
+    public CompletionStage<Long> getInstallationCounter(String apiKey) {
         Long counter = cache.get(getApiKeyCacheKey(apiKey));
         if (counter != null) {
             return completedFuture(counter);
