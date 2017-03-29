@@ -2,7 +2,7 @@
   "template": "installations",
   "settings": {
     "index.codec": "best_compression",
-    "refresh_interval": "1s"
+    "refresh_interval": "60s"
   },
   "mappings": {
     "_default_": {
