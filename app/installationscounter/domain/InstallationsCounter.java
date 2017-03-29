@@ -20,12 +20,19 @@ public class InstallationsCounter {
     }
 
     public CompletionStage<Installation> increment(Installation installation) {
+        if (isDebugInstallation(installation)){
+            return completedFuture(installation);
+        }
         return existApiKey(installation.getApiKey()).thenCompose(exist -> {
             if (!exist) {
                 return completedFuture(installation);
             }
             return installationsRepository.increment(installation);
         });
+    }
+
+    private boolean isDebugInstallation(Installation installation) {
+        return installation.getVersion().isDebugVersion();
     }
 
     public CompletionStage<Long> getInstallationsCounter(String apiKeyValue) {
