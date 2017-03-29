@@ -1,14 +1,14 @@
-@import usecases.models.StatCard
 @import java.util
 @import usecases.models.KeyStatCard
-@(user: models.User, application: models.Application, applications: util.List[Application], keyStatCards: util.List[KeyStatCard])
+@import installationscounter.ui.UpgradeBillingPlanInfo
+@(user: models.User, application: models.Application, applications: util.List[Application], keyStatCards: util.List[KeyStatCard], upgradeBillingPlanInfo: UpgradeBillingPlanInfo)
 
-
-@views.html.commandcenter.main("Command Center", user) {
+@views.html.commandcenter.main("Command Center", user, upgradeBillingPlanInfo) {
 
     <div class="row">
 
         @commandcenter.sidebar(user, applications)
+        @commandcenter.upgradeBillingPlanAlert(upgradeBillingPlanInfo)
 
         <div class="col-sm-9 col-sm-offset-3 main content">
 

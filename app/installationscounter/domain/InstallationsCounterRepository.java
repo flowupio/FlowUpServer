@@ -29,9 +29,9 @@ public class InstallationsCounterRepository {
 
     CompletionStage<Long> getInstallationCounter(String apiKey) {
         Long counter = cache.get(getApiKeyCacheKey(apiKey));
-        //if (counter != null) {
-        //    return completedFuture(counter);
-        //}
+        if (counter != null) {
+            return completedFuture(counter);
+        }
         return apiClient.getInstallationCounter(apiKey).thenApply(counterValue -> {
             updateInstallationsCounterCache(apiKey, counterValue);
             return counterValue;
