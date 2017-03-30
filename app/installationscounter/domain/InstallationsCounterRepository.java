@@ -42,7 +42,6 @@ public class InstallationsCounterRepository {
         cache.set(getApiKeyCacheKey(apiKey), counterValue, CACHE_TTL);
     }
 
-
     private String getApiKeyCacheKey(String apiKey) {
         return INSTALLATIONS_COUNTER_CACHE_KEY + apiKey;
     }

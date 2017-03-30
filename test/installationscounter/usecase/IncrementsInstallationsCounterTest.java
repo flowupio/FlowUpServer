@@ -25,14 +25,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class IncrementsInstallationsCounterTest {
 
-
     private static final String ANY_API_KEY = "bec94b0431354ba0bcf0b996960cd262";
     private static final String ANY_UUID = UUID.randomUUID().toString();
     private static final Version ANY_DEBUG_VERSION = Version.fromString("FlowUpAndroidSDK/0.3.0-DEBUG");
     private static final Version ANY_VERSION = Version.fromString("FlowUpAndroidSDK/0.3.0");
     private static final Installation ANY_DEBUG_INSTALLATION = new Installation(ANY_API_KEY, ANY_UUID, ANY_DEBUG_VERSION, new Time().now().getMillis());
     private static final Installation ANY_INSTALLATION = new Installation(ANY_API_KEY, ANY_UUID, ANY_VERSION, new Time().now().getMillis());
+
     private IncrementInstallationsCounter incrementInstallationsCounter;
+
     @Mock
     private InstallationsCounterRepository installationsCounterRepository;
     @Mock
@@ -82,7 +83,6 @@ public class IncrementsInstallationsCounterTest {
     private Installation incrementCounter(Installation installation) throws InterruptedException, java.util.concurrent.ExecutionException {
         return incrementInstallationsCounter.execute(installation).toCompletableFuture().get();
     }
-
 
     private void givenThereIsAnApiKey(String apiKeyValue) {
         ApiKey value = new ApiKey();
