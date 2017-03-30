@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApiClientTest extends WithFlowUpApplication implements WithResources {
+public abstract class ApiClientTest extends WithFlowUpApplication implements WithResources {
 
     protected ElasticsearchClient elasticsearchClient;
 

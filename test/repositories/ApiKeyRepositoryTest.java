@@ -142,11 +142,11 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     }
 
     private void givenTodayIsNextMonth() {
-        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().plusMonths(1).plusDays(2).getDayOfMonth());
-        when(time.now()).thenReturn(defaultTime.now().plusMonths(1).plusDays(2));
-        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().plusMonths(1).plusDays(2));
-        when(time.getMonthAgoMidnightDate()).thenReturn(defaultTime.getMonthAgoMidnightDate().plusMonths(1).plusDays(2));
-        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().plusMonths(1).plusDays(2));
+        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().plusMonths(1).plusDays(3).getDayOfMonth());
+        when(time.now()).thenReturn(defaultTime.now().plusMonths(1).plusDays(3));
+        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().plusMonths(1).plusDays(3));
+        when(time.getMonthAgoMidnightDate()).thenReturn(defaultTime.getMonthAgoMidnightDate().plusMonths(1).plusDays(3));
+        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().plusMonths(1).plusDays(3));
     }
 
     private void givenTodayIsToday() {
