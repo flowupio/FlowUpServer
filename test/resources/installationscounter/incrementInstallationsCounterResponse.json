@@ -1,0 +1,12 @@
+{
+  "_id": "AVsesLXF89qV5M2EJ9Gh",
+  "_index": "installations",
+  "_shards": {
+    "failed": 0,
+    "successful": 1,
+    "total": 2
+  },
+  "_type": "counter",
+  "_version": 1,
+  "created": true
+}
