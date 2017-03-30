@@ -1,0 +1,2 @@
+{"size":0,"query":{"range":{"@timestamp":{"gte":1482248233017}}},"aggs":{"filter-by-api-key-and-group-by-uuid":{"aggs":{"group_by_uuid":{"terms":{"field":"uuid","size":0}}},"filter":{"term":{"apiKey":"2732d62102914ef99875d4c3e0f0b083"}}}}}
+

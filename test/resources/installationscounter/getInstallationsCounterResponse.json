@@ -1,0 +1,33 @@
+{
+  "_shards": {
+    "failed": 0,
+    "successful": 5,
+    "total": 5
+  },
+  "aggregations": {
+    "filter-by-api-key-and-group-by-uuid": {
+      "doc_count": 1,
+      "group_by_uuid": {
+        "buckets": [
+          {
+            "doc_count": 1,
+            "key": "9c2a2994-b2b9-4297-81eb-231984ad056P"
+          },
+          {
+            "doc_count": 8,
+            "key": "9c2a2994-b2b9-4297-81eb-231984ad056q"
+          }
+        ],
+        "doc_count_error_upper_bound": 0,
+        "sum_other_doc_count": 0
+      }
+    }
+  },
+  "hits": {
+    "hits": [],
+    "max_score": 0.0,
+    "total": 1
+  },
+  "timed_out": false,
+  "took": 18
+}

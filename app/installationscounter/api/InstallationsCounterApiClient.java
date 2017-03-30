@@ -12,7 +12,7 @@ public class InstallationsCounterApiClient {
 
     private static final String INSTALLATIONS_COUNTER_INDEX = "/installations/counter";
     private static final int INSTALLATIONS_COUNTER_TTL = 30;
-    private static final String ROOT_AGGREGATION_KEY = "fiter-by-api-key-and-group-by-uuid";
+    private static final String ROOT_AGGREGATION_KEY = "filter-by-api-key-and-group-by-uuid";
     private static final String GROUP_BY_UUID_AGGREGATION_KEY = "group_by_uuid";
 
     private final ElasticsearchClient elasticClient;
