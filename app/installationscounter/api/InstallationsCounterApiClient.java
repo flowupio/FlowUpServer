@@ -3,17 +3,17 @@ package installationscounter.api;
 import com.fasterxml.jackson.databind.JsonNode;
 import datasources.elasticsearch.*;
 import installationscounter.domain.Installation;
-import play.libs.Json;
 import utils.Time;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public class InstallationsCounterApiClient {
 
     private static final String INSTALLATIONS_COUNTER_INDEX = "/installations/counter";
     private static final int INSTALLATIONS_COUNTER_TTL = 30;
+    private static final String ROOT_AGGREGATION_KEY = "fiter-by-api-key-and-group-by-uuid";
+    private static final String GROUP_BY_UUID_AGGREGATION_KEY = "group_by_uuid";
 
     private final ElasticsearchClient elasticClient;
     private final Time time;
@@ -37,7 +37,7 @@ public class InstallationsCounterApiClient {
                     if (aggregations == null) {
                         return 0L;
                     }
-                    JsonNode buckets = aggregations.get("group_by_state").get("buckets");
+                    JsonNode buckets = aggregations.get(ROOT_AGGREGATION_KEY).get(GROUP_BY_UUID_AGGREGATION_KEY).get("buckets");
                     return buckets == null ? 0L : buckets.size();
                 }
         );
@@ -50,12 +50,6 @@ public class InstallationsCounterApiClient {
         searchQuery.setSearchIndex(searchIndex);
         SearchBody searchBody = new SearchBody();
         SearchBodyQuery bodyQuery = new SearchBodyQuery();
-        JsonNode filter = Json.parse("{" +
-                "  \"term\": {" +
-                "       \"apiKey\": \"" + apiKey + "\"" +
-                "  }" +
-                "}");
-        searchBody.setFilter(filter);
         SearchRange range = new SearchRange();
         SearchTimestamp timestamp = new SearchTimestamp();
         long startDeletingDate = time.daysAgo(INSTALLATIONS_COUNTER_TTL).toDate().getTime();
@@ -63,13 +57,25 @@ public class InstallationsCounterApiClient {
         range.setTimestamp(timestamp);
         bodyQuery.setRange(range);
         searchBody.setQuery(bodyQuery);
-        Aggregation termsAgg = new Aggregation();
-        TermsAggregation terms = new TermsAggregation();
-        terms.setField("uuid");
-        termsAgg.setTerms(terms);
-        AggregationMap aggs = AggregationMap.singleton("group_by_state", termsAgg);
-        searchBody.setAggs(aggs);
+        configureAggregation(searchBody, apiKey);
         searchQuery.setSearchBody(searchBody);
         return searchQuery;
+    }
+
+    private void configureAggregation(SearchBody searchBody, String apiKey) {
+        AggregationMap aggs = new AggregationMap();
+        Aggregation aggregation = new Aggregation();
+
+        Aggregation groupByUUID = new Aggregation();
+        TermsAggregation termsAggregation = new TermsAggregation();
+        termsAggregation.setField("uuid");
+        groupByUUID.setTerms(termsAggregation);
+        aggregation.setAggs(AggregationMap.singleton(GROUP_BY_UUID_AGGREGATION_KEY, groupByUUID));
+
+        MatchAggregation filter = new MatchAggregation();
+        filter.put("apiKey", apiKey);
+        aggregation.setFilter(filter);
+        aggs.put(ROOT_AGGREGATION_KEY, aggregation);
+        searchBody.setAggs(aggs);
     }
 }

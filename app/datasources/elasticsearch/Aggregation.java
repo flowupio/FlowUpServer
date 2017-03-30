@@ -12,4 +12,5 @@ public class Aggregation {
     private AvgAggregation avg;
     private TermsAggregation terms;
     private AggregationMap aggs;
+    private MatchAggregation filter;
 }
