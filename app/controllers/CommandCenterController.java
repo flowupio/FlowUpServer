@@ -4,6 +4,9 @@ import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.user.AuthUser;
 import com.spotify.futures.CompletableFutures;
 import datasources.grafana.GrafanaProxy;
+import installationscounter.ui.UpgradeBillingPlanInfo;
+import installationscounter.usecase.GetInstallationsCounterByApiKey;
+import models.ApiKey;
 import models.Application;
 import models.Organization;
 import models.User;
@@ -35,6 +38,7 @@ public class CommandCenterController extends Controller {
     private final GetKeyMetrics getKeyMetrics;
     private final GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName;
     private final GetBillingInformation getBillingInformation;
+    private final GetInstallationsCounterByApiKey getInstallations;
     private final String taxamoPublicApiKey;
 
 
@@ -42,7 +46,8 @@ public class CommandCenterController extends Controller {
     public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity,
                                    GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById,
                                    GetKeyMetrics getKeyMetrics, GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName,
-                                   GetBillingInformation getBillingInformation, @Named("taxamo") Configuration configuration) {
+                                   GetBillingInformation getBillingInformation, @Named("taxamo") Configuration configuration,
+                                   GetInstallationsCounterByApiKey getInstallations) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
@@ -52,6 +57,7 @@ public class CommandCenterController extends Controller {
         this.getLatestAndroidSDKVersionName = getLatestAndroidSDKVersionName;
         this.getBillingInformation = getBillingInformation;
         this.taxamoPublicApiKey = configuration.getString("public_api_key");
+        this.getInstallations = getInstallations;
     }
 
     public CompletionStage<Result> index() {
@@ -86,8 +92,13 @@ public class CommandCenterController extends Controller {
         Application applicationModel = getApplicationById.execute(UUID.fromString(applicationUUID));
         CompletionStage<List<KeyStatCard>> keyMetricsCompletionStage = getKeyMetrics.execute(applicationModel);
 
-        return CompletableFutures.combine(organizationCompletionStage, keyMetricsCompletionStage, (organization, statCards) ->
-                ok(application.render(user, applicationModel, organization.getApplications(), statCards)));
+        ApiKey apiKey = applicationModel.getOrganization().getApiKey();
+        CompletionStage<Long> installationsCompletionStage = getInstallations.execute(apiKey.getValue());
+        return CompletableFutures.combine(organizationCompletionStage, keyMetricsCompletionStage, installationsCompletionStage,
+                (organization, statCards, installationsCounter) -> {
+                    UpgradeBillingPlanInfo upgradeBillingPlanInfo = new UpgradeBillingPlanInfo(apiKey.getNumberOfAllowedUUIDs(), installationsCounter);
+                    return ok(application.render(user, applicationModel, organization.getApplications(), statCards, upgradeBillingPlanInfo));
+                });
     }
 
     public CompletionStage<Result> dashboards() {

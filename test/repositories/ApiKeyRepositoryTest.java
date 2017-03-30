@@ -102,7 +102,7 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     }
 
     @Test
-    public void removesTheAllowedUUIDsCreatedYesterday() {
+    public void removesTheAllowedUUIDsCreatedOneMonthAgo() {
         ApiKey apiKey = givenAnApiKey();
         givenTodayIsToday();
         apiKeyRepository.addAllowedUUID(apiKey, ANY_UUID);
@@ -142,11 +142,11 @@ public class ApiKeyRepositoryTest extends WithFlowUpApplication {
     }
 
     private void givenTodayIsNextMonth() {
-        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().plusMonths(1).plusDays(1).getDayOfMonth());
-        when(time.now()).thenReturn(defaultTime.now().plusMonths(1).plusDays(1));
-        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().plusMonths(1).plusDays(1));
-        when(time.getMonthAgoMidnightDate()).thenReturn(defaultTime.getMonthAgoMidnightDate().plusMonths(1).plusDays(1));
-        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().plusMonths(1).plusDays(1));
+        when(time.getTodayNumericDay()).thenReturn(defaultTime.now().plusMonths(1).plusDays(3).getDayOfMonth());
+        when(time.now()).thenReturn(defaultTime.now().plusMonths(1).plusDays(3));
+        when(time.getYesterdayMidnightDate()).thenReturn(defaultTime.getYesterdayMidnightDate().plusMonths(1).plusDays(3));
+        when(time.getMonthAgoMidnightDate()).thenReturn(defaultTime.getMonthAgoMidnightDate().plusMonths(1).plusDays(3));
+        when(time.getTomorrowMidnightDate()).thenReturn(defaultTime.getTomorrowMidnightDate().plusMonths(1).plusDays(3));
     }
 
     private void givenTodayIsToday() {

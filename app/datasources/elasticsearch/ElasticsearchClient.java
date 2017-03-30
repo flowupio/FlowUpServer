@@ -63,6 +63,16 @@ public class ElasticsearchClient {
         );
     }
 
+    public CompletionStage<Boolean> post(String index, Object document) {
+        String content = Json.toJson(document).toString();
+        return ws.url(baseUrl + index).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
+                response -> {
+                    Logger.debug(response.getBody());
+                    return response.getStatus() == 201 || response.getStatus() == 200;
+                }
+        );
+    }
+
     public CompletionStage<MSearchResponse> multiSearch(List<SearchQuery> indexRequestList) {
         List<JsonNode> jsonNodes = new ArrayList<>();
         for (SearchQuery indexRequest : indexRequestList) {
@@ -104,11 +114,16 @@ public class ElasticsearchClient {
     }
 
     public CompletionStage<SearchResponse> search(SearchBody searchBody) {
-        String content = StringUtils.join(Json.toJson(searchBody), "\n", "\n");
-        return ws.url(baseUrl + SEARCH_ENDPOINT).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
+        return performQuery(SEARCH_ENDPOINT, searchBody);
+    }
+
+    public CompletionStage<SearchResponse> performQuery(String index, SearchBody body) {
+        String content = StringUtils.join(Json.toJson(body), "\n", "\n");
+        return ws.url(baseUrl + index).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
                 response -> {
                     Logger.debug(response.getBody());
-                    return Json.fromJson(response.asJson(), SearchResponse.class);
+                    JsonNode responseBody = response.asJson();
+                    return Json.fromJson(responseBody, SearchResponse.class);
                 }
         );
     }
@@ -130,4 +145,5 @@ public class ElasticsearchClient {
                 }
         );
     }
+
 }
