@@ -25,6 +25,7 @@ public class DataPointMapper {
     private static final String NUMBER_OF_CORES = "NumberOfCores";
     private static final String VERSION_NAME = "VersionName";
     private static final String ANDROID_OS_VERSION = "AndroidOSVersion";
+    private static final String IOS_VERSION = "IOSVersion";
     private static final String BATTERY_SAVER_ON = "BatterySaverOn";
     private static final String SCREEN_NAME = "ScreenName";
     private static final String FRAMES_PER_SECOND = "FramesPerSecond";
@@ -162,6 +163,7 @@ public class DataPointMapper {
     private void addDataPointLevelTags(List<F.Tuple<String, String>> tags, DatapointTags datapointTags) {
         tags.add(new F.Tuple<>(VERSION_NAME, datapointTags.getAppVersionName()));
         tags.add(new F.Tuple<>(ANDROID_OS_VERSION, datapointTags.getAndroidOSVersion()));
+        tags.add(new F.Tuple<>(IOS_VERSION, datapointTags.getIOSVersion()));
         tags.add(new F.Tuple<>(BATTERY_SAVER_ON, Boolean.toString(datapointTags.isBatterySaverOn())));
     }
 
@@ -183,9 +185,11 @@ public class DataPointMapper {
          * Based on this bug we have decided to don't store some data points if the host API is not supported.
          * In the case of the CPU metric, the min API supported is 19.
          */
-        AndroidAPI metricAndroidAPI = AndroidAPI.fromString(processingUnit.getAndroidOSVersion());
-        if (minAPISupported != null && metricAndroidAPI.compareTo(minAPISupported) > 0) {
-            return;
+        if (processingUnit.getAndroidOSVersion() != null) {
+            AndroidAPI metricAndroidAPI = AndroidAPI.fromString(processingUnit.getAndroidOSVersion());
+            if (minAPISupported != null && metricAndroidAPI.compareTo(minAPISupported) > 0) {
+                return;
+            }
         }
         List<F.Tuple<String, Value>> measurements = new ArrayList<>();
         measurements.add(new F.Tuple<>(CONSUMPTION, Value.toBasicValue(processingUnit.getConsumption())));

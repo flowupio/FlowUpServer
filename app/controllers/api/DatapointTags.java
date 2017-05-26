@@ -5,5 +5,7 @@ interface DatapointTags {
 
     String getAndroidOSVersion();
 
+    String getIOSVersion();
+
     boolean isBatterySaverOn();
 }

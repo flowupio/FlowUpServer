@@ -62,6 +62,7 @@ public class ReportRequest {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
+        private final String iOSVersion;
         private final boolean batterySaverOn;
         private final double bytesUploaded;
         private final double bytesDownloaded;
@@ -72,6 +73,7 @@ public class ReportRequest {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
+        private final String iOSVersion;
         private final boolean batterySaverOn;
         private final String screen;
         private final StatisticalValue frameTime;
@@ -89,6 +91,7 @@ public class ReportRequest {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
+        private final String iOSVersion;
         private final boolean batterySaverOn;
         private final double consumption;
     }
@@ -98,6 +101,7 @@ public class ReportRequest {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
+        private final String iOSVersion;
         private final boolean batterySaverOn;
         private final double consumption;
     }
@@ -108,6 +112,7 @@ public class ReportRequest {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
+        private final String iOSVersion;
         private final boolean batterySaverOn;
         private final long internalStorageWrittenBytes;
         private final long sharedPreferencesWrittenBytes;
@@ -118,6 +123,7 @@ public class ReportRequest {
         private final long timestamp;
         private final String appVersionName;
         private final String androidOSVersion;
+        private final String iOSVersion;
         private final boolean batterySaverOn;
         private final double consumption;
         private final long bytesAllocated;
