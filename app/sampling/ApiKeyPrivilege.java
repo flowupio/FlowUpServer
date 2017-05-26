@@ -1,6 +1,7 @@
 package sampling;
 
 import models.ApiKey;
+import models.Platform;
 import models.Version;
 import usecases.repositories.ApiKeyRepository;
 
@@ -34,7 +35,10 @@ public class ApiKeyPrivilege {
             return false;
         }
         Version minApiKeyVersionSupported = Version.fromString(apiKey.getMinAndroidSDKSupported());
-        if (!isVersionSupported(version, minApiKeyVersionSupported)) {
+        if (version.getPlatform() == Platform.ANDROID && !isVersionSupported(version, minApiKeyVersionSupported)) {
+            return false;
+        }
+        if (version.getPlatform() == Platform.UNKNOWN) {
             return false;
         }
         if (version.isDebugVersion()) {

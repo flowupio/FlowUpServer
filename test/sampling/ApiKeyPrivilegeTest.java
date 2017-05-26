@@ -33,6 +33,7 @@ public class ApiKeyPrivilegeTest {
     private static final Version VERSION_ONE = new Version(0, 0, 1, Platform.ANDROID);
     private static final Version VERSION_ONE_DEBUG = new Version(0, 0, 1, Platform.ANDROID, true);
     private static final Version VERSION_TWO = new Version(0, 2, 1, Platform.ANDROID);
+    private static final Version IOS_VERSION = new Version(0, 0, 1, Platform.IOS);
 
 
     @Mock
@@ -110,21 +111,28 @@ public class ApiKeyPrivilegeTest {
 
     @Test
     public void nonSupportedVersionsShouldNotBeInTheSamplingGroup() {
-        givenAnApiKeyWithMinAndroidVersionSupported(VERSION_TWO);
+        givenAnApiKeyWithMinVersionSupported(VERSION_TWO);
 
         assertFalse(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_ONE));
     }
 
     @Test
     public void supportedVersionsShouldBePartOfTheSamplingGroup() {
-        givenAnApiKeyWithMinAndroidVersionSupported(VERSION_ONE);
+        givenAnApiKeyWithMinVersionSupported(VERSION_ONE);
+
+        assertTrue(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_TWO));
+    }
+
+    @Test
+    public void supportedIOSVersionsShouldBePartOfTheSamplingGroup() {
+        givenAnApiKeyWithMinVersionSupported(IOS_VERSION);
 
         assertTrue(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_TWO));
     }
 
     @Test
     public void theSameVersionShouldBePartOfTheSamplingGroup() {
-        givenAnApiKeyWithMinAndroidVersionSupported(VERSION_ONE);
+        givenAnApiKeyWithMinVersionSupported(VERSION_ONE);
 
         assertTrue(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_ONE));
     }
@@ -151,12 +159,12 @@ public class ApiKeyPrivilegeTest {
 
     @Test
     public void doesNotAcceptInvalidVersionsEvenIfTheVersionUsedIsTheDebugOne() {
-        givenAnApiKeyWithMinAndroidVersionSupported(VERSION_TWO);
+        givenAnApiKeyWithMinVersionSupported(VERSION_TWO);
 
         assertFalse(apiKeyPrivilege.isAllowed(ANY_API_KEY, ANY_UUID, VERSION_ONE_DEBUG));
     }
 
-    private ApiKey givenAnApiKeyWithMinAndroidVersionSupported(Version version) {
+    private ApiKey givenAnApiKeyWithMinVersionSupported(Version version) {
         return givenAnApiKey(true, ANY_API_KEY, new HashSet<>(), version.toString());
     }
 

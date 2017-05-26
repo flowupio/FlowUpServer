@@ -24,7 +24,7 @@ public class DataPointMapperTest {
 
     @Test
     public void doesNotMapCPUDataPointsIfTheAndroidAPIAssociatedIsGreaterThan19() {
-        ReportRequest reportRequest = givenAReportRequestWithACPUMetric("API25", ANY_CPU_CONSUMPTION);
+        ReportRequest reportRequest = givenAReportRequestWithACPUMetric("API25", null, ANY_CPU_CONSUMPTION);
 
         List<DataPoint> dataPoints = mapper.mapCpu(reportRequest);
 
@@ -33,7 +33,7 @@ public class DataPointMapperTest {
 
     @Test
     public void mapsCPUDataPointsIfTheAndroidAPIAssociatedIsEqualTo19() {
-        ReportRequest reportRequest = givenAReportRequestWithACPUMetric("API19", ANY_CPU_CONSUMPTION);
+        ReportRequest reportRequest = givenAReportRequestWithACPUMetric("API19", null, ANY_CPU_CONSUMPTION);
 
         List<DataPoint> dataPoints = mapper.mapCpu(reportRequest);
 
@@ -42,7 +42,16 @@ public class DataPointMapperTest {
 
     @Test
     public void mapsCPUDataPointsIfTheAndroidAPIAssociatedIsLowerThan19() {
-        ReportRequest reportRequest = givenAReportRequestWithACPUMetric("API16", ANY_CPU_CONSUMPTION);
+        ReportRequest reportRequest = givenAReportRequestWithACPUMetric("API16", null, ANY_CPU_CONSUMPTION);
+
+        List<DataPoint> dataPoints = mapper.mapCpu(reportRequest);
+
+        assertDataPointsContainExpectedValues(dataPoints);
+    }
+
+    @Test
+    public void mapsCPUDataPointsIfItsAnIOSAPI() {
+        ReportRequest reportRequest = givenAReportRequestWithACPUMetric(null, "10.0.0", ANY_CPU_CONSUMPTION);
 
         List<DataPoint> dataPoints = mapper.mapCpu(reportRequest);
 
@@ -56,9 +65,9 @@ public class DataPointMapperTest {
         assertEquals(ANY_CPU_CONSUMPTION, consumption.getValue(), 0.1);
     }
 
-    private ReportRequest givenAReportRequestWithACPUMetric(String androidAPI, double cpuConsumption) {
+    private ReportRequest givenAReportRequestWithACPUMetric(String androidAPI, String iosAPI, double cpuConsumption) {
         List<ReportRequest.Cpu> cpuMetrics = new LinkedList<>();
-        cpuMetrics.add(new ReportRequest.Cpu(1l, "1.0.0", androidAPI, false, cpuConsumption));
+        cpuMetrics.add(new ReportRequest.Cpu(1l, "1.0.0", androidAPI, iosAPI, false, cpuConsumption));
         return new ReportRequest("io.flowup.example",
                 "Nexus5",
                 "hdpi",

@@ -16,7 +16,8 @@ object Report {
 
   private val maxNumberOfReportsPerRequest = 251
   private val anyVersionName = "1.0.0"
-  private val anyOSVersion = "API24"
+  private val anyAndroidOSVersion = "API24"
+  private val anyIOSVersion = "10.0.0"
   private val anyBatterySaverValue = true
   private val anyScreen = "MainActivity"
   private val maxConsumption = 100
@@ -128,7 +129,7 @@ object Report {
 
   private def generateNetworkMetrics(numberOfMetrics: Int): List[Network] = {
     generateSomeData(numberOfMetrics) { _ =>
-      new Network(anyTimestamp, anyVersionName, anyOSVersion, anyBatterySaverValue, anyAmountOfBytes, anyAmountOfBytes)
+      new Network(anyTimestamp, anyVersionName, anyAndroidOSVersion, anyIOSVersion, anyBatterySaverValue, anyAmountOfBytes, anyAmountOfBytes)
     }
   }
 
@@ -141,7 +142,8 @@ object Report {
     generateSomeData(numberOfMetrics * numberOfScreens) { _ =>
       new Ui(anyTimestamp,
         anyVersionName,
-        anyOSVersion,
+        anyAndroidOSVersion,
+        anyIOSVersion,
         anyBatterySaverValue,
         anyScreen,
         anyStatisticalValue,
@@ -159,7 +161,8 @@ object Report {
     generateSomeData(numberOfMetrics) { _ =>
       new Cpu(anyTimestamp,
         anyVersionName,
-        anyOSVersion,
+        anyAndroidOSVersion,
+        anyIOSVersion,
         anyBatterySaverValue,
         maxConsumption)
     }
@@ -169,7 +172,8 @@ object Report {
     generateSomeData(numberOfMetrics) { _ =>
       new Memory(anyTimestamp,
         anyVersionName,
-        anyOSVersion,
+        anyAndroidOSVersion,
+        anyIOSVersion,
         anyBatterySaverValue,
         maxConsumption,
         anyAmountOfBytes)
@@ -180,7 +184,8 @@ object Report {
     generateSomeData(numberOfMetrics) { _ =>
       new Disk(anyTimestamp,
         anyVersionName,
-        anyOSVersion,
+        anyAndroidOSVersion,
+        anyIOSVersion,
         anyBatterySaverValue,
         maxConsumption,
         anyAmountOfBytes)
