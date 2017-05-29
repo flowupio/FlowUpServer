@@ -24,4 +24,4 @@ deployment:
   prod:
     branch: master
     commands:
-      - aws s3 sync target/universal/ s3://flowupserver-builds
+      - sbt dist && aws s3 sync target/universal/ s3://flowupserver-builds
