@@ -18,7 +18,8 @@ database:
 
 test:
   override:
-    - sbt test
+    - sbt test:
+        timeout: 1200
 
 deployment:
   prod:
