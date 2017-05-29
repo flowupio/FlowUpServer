@@ -1,0 +1,27 @@
+machine:
+  java:
+    version: oraclejdk8
+  services:
+    - redis
+  environment:
+    LOG_APP_LEVEL: INFO
+    MYSQL_USER: ubuntu
+    MYSQL_PASSWORD: ""
+
+dependencies:
+  override:
+    - ls
+
+database:
+  override:
+    - mysql -e "create database IF NOT EXISTS flowupdb;" -uroot
+
+test:
+  override:
+    - sbt test
+
+deployment:
+  prod:
+    branch: master
+    commands:
+      - aws s3 sync target/universal/ s3://flowupserver-builds

@@ -32,7 +32,7 @@ public class Version implements Comparable<Version> {
             return UNKNOWN_VERSION;
         }
         try {
-            Platform platform = value.startsWith("FlowUpAndroidSDK") ? Platform.ANDROID : Platform.IOS;
+            Platform platform = getPlatform(value);
             int startIndex = value.indexOf('/') + 1;
             int lastIndex = value.indexOf("-");
             int endIndex = lastIndex == -1 ? value.length() : lastIndex;
@@ -58,7 +58,12 @@ public class Version implements Comparable<Version> {
 
     @Override
     public String toString() {
-        String clientName = platform == Platform.ANDROID ? "FlowUpAndroidSDK" : "FlowUpIOSSDK";
+        String clientName = "";
+        switch (platform) {
+            case ANDROID: clientName = "FlowUpAndroidSDK"; break;
+            case IOS: clientName = "FlowUpIOSSDK"; break;
+            case UNKNOWN: clientName = "Unknown"; break;
+        }
         return clientName + "/" + getMajor() + "." + getMinor() + "." + getPatch();
     }
 
@@ -66,5 +71,13 @@ public class Version implements Comparable<Version> {
         return (getMajor() * 10000) + (getMinor() * 100) + getPatch();
     }
 
-
+    private static Platform getPlatform(String value) {
+        if (value.startsWith("FlowUpAndroidSDK")) {
+            return Platform.ANDROID;
+        } else if (value.startsWith("FlowUpIOSSDK")) {
+            return Platform.IOS;
+        } else {
+            return Platform.UNKNOWN;
+        }
+    }
 }
