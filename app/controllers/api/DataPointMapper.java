@@ -185,7 +185,7 @@ public class DataPointMapper {
          * Based on this bug we have decided to don't store some data points if the host API is not supported.
          * In the case of the CPU metric, the min API supported is 19.
          */
-        if (processingUnit.getAndroidOSVersion() != null) {
+        if (processingUnit.isAndroid()) {
             AndroidAPI metricAndroidAPI = AndroidAPI.fromString(processingUnit.getAndroidOSVersion());
             if (minAPISupported != null && metricAndroidAPI.compareTo(minAPISupported) > 0) {
                 return;

@@ -34,8 +34,8 @@ public class ApiKeyPrivilege {
         if (!apiKey.isEnabled()) {
             return false;
         }
-        Version minApiKeyVersionSupported = Version.fromString(apiKey.getMinAndroidSDKSupported());
-        if (version.getPlatform() == Platform.ANDROID && !isVersionSupported(version, minApiKeyVersionSupported)) {
+        Version minAndroidApiKeyVersionSupported = Version.fromString(apiKey.getMinAndroidSDKSupported());
+        if (version.getPlatform() == Platform.ANDROID && !isVersionSupported(version, minAndroidApiKeyVersionSupported)) {
             return false;
         }
         if (version.getPlatform() == Platform.UNKNOWN) {
@@ -55,7 +55,7 @@ public class ApiKeyPrivilege {
     }
 
     private boolean isVersionSupported(Version version, Version minApiKeyVersionSupported) {
-        return version != Version.UNKNOWN_VERSION && minApiKeyVersionSupported.compareTo(version) <= 0;
+        return minApiKeyVersionSupported.compareTo(version) <= 0;
     }
 
     private boolean hasExceededTheNumberOfAllowedUUIDs(ApiKey apiKey) {
