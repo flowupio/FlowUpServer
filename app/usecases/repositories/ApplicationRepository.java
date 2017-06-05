@@ -4,12 +4,12 @@ import datasources.database.ApplicationDatasource;
 import models.ApiKey;
 import models.Application;
 import models.Organization;
+import models.Platform;
 import org.jetbrains.annotations.NotNull;
 import play.cache.CacheApi;
 import usecases.DashboardsClient;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -53,7 +53,7 @@ public class ApplicationRepository {
         return String.format(APPLICATION_APP_PACKAGE_ORGANIZATION_ID_CACHE_KEY, appPackage, organizationId);
     }
 
-    public CompletionStage<Application> create(String apiKeyValue, String appPackage) {
+    public CompletionStage<Application> create(String apiKeyValue, String appPackage, Platform platform) {
         ApiKey apiKey = apiKeyRepository.getApiKey(apiKeyValue);
         if (apiKey == null) {
             return null;
@@ -69,15 +69,10 @@ public class ApplicationRepository {
 
                     CompletionStage<Void> datasourceCompletionStage = dashboardsClient.createDatasource(applicationWithOrg)
                             .thenCompose(this::addUsersToApplicationDashboards)
-                            .thenRun(this::createDashboards);
+                            .thenRun(() -> dashboardsClient.createDashboards(platform));
 
                     return datasourceCompletionStage.thenApply(result -> applicationWithOrg);
                 });
-    }
-
-    private void createDashboards() {
-
-        dashboardsClient.createDashboards(Collections.emptyList());
     }
 
     @NotNull

@@ -42,7 +42,7 @@ public class InsertDataPoints {
         CompletionStage<Application> futureApplication;
         Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
         if (application == null) {
-            futureApplication = applicationRepository.create(report.getApiKey(), report.getAppPackage());
+            futureApplication = applicationRepository.create(report.getApiKey(), report.getAppPackage(), report.getPlatform());
             sendFirstReportEmail(futureApplication);
         } else {
             futureApplication = completedFuture(application);

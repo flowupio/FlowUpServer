@@ -1,10 +1,10 @@
 package datasources.grafana;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import datasources.elasticsearch.ElasticSearchDatasource;
 import models.Application;
+import models.Platform;
 import models.User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,6 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import usecases.DashboardsClient;
 import usecases.mapper.DashboardMapper;
-import usecases.models.Dashboard;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -47,9 +46,10 @@ public class GrafanaClient implements DashboardsClient {
     private final String adminPassword;
     private final String elasticsearchEndpoint;
     private final DashboardMapper dashboardMapper;
+    private final DashboardsDataSource dashboardsDataSource;
 
     @Inject
-    public GrafanaClient(WSClient ws, @Named("grafana") Configuration grafanaConf, @Named("elasticsearch") Configuration elasticsearchConf, DashboardMapper dashboardMapper) {
+    public GrafanaClient(WSClient ws, @Named("grafana") Configuration grafanaConf, @Named("elasticsearch") Configuration elasticsearchConf, DashboardMapper dashboardMapper, DashboardsDataSource dashboardsDataSource) {
         this.ws = ws;
 
         this.apiKey = grafanaConf.getString("api_key");
@@ -60,6 +60,7 @@ public class GrafanaClient implements DashboardsClient {
 
         this.elasticsearchEndpoint = getElasticSearchEndpoint(elasticsearchConf);
         this.dashboardMapper = dashboardMapper;
+        this.dashboardsDataSource = dashboardsDataSource;
     }
 
     private String getGrafanaBaseUrl(@Named("grafana") Configuration grafanaConf) {
@@ -177,8 +178,8 @@ public class GrafanaClient implements DashboardsClient {
     }
 
     @Override
-    public CompletableFuture<Void> createDashboards(List<Dashboard> dashboards) {
-        List<CompletableFuture> requests = dashboards.stream()
+    public CompletableFuture<Void> createDashboards(Platform platform) {
+        List<CompletableFuture> requests = dashboardsDataSource.getDashboards(platform).stream()
                 .map(dashboardMapper::map)
                 .map(request -> post(API_DASHBOARDS, request).toCompletableFuture())
                 .collect(Collectors.toList());

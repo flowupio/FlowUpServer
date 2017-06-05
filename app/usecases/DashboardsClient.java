@@ -1,6 +1,7 @@
 package usecases;
 
 import models.Application;
+import models.Platform;
 import models.User;
 import usecases.models.Dashboard;
 
@@ -19,7 +20,7 @@ public interface DashboardsClient {
 
     CompletionStage<Application> createDatasource(Application application);
 
-    CompletableFuture<Void> createDashboards(List<Dashboard> dashboards);
+    CompletableFuture<Void> createDashboards(Platform platform);
 
     CompletionStage<Application> switchUserContext(User user, Application application);
 }

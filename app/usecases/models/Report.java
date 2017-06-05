@@ -1,8 +1,7 @@
 package usecases.models;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
-import usecases.models.Metric;
+import models.Platform;
 
 import java.util.List;
 
@@ -12,6 +11,7 @@ public class Report {
     private final String appPackage;
     private final List<Metric> metrics;
     private final Metadata metadata;
+    private final Platform platform;
 
     @Data
     public static class Metadata {
