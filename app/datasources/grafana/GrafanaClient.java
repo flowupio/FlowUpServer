@@ -17,6 +17,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import usecases.DashboardsClient;
 import usecases.mapper.DashboardMapper;
+import usecases.models.Dashboard;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -38,6 +39,7 @@ public class GrafanaClient implements DashboardsClient {
     private static final String API_USER_USING_ORGANISATION_ID = "/api/user/using/:orgId";
 
     private static final String API_DASHBOARDS = "/api/dashboards/db";
+    private static final String API_DASHBOARDS_SEARCH = "/api/search?limit=100&query=";
 
     private final WSClient ws;
     private final String baseUrl;
@@ -179,11 +181,20 @@ public class GrafanaClient implements DashboardsClient {
 
     @Override
     public CompletableFuture<Void> createDashboards(Platform platform) {
-        List<CompletableFuture> requests = dashboardsDataSource.getDashboards(platform).stream()
-                .map(dashboardMapper::map)
-                .map(request -> post(API_DASHBOARDS, request).toCompletableFuture())
-                .collect(Collectors.toList());
-        return CompletableFuture.allOf(requests.toArray(new CompletableFuture[0]));
+        return get(API_DASHBOARDS_SEARCH).thenCompose(response -> {
+            if (response.size() > 0) {
+                return CompletableFuture.completedFuture(null);
+            }
+
+            Logger.debug("Creating dashboards in grafana for " + platform + "...");
+            List<Dashboard> dashboards = dashboardsDataSource.getDashboards(platform);
+            Logger.debug("Dashboards count: " + dashboards.size());
+            List<CompletableFuture> requests = dashboards.stream()
+                    .map(dashboardMapper::map)
+                    .map(request -> post(API_DASHBOARDS, request).toCompletableFuture())
+                    .collect(Collectors.toList());
+            return CompletableFuture.allOf(requests.toArray(new CompletableFuture[0]));
+        }).toCompletableFuture();
     }
 
     private CompletionStage<Application> switchUserContext(Application application) {
@@ -191,6 +202,10 @@ public class GrafanaClient implements DashboardsClient {
         ObjectNode request = Json.newObject();
 
         return post(adminUserEndpoint, request).thenApply(grafanaResponse -> application);
+    }
+
+    private CompletionStage<List<DashboardDescriptionResponse>> get(String adminUserEndpoint) {
+        return getWsRequestForAdminUser(adminUserEndpoint).get().thenApply(this::parseWsQueryResponse);
     }
 
     private CompletionStage<GrafanaResponse> post(String adminUserEndpoint, JsonNode request) {
@@ -219,6 +234,13 @@ public class GrafanaClient implements DashboardsClient {
         GrafanaResponse grafanaResponse = Json.fromJson(wsResponse.asJson(), GrafanaResponse.class);
         grafanaResponse.setStatus(wsResponse.getStatus());
         return grafanaResponse;
+    }
+
+    @NotNull
+    private List<DashboardDescriptionResponse> parseWsQueryResponse(WSResponse wsResponse) {
+        Logger.debug(wsResponse.getAllHeaders().toString());
+        Logger.debug(wsResponse.getBody());
+        return Json.fromJson(wsResponse.asJson(), List.class);
     }
 }
 

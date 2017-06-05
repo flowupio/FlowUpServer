@@ -6,12 +6,14 @@ import play.Logger;
 import play.libs.Json;
 import usecases.models.Dashboard;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 public class DashboardMapper {
 
     private final ObjectMapper mapper;
 
+    @Inject
     public DashboardMapper(ObjectMapper mapper) {
         this.mapper = mapper;
     }

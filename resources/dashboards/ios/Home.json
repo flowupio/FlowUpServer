@@ -1,0 +1,191 @@
+{
+  "id": null,
+  "title": "Home",
+  "originalTitle": "Home",
+  "tags": [],
+  "style": "default",
+  "timezone": "browser",
+  "editable": false,
+  "hideControls": true,
+  "sharedCrosshair": false,
+  "rows": [
+    {
+      "collapse": false,
+      "editable": false,
+      "height": "250px",
+      "panels": [
+        {
+          "title": "",
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "type": "text",
+          "isNew": true,
+          "id": 16,
+          "mode": "markdown",
+          "content": "# Welcome to the FlowUP dashboards!\n\n\nThis is your home dashboard, contains information about every dashboard the FlowUp team has designed for you. For now, there is only one topic, CPU, but we will be adding more in future releases.\n\nEvery FlowUp dashboard is thought to bring you information about the state of the app in real time about all these topics. The most important graphs are in the top of each dashboard. At the bottom of every dashboard, you can find graphs grouped by different cross-metric information like application version name, iOS version, device model and screen name.\n\nThese dashboards are quite simple. Most of them represent data using time as the X-Axis value and the metric unit in the Y-Axis value. The graphs at the top of the dashboards represent the average value for some metrics. At the right of this pannel you have some examples.\n\nRemember you can create your own dashboards playlist and share any dashboard with your colleges from the different FlowUp menus.\n\nBelow this pannel you can find a link to every dashboard you can already use. We strongly recommend you to start with the CPU dashboard.\n\n",
+          "links": []
+        },
+        {
+          "title": "Average CPU Usage",
+          "error": false,
+          "span": 8,
+          "editable": true,
+          "type": "graph",
+          "isNew": true,
+          "id": 17,
+          "targets": [
+            {
+              "metrics": [
+                {
+                  "type": "avg",
+                  "id": "1",
+                  "field": "Consumption",
+                  "settings": {},
+                  "meta": {}
+                }
+              ],
+              "dsType": "elasticsearch",
+              "bucketAggs": [
+                {
+                  "type": "date_histogram",
+                  "id": "2",
+                  "settings": {
+                    "interval": "auto",
+                    "min_doc_count": 0,
+                    "trimEdges": 0
+                  },
+                  "field": "@timestamp"
+                }
+              ],
+              "timeField": "@timestamp",
+              "refId": "A",
+              "query": "_type:cpu_data"
+            }
+          ],
+          "datasource": null,
+          "renderer": "flot",
+          "yaxes": [
+            {
+              "label": null,
+              "show": true,
+              "logBase": 1,
+              "min": null,
+              "max": null,
+              "format": "percent"
+            },
+            {
+              "label": null,
+              "show": true,
+              "logBase": 1,
+              "min": null,
+              "max": null,
+              "format": "short"
+            }
+          ],
+          "xaxis": {
+            "show": true
+          },
+          "grid": {
+            "threshold1": null,
+            "threshold2": null,
+            "threshold1Color": "rgba(216, 200, 27, 0.27)",
+            "threshold2Color": "rgba(234, 112, 112, 0.22)"
+          },
+          "lines": true,
+          "fill": 1,
+          "linewidth": 2,
+          "points": false,
+          "pointradius": 5,
+          "bars": false,
+          "stack": false,
+          "percentage": false,
+          "legend": {
+            "show": true,
+            "values": true,
+            "min": true,
+            "max": true,
+            "current": false,
+            "total": false,
+            "avg": false
+          },
+          "nullPointMode": "null",
+          "steppedLine": false,
+          "tooltip": {
+            "value_type": "cumulative",
+            "shared": true,
+            "msResolution": false
+          },
+          "timeFrom": null,
+          "timeShift": null,
+          "aliasColors": {},
+          "seriesOverrides": [],
+          "links": [],
+          "interval": "5m"
+        }
+      ],
+      "title": "Dashboards"
+    },
+    {
+      "title": "New row",
+      "height": "250px",
+      "editable": true,
+      "collapse": false,
+      "panels": [
+        {
+          "editable": true,
+          "error": false,
+          "headings": false,
+          "id": 15,
+          "isNew": true,
+          "limit": 100,
+          "links": [],
+          "query": "",
+          "recent": false,
+          "search": true,
+          "span": 12,
+          "starred": false,
+          "tags": [],
+          "title": "Dashboards",
+          "type": "dashlist"
+        }
+      ]
+    }
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "refresh": "1m",
+  "schemaVersion": 12,
+  "version": 6,
+  "links": []
+}

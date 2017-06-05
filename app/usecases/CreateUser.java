@@ -9,7 +9,6 @@ import models.User;
 import play.Configuration;
 import usecases.repositories.UserRepository;
 
-import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -59,9 +58,8 @@ public class CreateUser {
             return CompletableFuture.completedFuture(user);
         }
         return addUserToApplications(user, organization)
-                .thenCompose(application -> dashboardsClient.createDashboards(Collections.emptyList()))
                 .thenCompose(aVoid -> dashboardsClient.switchUserContext(user, organization.getApplications().get(0))
-                .thenCompose(application -> dashboardsClient.deleteUserInDefaultOrganisation(user)));
+                        .thenCompose(application -> dashboardsClient.deleteUserInDefaultOrganisation(user)));
     }
 
     private CompletableFuture<Void> addUserToApplications(User user, Organization organization) {

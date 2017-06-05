@@ -1,0 +1,522 @@
+{
+  "id": null,
+  "title": "Home",
+  "originalTitle": "Home",
+  "tags": [],
+  "style": "default",
+  "timezone": "browser",
+  "editable": false,
+  "hideControls": true,
+  "sharedCrosshair": false,
+  "rows": [
+    {
+      "collapse": false,
+      "editable": false,
+      "height": "250px",
+      "panels": [
+        {
+          "title": "",
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "type": "text",
+          "isNew": true,
+          "id": 16,
+          "mode": "markdown",
+          "content": "# Welcome to the FlowUP dashboards!\n\n\nThis is your home dashboard, contains information about every dashboard the FlowUp team has designed for you. There are at least 5 main topics we should care about in terms of performance:\n\n* Frame time and frames per second.\n* CPU usage.\n* Memory usage and bytes allocated.\n* Network usage in terms of bytes uploaded and downloaded.\n* Disk usage for your internal storage and shared preferences folder.\n\nEvery FlowUp dashboard is thought to bring you information about the state of the app in real time about all these topics. The most important graphs are in the top of each dashboard. At the bottom of every dashboard, you can find graphs grouped by different cross-metric information like application version name, android OS version, device model and screen name.\n\nThese dashboards are quite simple. Most of them represent data using time as the X-Axis value and the metric unit in the Y-Axis value. The graphs at the top of the dashboards represent the average value for some metrics. At the right of this pannel you have some examples.\n\nRemember you can create your own dashboards playlist and share any dashboard with your colleges from the different FlowUp menus.\n\nBelow this pannel you can find a link to every dashboard you can already use. We strongly recommend you to start with the Android Home dashboard.\n\n",
+          "links": []
+        },
+        {
+          "title": "Frames Per Second",
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "type": "singlestat",
+          "isNew": true,
+          "id": 18,
+          "targets": [
+            {
+              "metrics": [
+                {
+                  "type": "avg",
+                  "id": "1",
+                  "field": "FramesPerSecond.p90",
+                  "settings": {},
+                  "meta": {}
+                }
+              ],
+              "dsType": "elasticsearch",
+              "bucketAggs": [
+                {
+                  "type": "date_histogram",
+                  "id": "2",
+                  "settings": {
+                    "interval": "auto",
+                    "min_doc_count": 0,
+                    "trimEdges": 0
+                  },
+                  "field": "@timestamp"
+                }
+              ],
+              "timeField": "@timestamp",
+              "refId": "A"
+            }
+          ],
+          "links": [],
+          "datasource": null,
+          "maxDataPoints": 100,
+          "interval": "5m",
+          "cacheTimeout": null,
+          "format": "none",
+          "prefix": "",
+          "postfix": "",
+          "nullText": null,
+          "valueMaps": [
+            {
+              "value": "null",
+              "op": "=",
+              "text": "N/A"
+            }
+          ],
+          "nullPointMode": "connected",
+          "valueName": "avg",
+          "prefixFontSize": "50%",
+          "valueFontSize": "80%",
+          "postfixFontSize": "50%",
+          "thresholds": "40,50",
+          "colorBackground": true,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "sparkline": {
+            "show": false,
+            "full": true,
+            "lineColor": "rgb(31, 120, 193)",
+            "fillColor": "rgba(31, 118, 189, 0.18)"
+          },
+          "gauge": {
+            "show": false,
+            "minValue": 0,
+            "maxValue": 100,
+            "thresholdMarkers": true,
+            "thresholdLabels": false
+          }
+        },
+        {
+          "title": "Average CPU Usage",
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "type": "graph",
+          "isNew": true,
+          "id": 17,
+          "targets": [
+            {
+              "metrics": [
+                {
+                  "type": "avg",
+                  "id": "1",
+                  "field": "Consumption",
+                  "settings": {},
+                  "meta": {}
+                }
+              ],
+              "dsType": "elasticsearch",
+              "bucketAggs": [
+                {
+                  "type": "date_histogram",
+                  "id": "2",
+                  "settings": {
+                    "interval": "auto",
+                    "min_doc_count": 0,
+                    "trimEdges": 0
+                  },
+                  "field": "@timestamp"
+                }
+              ],
+              "timeField": "@timestamp",
+              "refId": "A",
+              "query": "_type:cpu_data"
+            }
+          ],
+          "datasource": null,
+          "renderer": "flot",
+          "yaxes": [
+            {
+              "label": null,
+              "show": true,
+              "logBase": 1,
+              "min": null,
+              "max": null,
+              "format": "percent"
+            },
+            {
+              "label": null,
+              "show": true,
+              "logBase": 1,
+              "min": null,
+              "max": null,
+              "format": "short"
+            }
+          ],
+          "xaxis": {
+            "show": true
+          },
+          "grid": {
+            "threshold1": null,
+            "threshold2": null,
+            "threshold1Color": "rgba(216, 200, 27, 0.27)",
+            "threshold2Color": "rgba(234, 112, 112, 0.22)"
+          },
+          "lines": true,
+          "fill": 1,
+          "linewidth": 2,
+          "points": false,
+          "pointradius": 5,
+          "bars": false,
+          "stack": false,
+          "percentage": false,
+          "legend": {
+            "show": true,
+            "values": true,
+            "min": true,
+            "max": true,
+            "current": false,
+            "total": false,
+            "avg": false
+          },
+          "nullPointMode": "null",
+          "steppedLine": false,
+          "tooltip": {
+            "value_type": "cumulative",
+            "shared": true,
+            "msResolution": false
+          },
+          "timeFrom": null,
+          "timeShift": null,
+          "aliasColors": {},
+          "seriesOverrides": [],
+          "links": [],
+          "interval": "5m"
+        },
+        {
+          "title": "Average Network Traffic",
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "type": "graph",
+          "isNew": true,
+          "id": 19,
+          "targets": [
+            {
+              "metrics": [
+                {
+                  "type": "avg",
+                  "id": "1",
+                  "field": "BytesUploaded",
+                  "settings": {},
+                  "meta": {}
+                }
+              ],
+              "dsType": "elasticsearch",
+              "bucketAggs": [
+                {
+                  "type": "date_histogram",
+                  "id": "2",
+                  "settings": {
+                    "interval": "auto",
+                    "min_doc_count": 0,
+                    "trimEdges": 0
+                  },
+                  "field": "@timestamp"
+                }
+              ],
+              "timeField": "@timestamp",
+              "refId": "A",
+              "query": "",
+              "alias": ""
+            },
+            {
+              "metrics": [
+                {
+                  "type": "avg",
+                  "id": "1",
+                  "field": "BytesDownloaded",
+                  "settings": {},
+                  "meta": {}
+                }
+              ],
+              "dsType": "elasticsearch",
+              "bucketAggs": [
+                {
+                  "type": "date_histogram",
+                  "id": "2",
+                  "settings": {
+                    "interval": "auto",
+                    "min_doc_count": 0,
+                    "trimEdges": 0
+                  },
+                  "field": "@timestamp"
+                }
+              ],
+              "timeField": "@timestamp",
+              "refId": "B",
+              "query": "",
+              "alias": ""
+            }
+          ],
+          "datasource": null,
+          "renderer": "flot",
+          "yaxes": [
+            {
+              "label": null,
+              "show": true,
+              "logBase": 1,
+              "min": null,
+              "max": null,
+              "format": "bytes"
+            },
+            {
+              "label": null,
+              "show": true,
+              "logBase": 1,
+              "min": null,
+              "max": null,
+              "format": "short"
+            }
+          ],
+          "xaxis": {
+            "show": true
+          },
+          "grid": {
+            "threshold1": null,
+            "threshold2": null,
+            "threshold1Color": "rgba(216, 200, 27, 0.27)",
+            "threshold2Color": "rgba(234, 112, 112, 0.22)"
+          },
+          "lines": true,
+          "fill": 1,
+          "linewidth": 2,
+          "points": false,
+          "pointradius": 5,
+          "bars": false,
+          "stack": false,
+          "percentage": false,
+          "legend": {
+            "show": true,
+            "values": true,
+            "min": true,
+            "max": true,
+            "current": false,
+            "total": false,
+            "avg": false
+          },
+          "nullPointMode": "null",
+          "steppedLine": false,
+          "tooltip": {
+            "value_type": "cumulative",
+            "shared": true,
+            "msResolution": false
+          },
+          "timeFrom": null,
+          "timeShift": null,
+          "aliasColors": {},
+          "seriesOverrides": [],
+          "links": [],
+          "interval": "5m"
+        },
+        {
+          "title": "Average Disk Usage",
+          "error": false,
+          "span": 4,
+          "editable": true,
+          "type": "graph",
+          "isNew": true,
+          "id": 20,
+          "targets": [
+            {
+              "metrics": [
+                {
+                  "type": "avg",
+                  "id": "1",
+                  "field": "InternalStorageWrittenBytes",
+                  "settings": {},
+                  "meta": {}
+                }
+              ],
+              "dsType": "elasticsearch",
+              "bucketAggs": [
+                {
+                  "type": "date_histogram",
+                  "id": "2",
+                  "settings": {
+                    "interval": "auto",
+                    "min_doc_count": 0,
+                    "trimEdges": 0
+                  },
+                  "field": "@timestamp"
+                }
+              ],
+              "timeField": "@timestamp",
+              "refId": "A",
+              "query": "",
+              "alias": ""
+            },
+            {
+              "metrics": [
+                {
+                  "type": "avg",
+                  "id": "1",
+                  "field": "SharedPreferencesWrittenBytes",
+                  "settings": {},
+                  "meta": {}
+                }
+              ],
+              "dsType": "elasticsearch",
+              "bucketAggs": [
+                {
+                  "type": "date_histogram",
+                  "id": "2",
+                  "settings": {
+                    "interval": "auto",
+                    "min_doc_count": 0,
+                    "trimEdges": 0
+                  },
+                  "field": "@timestamp"
+                }
+              ],
+              "timeField": "@timestamp",
+              "refId": "B",
+              "query": "",
+              "alias": ""
+            }
+          ],
+          "datasource": null,
+          "renderer": "flot",
+          "yaxes": [
+            {
+              "label": null,
+              "show": true,
+              "logBase": 1,
+              "min": null,
+              "max": null,
+              "format": "bytes"
+            },
+            {
+              "label": null,
+              "show": true,
+              "logBase": 1,
+              "min": null,
+              "max": null,
+              "format": "short"
+            }
+          ],
+          "xaxis": {
+            "show": true
+          },
+          "grid": {
+            "threshold1": null,
+            "threshold2": null,
+            "threshold1Color": "rgba(216, 200, 27, 0.27)",
+            "threshold2Color": "rgba(234, 112, 112, 0.22)"
+          },
+          "lines": true,
+          "fill": 1,
+          "linewidth": 2,
+          "points": false,
+          "pointradius": 5,
+          "bars": false,
+          "stack": false,
+          "percentage": false,
+          "legend": {
+            "show": true,
+            "values": true,
+            "min": true,
+            "max": true,
+            "current": false,
+            "total": false,
+            "avg": false
+          },
+          "nullPointMode": "null",
+          "steppedLine": false,
+          "tooltip": {
+            "value_type": "cumulative",
+            "shared": true,
+            "msResolution": false
+          },
+          "timeFrom": null,
+          "timeShift": null,
+          "aliasColors": {},
+          "seriesOverrides": [],
+          "links": [],
+          "interval": "5m"
+        }
+      ],
+      "title": "Dashboards"
+    },
+    {
+      "title": "New row",
+      "height": "250px",
+      "editable": true,
+      "collapse": false,
+      "panels": [
+        {
+          "editable": true,
+          "error": false,
+          "headings": false,
+          "id": 15,
+          "isNew": true,
+          "limit": 100,
+          "links": [],
+          "query": "",
+          "recent": false,
+          "search": true,
+          "span": 12,
+          "starred": false,
+          "tags": [],
+          "title": "Dashboards",
+          "type": "dashlist"
+        }
+      ]
+    }
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "refresh": "1m",
+  "schemaVersion": 12,
+  "version": 6,
+  "links": []
+}
