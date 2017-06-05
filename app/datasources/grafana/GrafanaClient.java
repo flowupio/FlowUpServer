@@ -1,6 +1,7 @@
 package datasources.grafana;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import datasources.elasticsearch.ElasticSearchDatasource;
 import models.Application;
@@ -15,12 +16,17 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import usecases.DashboardsClient;
+import usecases.mapper.DashboardMapper;
+import usecases.models.Dashboard;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 public class GrafanaClient implements DashboardsClient {
 
@@ -32,6 +38,7 @@ public class GrafanaClient implements DashboardsClient {
     private static final String API_ADMIN_USERS = "/api/admin/users";
     private static final String API_USER_USING_ORGANISATION_ID = "/api/user/using/:orgId";
 
+    private static final String API_DASHBOARDS = "/api/dashboards/db";
 
     private final WSClient ws;
     private final String baseUrl;
@@ -39,9 +46,10 @@ public class GrafanaClient implements DashboardsClient {
     private final String adminUser;
     private final String adminPassword;
     private final String elasticsearchEndpoint;
+    private final DashboardMapper dashboardMapper;
 
     @Inject
-    public GrafanaClient(WSClient ws, @Named("grafana") Configuration grafanaConf, @Named("elasticsearch") Configuration elasticsearchConf) {
+    public GrafanaClient(WSClient ws, @Named("grafana") Configuration grafanaConf, @Named("elasticsearch") Configuration elasticsearchConf, DashboardMapper dashboardMapper) {
         this.ws = ws;
 
         this.apiKey = grafanaConf.getString("api_key");
@@ -51,6 +59,7 @@ public class GrafanaClient implements DashboardsClient {
         this.baseUrl = getGrafanaBaseUrl(grafanaConf);
 
         this.elasticsearchEndpoint = getElasticSearchEndpoint(elasticsearchConf);
+        this.dashboardMapper = dashboardMapper;
     }
 
     private String getGrafanaBaseUrl(@Named("grafana") Configuration grafanaConf) {
@@ -125,8 +134,8 @@ public class GrafanaClient implements DashboardsClient {
     @Override
     public CompletionStage<Application> createDatasource(Application application) {
         return this.switchUserContext(application).thenCompose(applicationSwitched -> {
-                    ObjectNode jsonNode = Json.newObject().put("timeField", "@timestamp").put("esVersion", 2);
-                    JsonNode request = Json.newObject()
+            ObjectNode jsonNode = Json.newObject().put("timeField", "@timestamp").put("esVersion", 2);
+            JsonNode request = Json.newObject()
                     .put("orgId", application.getGrafanaOrgId())
                     .put("name", "default")
                     .put("type", "elasticsearch")
@@ -167,6 +176,15 @@ public class GrafanaClient implements DashboardsClient {
         return getWsRequestForUser(user.getEmail(), user.getGrafanaPassword(), adminUserEndpoint).post(request).thenApply(this::parseWsResponse).thenApply(grafanaResponse -> application);
     }
 
+    @Override
+    public CompletableFuture<Void> createDashboards(List<Dashboard> dashboards) {
+        List<CompletableFuture> requests = dashboards.stream()
+                .map(dashboardMapper::map)
+                .map(request -> post(API_DASHBOARDS, request).toCompletableFuture())
+                .collect(Collectors.toList());
+        return CompletableFuture.allOf(requests.toArray(new CompletableFuture[0]));
+    }
+
     private CompletionStage<Application> switchUserContext(Application application) {
         String adminUserEndpoint = API_USER_USING_ORGANISATION_ID.replaceFirst(":orgId", application.getGrafanaOrgId());
         ObjectNode request = Json.newObject();
@@ -189,13 +207,6 @@ public class GrafanaClient implements DashboardsClient {
     private WSRequest getWsRequestForUser(String username, String password, String adminUserEndpoint) {
         WSRequest wsRequest = ws.url(baseUrl + adminUserEndpoint).setHeader("Accept", "application/json").setContentType("application/json")
                 .setAuth(username, password);
-        Logger.debug(wsRequest.getHeaders().toString());
-        return wsRequest;
-    }
-
-    private WSRequest getWsRequest(String adminUserEndpoint) {
-        WSRequest wsRequest = ws.url(baseUrl + adminUserEndpoint).setHeader("Accept", "application/json").setContentType("application/json")
-                .setHeader("Authorization", "Bearer " + this.apiKey);
         Logger.debug(wsRequest.getHeaders().toString());
         return wsRequest;
     }
