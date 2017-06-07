@@ -30,6 +30,8 @@ public abstract class ApiClientTest extends WithFlowUpApplication implements Wit
     public WireMockRule wireMockRule = new WireMockRule();
     @Mock
     protected Time time;
+    @Mock
+    protected DashboardsDataSource dashboardsDataSource;
 
     @Before
     public void startPlay() {
@@ -57,6 +59,6 @@ public abstract class ApiClientTest extends WithFlowUpApplication implements Wit
                 grafanaConfig,
                 elasticConfig,
                 new DashboardMapper(new ObjectMapper()),
-                app.injector().instanceOf(DashboardsDataSource.class));
+                dashboardsDataSource);
     }
 }
