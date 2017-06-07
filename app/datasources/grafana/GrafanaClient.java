@@ -21,9 +21,9 @@ import usecases.models.Dashboard;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -40,6 +40,8 @@ public class GrafanaClient implements DashboardsClient {
 
     private static final String API_DASHBOARDS = "/api/dashboards/db";
     private static final String API_DASHBOARDS_SEARCH = "/api/search?limit=100&query=";
+
+    private static final String API_PREFERENCES = "/api/user/preferences";
 
     private final WSClient ws;
     private final String baseUrl;
@@ -180,18 +182,37 @@ public class GrafanaClient implements DashboardsClient {
     }
 
     @Override
-    public CompletableFuture<Void> createDashboards(Platform platform) {
+    public CompletionStage<Void> updateHomeDashboard(User user, Application application) {
+        return get(API_DASHBOARDS_SEARCH).thenCompose(response -> {
+            Optional<DashboardDescriptionResponse> homeDashboard = response.stream()
+                    .filter(dashboard -> dashboard.getUri().equals("db/home"))
+                    .findFirst();
+
+            if (!homeDashboard.isPresent()) {
+                return CompletableFuture.completedFuture(null);
+            }
+
+            int homeDashboardId = homeDashboard.get().getId();
+            ObjectNode request = Json.newObject()
+                    .put("orgId", Integer.parseInt(application.getGrafanaOrgId()))
+                    .put("userId", Integer.parseInt(user.getGrafanaUserId()))
+                    .put("homeDashboardId", homeDashboardId);
+            return put(API_PREFERENCES, request).thenRun(() -> {
+            });
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> createDashboards(Application application, Platform platform) {
         return get(API_DASHBOARDS_SEARCH).thenCompose(response -> {
             if (response.size() > 0) {
                 return CompletableFuture.completedFuture(null);
             }
 
-            Logger.debug("Creating dashboards in grafana for " + platform + "...");
             List<Dashboard> dashboards = dashboardsDataSource.getDashboards(platform);
-            Logger.debug("Dashboards count: " + dashboards.size());
             List<CompletableFuture> requests = dashboards.stream()
-                    .map(dashboardMapper::map)
-                    .map(request -> post(API_DASHBOARDS, request).toCompletableFuture())
+                    .map(dashboard -> dashboardMapper.map(application, dashboard))
+                    .map(request -> getWsRequestForAdminUser(API_DASHBOARDS).post(request).thenApply(this::parseWsDashboardResponse).toCompletableFuture())
                     .collect(Collectors.toList());
             return CompletableFuture.allOf(requests.toArray(new CompletableFuture[0]));
         }).toCompletableFuture();
@@ -206,6 +227,10 @@ public class GrafanaClient implements DashboardsClient {
 
     private CompletionStage<List<DashboardDescriptionResponse>> get(String adminUserEndpoint) {
         return getWsRequestForAdminUser(adminUserEndpoint).get().thenApply(this::parseWsQueryResponse);
+    }
+
+    private CompletionStage<GrafanaResponse> put(String adminUserEndpoint, JsonNode request) {
+        return getWsRequestForAdminUser(adminUserEndpoint).put(request).thenApply(this::parseWsResponse);
     }
 
     private CompletionStage<GrafanaResponse> post(String adminUserEndpoint, JsonNode request) {
@@ -237,10 +262,22 @@ public class GrafanaClient implements DashboardsClient {
     }
 
     @NotNull
+    private GrafanaDashboardResponse parseWsDashboardResponse(WSResponse wsResponse) {
+        Logger.debug(wsResponse.getAllHeaders().toString());
+        Logger.debug(wsResponse.getBody());
+        return Json.fromJson(wsResponse.asJson(), GrafanaDashboardResponse.class);
+    }
+
+    @NotNull
     private List<DashboardDescriptionResponse> parseWsQueryResponse(WSResponse wsResponse) {
         Logger.debug(wsResponse.getAllHeaders().toString());
         Logger.debug(wsResponse.getBody());
-        return Json.fromJson(wsResponse.asJson(), List.class);
+        try {
+            return Arrays.asList(Json.mapper().readValue(wsResponse.getBody(), DashboardDescriptionResponse[].class));
+        } catch (IOException e) {
+            Logger.error("Unable to parse grafana query response", e);
+            return Collections.emptyList();
+        }
     }
 }
 

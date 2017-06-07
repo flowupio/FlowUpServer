@@ -18,9 +18,11 @@ public interface DashboardsClient {
 
     CompletionStage<User> deleteUserInDefaultOrganisation(User user);
 
+    CompletionStage<Void> updateHomeDashboard(User user, Application application);
+
     CompletionStage<Application> createDatasource(Application application);
 
-    CompletableFuture<Void> createDashboards(Platform platform);
+    CompletableFuture<Void> createDashboards(Application application, Platform platform);
 
     CompletionStage<Application> switchUserContext(User user, Application application);
 }

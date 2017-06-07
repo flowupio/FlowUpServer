@@ -68,8 +68,9 @@ public class ApplicationRepository {
                 .thenCompose(applicationWithOrg -> {
 
                     CompletionStage<Void> datasourceCompletionStage = dashboardsClient.createDatasource(applicationWithOrg)
-                            .thenCompose(this::addUsersToApplicationDashboards)
-                            .thenRun(() -> dashboardsClient.createDashboards(platform));
+                            .thenCompose(application1 ->
+                                    dashboardsClient.createDashboards(application1, platform)
+                                            .thenCompose(v -> addUsersToApplicationDashboards(application1)));
 
                     return datasourceCompletionStage.thenApply(result -> applicationWithOrg);
                 });
@@ -79,8 +80,10 @@ public class ApplicationRepository {
     private CompletionStage<Void> addUsersToApplicationDashboards(Application application) {
         CompletableFuture[] completionStages = application.getOrganization().getMembers().stream().map(user -> {
             return dashboardsClient.addUserToOrganisation(user, application).thenCompose(application1 -> {
-                return dashboardsClient.switchUserContext(user, application).thenCompose(application2 -> {
-                    return dashboardsClient.deleteUserInDefaultOrganisation(user);
+                return dashboardsClient.switchUserContext(user, application1).thenCompose(application2 -> {
+                    return dashboardsClient.deleteUserInDefaultOrganisation(user).thenCompose(user1 -> {
+                        return dashboardsClient.updateHomeDashboard(user1, application2);
+                    });
                 });
             }).toCompletableFuture();
         }).toArray(CompletableFuture[]::new);

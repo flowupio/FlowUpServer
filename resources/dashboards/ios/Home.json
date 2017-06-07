@@ -12,7 +12,7 @@
     {
       "collapse": false,
       "editable": false,
-      "height": "250px",
+      "height": "550px",
       "panels": [
         {
           "title": "",
@@ -128,7 +128,7 @@
     },
     {
       "title": "New row",
-      "height": "250px",
+      "height": "150px",
       "editable": true,
       "collapse": false,
       "panels": [

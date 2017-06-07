@@ -64,8 +64,10 @@ public class CreateUser {
 
     private CompletableFuture<Void> addUserToApplications(User user, Organization organization) {
         CompletableFuture[] completionStages = organization.getApplications().stream()
-                .map(application -> dashboardsClient.addUserToOrganisation(user, application))
+                .map(application -> dashboardsClient.addUserToOrganisation(user, application)
+                        .thenCompose(application1 -> dashboardsClient.updateHomeDashboard(user, application1)))
                 .toArray(CompletableFuture[]::new);
+
         return CompletableFuture.allOf(completionStages);
     }
 }

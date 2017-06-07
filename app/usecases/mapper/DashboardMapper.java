@@ -2,6 +2,7 @@ package usecases.mapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import models.Application;
 import play.Logger;
 import play.libs.Json;
 import usecases.models.Dashboard;
@@ -18,16 +19,18 @@ public class DashboardMapper {
         this.mapper = mapper;
     }
 
-    public JsonNode map(Dashboard dashboard) {
+    public JsonNode map(Application application, Dashboard dashboard) {
         try {
             return Json.newObject()
                     .put("overwrite", true)
+                    .put("orgId", application.getGrafanaOrgId())
                     .set("dashboard", mapper.readTree(dashboard.getJsonDescription()));
         } catch (IOException e) {
             Logger.error("Failed mapping a dashboard to store it in Grafana", e);
             return Json.newObject()
-                    .put("overwrite", false)
-                    .put("dashboard", Json.newObject());
+                    .put("overwrite", true)
+                    .put("orgId", application.getGrafanaOrgId())
+                    .set("dashboard", Json.newObject());
         }
     }
 }
