@@ -6,6 +6,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import emailsender.EmailSender;
 import models.Application;
 import models.Organization;
+import models.Platform;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +76,7 @@ public class InsertDataPointsTest {
     public void allowedReportForFoundApplicationShouldBeStored(Report report) throws Exception {
         Application application = new Application();
         givenThereIsAnApplicationAlreadyCreated(application);
-        givenDataPointsAreWritenProperly(report, application);
+        givenDataPointsAreWrittenProperly(report, application);
 
         InsertResult result = sendReport(report);
         assertEquals(InsertResult.successEmpty(), result);
@@ -88,12 +89,12 @@ public class InsertDataPointsTest {
     public void allowedReportForNotFoundApplicationShouldBeStoredAfterCreateTheApplication(Report report) throws Exception {
         Application app = givenAnApplication();
         givenTheApplicationIsCreatedProperly(app);
-        givenDataPointsAreWritenProperly(report, app);
+        givenDataPointsAreWrittenProperly(report, app);
 
         InsertResult result = sendReport(report);
         assertEquals(InsertResult.successEmpty(), result);
 
-        verify(applicationRepository, times(1)).create(report.getApiKey(), report.getAppPackage());
+        verify(applicationRepository, times(1)).create(report.getApiKey(), report.getAppPackage(), report.getPlatform());
         verify(metricsDatasource, times(1)).writeDataPoints(report, app);
     }
 
@@ -102,7 +103,7 @@ public class InsertDataPointsTest {
     public void sendsAFirstReportPersistedEmailIfTheReportReceivedIsTheFirstOne(Report report) throws Exception {
         Application app = givenAnApplication();
         givenTheApplicationIsCreatedProperly(app);
-        givenDataPointsAreWritenProperly(report, app);
+        givenDataPointsAreWrittenProperly(report, app);
 
         sendReport(report);
 
@@ -114,7 +115,7 @@ public class InsertDataPointsTest {
     public void doesNotSendsTheFirstReportPersistedEmailIfTheReportReceivedIsNotTheFirstOne(Report report) throws Exception {
         Application app = givenAnApplication();
         givenThereIsAnApplicationAlreadyCreated(app);
-        givenDataPointsAreWritenProperly(report, app);
+        givenDataPointsAreWrittenProperly(report, app);
 
         sendReport(report);
 
@@ -132,11 +133,11 @@ public class InsertDataPointsTest {
     }
 
     private void givenTheApplicationIsCreatedProperly(Application application) {
-        when(applicationRepository.create(anyString(), anyString()))
+        when(applicationRepository.create(anyString(), anyString(), isA(Platform.class)))
                 .thenReturn(CompletableFuture.completedFuture(application));
     }
 
-    private void givenDataPointsAreWritenProperly(Report report, Application application) {
+    private void givenDataPointsAreWrittenProperly(Report report, Application application) {
         when(metricsDatasource.writeDataPoints(report, application))
                 .thenReturn(CompletableFuture.completedFuture(InsertResult.successEmpty()));
     }

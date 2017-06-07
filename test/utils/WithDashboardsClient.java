@@ -20,7 +20,9 @@ public interface WithDashboardsClient {
             user.save();
             return CompletableFuture.completedFuture(user);
         });
+        when(dashboardsClient.updateHomeDashboard(any(), any())).then(invocation -> CompletableFuture.completedFuture(null));
         when(dashboardsClient.createDatasource(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, Application.class)));
+        when(dashboardsClient.createDashboards(any(), any())).then(invocation -> CompletableFuture.completedFuture(null));
         when(dashboardsClient.addUserToOrganisation(any(), any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(1, Application.class)));
         when(dashboardsClient.deleteUserInDefaultOrganisation(any())).then(invocation -> CompletableFuture.completedFuture(invocation.getArgumentAt(0, User.class)));
         when(dashboardsClient.createOrg(any())).then(invocation -> {

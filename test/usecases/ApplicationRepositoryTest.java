@@ -2,10 +2,7 @@ package usecases;
 
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
 import datasources.database.OrganizationDatasource;
-import models.ApiKey;
-import models.Application;
-import models.Organization;
-import models.User;
+import models.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,7 +60,7 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication implements 
         User user = givenAUserAlreadyCreated();
         String apiKeyValue = user.getOrganizations().get(0).getApiKey().getValue();
 
-        CompletionStage<Application> applicationCompletionStage = applicationRepository.create(apiKeyValue, ANY_APP_PACKAGE);
+        CompletionStage<Application> applicationCompletionStage = applicationRepository.create(apiKeyValue, ANY_APP_PACKAGE, Platform.ANDROID);
 
         assertThat(applicationCompletionStage.toCompletableFuture().get(), not(nullValue()));
     }
@@ -102,7 +99,7 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication implements 
     private ApiKey givenAnApplication(String orgName, String packageName) throws InterruptedException, ExecutionException {
         Organization organization = organizationDatasource.create(orgName);
         ApiKey apiKey = organization.getApiKey();
-        applicationRepository.create(apiKey.getValue(), packageName).toCompletableFuture().get();
+        applicationRepository.create(apiKey.getValue(), packageName, Platform.ANDROID).toCompletableFuture().get();
         return apiKey;
     }
 

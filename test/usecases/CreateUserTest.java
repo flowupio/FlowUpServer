@@ -4,6 +4,7 @@ import com.avaje.ebean.Model;
 import com.feth.play.module.pa.providers.password.DefaultUsernamePasswordAuthUser;
 import datasources.database.OrganizationDatasource;
 import models.Organization;
+import models.Platform;
 import models.User;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -106,8 +107,8 @@ public class CreateUserTest extends WithFlowUpApplication implements WithDashboa
         Organization organization = organizationDatasource.create(name, gooogleAccount);
 
         ApplicationRepository applicationRepository = this.app.injector().instanceOf(ApplicationRepository.class);
-        applicationRepository.create(organization.getApiKey().getValue(), "com.example.app1");
-        applicationRepository.create(organization.getApiKey().getValue(), "com.example.app2");
+        applicationRepository.create(organization.getApiKey().getValue(), "com.example.app1", Platform.ANDROID);
+        applicationRepository.create(organization.getApiKey().getValue(), "com.example.app2", Platform.ANDROID);
 
         return this.app.injector().instanceOf(CreateUser.class);
     }
