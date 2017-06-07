@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "title": "CPU",
+    "uri": "db/cpu",
+    "type": "dash-db",
+    "tags": [],
+    "isStarred": false
+  },
+  {
+    "id": 2,
+    "title": "Home",
+    "uri": "db/home",
+    "type": "dash-db",
+    "tags": [],
+    "isStarred": false
+  }
+]

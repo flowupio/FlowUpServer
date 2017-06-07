@@ -10,7 +10,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import play.inject.Injector;
 import play.inject.guice.GuiceApplicationBuilder;
 import usecases.repositories.ApplicationRepository;
-import usecases.repositories.UserRepository;
 import utils.WithDashboardsClient;
 import utils.WithFlowUpApplication;
 
@@ -20,7 +19,6 @@ import java.util.concurrent.ExecutionException;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
