@@ -2,7 +2,6 @@ package controllers.api;
 
 import models.Platform;
 import org.jetbrains.annotations.NotNull;
-import play.Logger;
 import play.mvc.Http;
 import usecases.models.DataPoint;
 import usecases.models.Metric;
@@ -61,9 +60,6 @@ public class ReportMapper {
 
     private boolean isAnyTagFromIOS(DataPoint dataPoint) {
         return dataPoint.getTags().stream()
-                .anyMatch(tagTuple -> {
-                    Logger.debug("\t\t[" + tagTuple._1 + ", " + tagTuple._2 + "]");
-                    return tagTuple._1.equals(DataPointMapper.IOS_VERSION) && tagTuple._2 != null;
-                });
+                .anyMatch(tagTuple -> tagTuple._1.equals(DataPointMapper.IOS_VERSION) && tagTuple._2 != null);
     }
 }
