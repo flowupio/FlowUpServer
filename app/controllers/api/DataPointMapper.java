@@ -33,6 +33,7 @@ public class DataPointMapper {
     private static final String CONSUMPTION = "Consumption";
     private static final String INTERNAL_STORAGE_WRITTEN_BYTES = "InternalStorageWrittenBytes";
     private static final String SHARED_PREFERENCES_WRITTEN_BYTES = "SharedPreferencesWrittenBytes";
+    private static final String USER_DEFAULTS_WRITTEN_BYTES = "UserDefaultsWrittenBytes";
     private static final String BYTES_ALLOCATED = "BytesAllocated";
     private static final String ON_ACTIVITY_CREATED_TIME = "OnActivityCreatedTime";
     private static final String ON_ACTIVITY_STARTED_TIME = "OnActivityStartedTime";
@@ -216,6 +217,7 @@ public class DataPointMapper {
         List<F.Tuple<String, Value>> measurements = new ArrayList<>();
         measurements.add(new F.Tuple<>(INTERNAL_STORAGE_WRITTEN_BYTES, Value.toBasicValue(disk.getInternalStorageWrittenBytes())));
         measurements.add(new F.Tuple<>(SHARED_PREFERENCES_WRITTEN_BYTES, Value.toBasicValue(disk.getSharedPreferencesWrittenBytes())));
+        measurements.add(new F.Tuple<>(USER_DEFAULTS_WRITTEN_BYTES, Value.toBasicValue(disk.getUserDefaultsWrittenBytes())));
         List<F.Tuple<String, String>> tags = new ArrayList<>();
         addReportLevelTags(tags, reportRequest);
         addDataPointLevelTags(tags, disk);

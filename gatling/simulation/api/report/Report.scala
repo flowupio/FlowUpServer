@@ -188,6 +188,7 @@ object Report {
         anyIOSVersion,
         anyBatterySaverValue,
         maxConsumption,
+        anyAmountOfBytes,
         anyAmountOfBytes)
     }
   }
