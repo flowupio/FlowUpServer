@@ -1,7 +1,6 @@
 {
   "id": null,
   "title": "User Interface",
-  "originalTitle": "User Interface",
   "tags": [],
   "style": "dark",
   "timezone": "browser",
@@ -81,7 +80,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -97,7 +96,25 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "avg",
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "rangeMaps": [
+            {
+              "from": "null",
+              "to": "null",
+              "text": "N/A"
+            }
+          ],
+          "mappingType": 1
         },
         {
           "cacheTimeout": null,
@@ -164,7 +181,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "B",
               "timeField": "@timestamp"
             }
@@ -181,10 +198,28 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "avg",
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "rangeMaps": [
+            {
+              "from": "null",
+              "to": "null",
+              "text": "N/A"
+            }
+          ],
+          "mappingType": 1
         },
         {
-          "content": "# Frame Time and Frames Per Seconds\nThe average of frames per second and the average frame time for every Activity, device, version, etc monitored in the app. Remember that the optimal values are 60 frames per second and 16 milliseconds as FPS and Frame Time respectively.",
+          "content": "# Frame Time and Frames Per Seconds\nThe average of frames per second and the average frame time for every device, version, etc monitored in the app. Remember that the optimal values are 60 frames per second and 16 milliseconds as FPS and Frame Time respectively.",
           "editable": true,
           "error": false,
           "id": 3,
@@ -260,7 +295,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -271,7 +306,8 @@
           "tooltip": {
             "msResolution": true,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -361,7 +397,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -372,7 +408,8 @@
           "tooltip": {
             "msResolution": true,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -484,7 +521,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -495,7 +532,8 @@
           "tooltip": {
             "msResolution": true,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -598,7 +636,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -609,7 +647,8 @@
           "tooltip": {
             "msResolution": true,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -637,243 +676,6 @@
       ],
       "showTitle": true,
       "title": "Frame Time By App Version"
-    },
-    {
-      "collapse": false,
-      "editable": true,
-      "height": "250px",
-      "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "datasource": null,
-          "editable": true,
-          "error": false,
-          "fill": 1,
-          "grid": {
-            "threshold1": 20000000,
-            "threshold1Color": "rgba(216, 200, 27, 0.27)",
-            "threshold2": 25000000,
-            "threshold2Color": "rgba(234, 112, 112, 0.22)"
-          },
-          "id": 7,
-          "interval": "5m",
-          "isNew": true,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": false,
-            "hideEmpty": false,
-            "max": true,
-            "min": true,
-            "rightSide": false,
-            "show": true,
-            "sort": "avg",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "span": 6,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "alias": "Average Frame Time - Screen Name {{ScreenName}}",
-              "bucketAggs": [
-                {
-                  "fake": true,
-                  "field": "ScreenName",
-                  "id": "3",
-                  "settings": {
-                    "order": "desc",
-                    "orderBy": "_term",
-                    "size": "10"
-                  },
-                  "type": "terms"
-                },
-                {
-                  "field": "@timestamp",
-                  "id": "2",
-                  "settings": {
-                    "interval": "auto",
-                    "min_doc_count": 0,
-                    "trimEdges": 0
-                  },
-                  "type": "date_histogram"
-                }
-              ],
-              "dsType": "elasticsearch",
-              "metrics": [
-                {
-                  "field": "FrameTime.p90",
-                  "id": "1",
-                  "meta": {},
-                  "settings": {},
-                  "type": "avg"
-                }
-              ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
-              "refId": "A",
-              "timeField": "@timestamp"
-            }
-          ],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Frame Time by Activity",
-          "tooltip": {
-            "msResolution": true,
-            "shared": true,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "show": true
-          },
-          "yaxes": [
-            {
-              "format": "ns",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "datasource": null,
-          "editable": true,
-          "error": false,
-          "fill": 1,
-          "grid": {
-            "threshold1": 50,
-            "threshold1Color": "rgba(216, 200, 27, 0.27)",
-            "threshold2": 40,
-            "threshold2Color": "rgba(234, 112, 112, 0.22)"
-          },
-          "id": 11,
-          "interval": "5m",
-          "isNew": true,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": false,
-            "hideEmpty": false,
-            "max": true,
-            "min": true,
-            "rightSide": false,
-            "show": true,
-            "sort": "avg",
-            "sortDesc": false,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "span": 6,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "alias": "Average Frames Per Second - ScreenName {{ScreenName}}",
-              "bucketAggs": [
-                {
-                  "fake": true,
-                  "field": "ScreenName",
-                  "id": "3",
-                  "settings": {
-                    "order": "asc",
-                    "orderBy": "_term",
-                    "size": "10"
-                  },
-                  "type": "terms"
-                },
-                {
-                  "field": "@timestamp",
-                  "id": "2",
-                  "settings": {
-                    "interval": "auto",
-                    "min_doc_count": 0,
-                    "trimEdges": 0
-                  },
-                  "type": "date_histogram"
-                }
-              ],
-              "dsType": "elasticsearch",
-              "metrics": [
-                {
-                  "field": "FramesPerSecond.p90",
-                  "id": "1",
-                  "meta": {},
-                  "settings": {},
-                  "type": "avg"
-                }
-              ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
-              "refId": "A",
-              "timeField": "@timestamp"
-            }
-          ],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "FPS by Activity",
-          "tooltip": {
-            "msResolution": true,
-            "shared": true,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "show": true
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        }
-      ],
-      "showTitle": true,
-      "title": "Frame Time by Activity"
     },
     {
       "collapse": false,
@@ -924,11 +726,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Average Frame Time - {{AndroidOSVersion}}",
+              "alias": "Average Frame Time - {{IOSVersion}}",
               "bucketAggs": [
                 {
                   "fake": true,
-                  "field": "AndroidOSVersion",
+                  "field": "IOSVersion",
                   "id": "3",
                   "settings": {
                     "order": "desc",
@@ -958,18 +760,19 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Frame Time by Android OS Version",
+          "title": "Frame Time by OS Version",
           "tooltip": {
             "msResolution": true,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -1039,11 +842,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Average Frames Per Second - {{AndroidOSVersion}}",
+              "alias": "Average Frames Per Second - {{IOSVersion}}",
               "bucketAggs": [
                 {
                   "fake": true,
-                  "field": "AndroidOSVersion",
+                  "field": "IOSVersion",
                   "id": "3",
                   "settings": {
                     "order": "asc",
@@ -1073,18 +876,19 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "FPS by Android OS Version",
+          "title": "FPS by OS Version",
           "tooltip": {
             "msResolution": true,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -1196,7 +1000,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -1207,7 +1011,8 @@
           "tooltip": {
             "msResolution": true,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -1310,7 +1115,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND ScreenName:$ScreenName",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -1321,7 +1126,8 @@
           "tooltip": {
             "msResolution": true,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -1386,7 +1192,7 @@
           "value": [
             "$__all"
           ],
-          "text": "$__all"
+          "text": "All"
         },
         "datasource": null,
         "hide": 0,
@@ -1400,168 +1206,13 @@
             "selected": true
           },
           {
-            "text": "Aquaris E4-5",
-            "value": "Aquaris E4-5",
+            "text": "iPad6,7",
+            "value": "iPad6,7",
             "selected": false
           },
           {
-            "text": "Aquaris X5",
-            "value": "Aquaris X5",
-            "selected": false
-          },
-          {
-            "text": "D2303",
-            "value": "D2303",
-            "selected": false
-          },
-          {
-            "text": "GT-I8260L",
-            "value": "GT-I8260L",
-            "selected": false
-          },
-          {
-            "text": "GT-I9060",
-            "value": "GT-I9060",
-            "selected": false
-          },
-          {
-            "text": "GT-I9060M",
-            "value": "GT-I9060M",
-            "selected": false
-          },
-          {
-            "text": "GT-P5110",
-            "value": "GT-P5110",
-            "selected": false
-          },
-          {
-            "text": "GT-P5210",
-            "value": "GT-P5210",
-            "selected": false
-          },
-          {
-            "text": "HP Slate 10 HD",
-            "value": "HP Slate 10 HD",
-            "selected": false
-          },
-          {
-            "text": "HTC One",
-            "value": "HTC One",
-            "selected": false
-          },
-          {
-            "text": "Lenovo B8000-F",
-            "value": "Lenovo B8000-F",
-            "selected": false
-          },
-          {
-            "text": "NBX-T7A3IP",
-            "value": "NBX-T7A3IP",
-            "selected": false
-          },
-          {
-            "text": "Nexus 5X",
-            "value": "Nexus 5X",
-            "selected": false
-          },
-          {
-            "text": "ONIX 10-6 OC",
-            "value": "ONIX 10-6 OC",
-            "selected": false
-          },
-          {
-            "text": "P00C",
-            "value": "P00C",
-            "selected": false
-          },
-          {
-            "text": "P022",
-            "value": "P022",
-            "selected": false
-          },
-          {
-            "text": "Q-3778",
-            "value": "Q-3778",
-            "selected": false
-          },
-          {
-            "text": "RCT6203W46",
-            "value": "RCT6203W46",
-            "selected": false
-          },
-          {
-            "text": "SGP321",
-            "value": "SGP321",
-            "selected": false
-          },
-          {
-            "text": "SM-G350E",
-            "value": "SM-G350E",
-            "selected": false
-          },
-          {
-            "text": "SM-G530FZ",
-            "value": "SM-G530FZ",
-            "selected": false
-          },
-          {
-            "text": "SM-G900M",
-            "value": "SM-G900M",
-            "selected": false
-          },
-          {
-            "text": "SM-G925F",
-            "value": "SM-G925F",
-            "selected": false
-          },
-          {
-            "text": "SM-T113NU",
-            "value": "SM-T113NU",
-            "selected": false
-          },
-          {
-            "text": "SM-T530",
-            "value": "SM-T530",
-            "selected": false
-          },
-          {
-            "text": "SM-T580",
-            "value": "SM-T580",
-            "selected": false
-          },
-          {
-            "text": "SM-T710",
-            "value": "SM-T710",
-            "selected": false
-          },
-          {
-            "text": "VF-795",
-            "value": "VF-795",
-            "selected": false
-          },
-          {
-            "text": "X5S",
-            "value": "X5S",
-            "selected": false
-          },
-          {
-            "text": "X6pro",
-            "value": "X6pro",
-            "selected": false
-          },
-          {
-            "text": "XT1032",
-            "value": "XT1032",
-            "selected": false
-          },
-          {
-            "text": "orbis",
-            "value": "orbis",
-            "selected": false
-          },
-          {
-            "text": "xo4",
-            "value": "xo4",
+            "text": "x86_64",
+            "value": "x86_64",
             "selected": false
           }
         ],
@@ -1576,7 +1227,7 @@
           "value": [
             "$__all"
           ],
-          "text": "$__all"
+          "text": "All"
         },
         "datasource": null,
         "hide": 0,
@@ -1590,28 +1241,8 @@
             "selected": true
           },
           {
-            "text": "2.1.1",
-            "value": "2.1.1",
-            "selected": false
-          },
-          {
-            "text": "2.1.2",
-            "value": "2.1.2",
-            "selected": false
-          },
-          {
-            "text": "2.1.3",
-            "value": "2.1.3",
-            "selected": false
-          },
-          {
-            "text": "2.1.4",
-            "value": "2.1.4",
-            "selected": false
-          },
-          {
-            "text": "2.1.5",
-            "value": "2.1.5",
+            "text": "1.0 [1]",
+            "value": "1.0 [1]",
             "selected": false
           }
         ],
@@ -1626,13 +1257,13 @@
           "value": [
             "$__all"
           ],
-          "text": "$__all"
+          "text": "All"
         },
         "datasource": null,
         "hide": 0,
         "includeAll": true,
         "multi": true,
-        "name": "AndroidOSVersion",
+        "name": "iOSVersion",
         "options": [
           {
             "text": "All",
@@ -1640,74 +1271,18 @@
             "selected": true
           },
           {
-            "text": "API16",
-            "value": "API16",
+            "text": "10.3",
+            "value": "10.3",
             "selected": false
           },
           {
-            "text": "API17",
-            "value": "API17",
-            "selected": false
-          },
-          {
-            "text": "API18",
-            "value": "API18",
-            "selected": false
-          },
-          {
-            "text": "API19",
-            "value": "API19",
-            "selected": false
-          },
-          {
-            "text": "API21",
-            "value": "API21",
-            "selected": false
-          },
-          {
-            "text": "API22",
-            "value": "API22",
-            "selected": false
-          },
-          {
-            "text": "API23",
-            "value": "API23",
-            "selected": false
-          },
-          {
-            "text": "API24",
-            "value": "API24",
+            "text": "10.3.2",
+            "value": "10.3.2",
             "selected": false
           }
         ],
-        "query": "{\"find\": \"terms\", \"field\": \"AndroidOSVersion\"}",
+        "query": "{\"find\": \"terms\", \"field\": \"IOSVersion\"}",
         "refresh": 1,
-        "type": "query"
-      },
-      {
-        "allFormat": "glob",
-        "allValue": "*",
-        "current": {
-          "value": [
-            "$__all"
-          ],
-          "text": "$__all"
-        },
-        "datasource": null,
-        "hide": 0,
-        "includeAll": true,
-        "multi": true,
-        "name": "ScreenName",
-        "options": [
-          {
-            "text": "All",
-            "value": "$__all",
-            "selected": true
-          }
-        ],
-        "query": "{\"find\": \"terms\", \"field\": \"ScreenName\"}",
-        "refresh": 1,
-        "regex": "",
         "type": "query"
       }
     ]
@@ -1718,5 +1293,6 @@
   "refresh": "1m",
   "schemaVersion": 12,
   "version": 5,
-  "links": []
+  "links": [],
+  "gnetId": null
 }
