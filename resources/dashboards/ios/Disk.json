@@ -1,7 +1,6 @@
 {
   "id": null,
   "title": "Disk",
-  "originalTitle": "Disk",
   "tags": [],
   "style": "dark",
   "timezone": "browser",
@@ -77,7 +76,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -93,7 +92,25 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "avg",
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "rangeMaps": [
+            {
+              "from": "null",
+              "to": "null",
+              "text": "N/A"
+            }
+          ],
+          "mappingType": 1
         },
         {
           "cacheTimeout": null,
@@ -151,20 +168,20 @@
               "dsType": "elasticsearch",
               "metrics": [
                 {
-                  "field": "SharedPreferencesWrittenBytes",
+                  "field": "UserDefaultsWrittenBytes",
                   "id": "1",
                   "meta": {},
                   "settings": {},
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
           ],
           "thresholds": "10485760,20971520,31457280",
-          "title": "Shared Preferences Written Bytes",
+          "title": "User Defaults Written Bytes",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -174,10 +191,28 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "avg",
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "rangeMaps": [
+            {
+              "from": "null",
+              "to": "null",
+              "text": "N/A"
+            }
+          ],
+          "mappingType": 1
         },
         {
-          "content": "# Disk Usage\n\nYour app can write data to the internal storage folder and also in the application shared preferences. There is no disk quota for your app and there is no rule of thumb about the amount of data your app can store, a good metric would be to stay under 100 MB for your internal storage and 10 MB for your shared preferences. If your app consumes more than these values, review your storage implementation, you may be storing data that will not be removed until the app is uninstalled.",
+          "content": "# Disk Usage\n\nYour app can write data to the internal storage folder and also in the application user defaults. There is no disk quota for your app and there is no rule of thumb about the amount of data your app can store, a good metric would be to stay under 100 MB for your internal storage and 10 MB for your user defaults. If your app consumes more than these values, review your storage implementation, you may be storing data that will not be removed until the app is uninstalled.",
           "editable": true,
           "error": false,
           "id": 1,
@@ -249,7 +284,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -260,7 +295,8 @@
           "tooltip": {
             "msResolution": false,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -339,25 +375,26 @@
               "dsType": "elasticsearch",
               "metrics": [
                 {
-                  "field": "SharedPreferencesWrittenBytes",
+                  "field": "UserDefaultsWrittenBytes",
                   "id": "1",
                   "meta": {},
                   "settings": {},
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Shared Preferences Written Bytes",
+          "title": "User Defaults Written Bytes",
           "tooltip": {
             "msResolution": false,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -468,7 +505,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -479,7 +516,8 @@
           "tooltip": {
             "msResolution": false,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -546,7 +584,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Average Shared Preferences Size - App Version {{VersionName}}",
+              "alias": "Average User Defaults Size - App Version {{VersionName}}",
               "bucketAggs": [
                 {
                   "fake": true,
@@ -573,25 +611,26 @@
               "dsType": "elasticsearch",
               "metrics": [
                 {
-                  "field": "SharedPreferencesWrittenBytes",
+                  "field": "UserDefaultsWrittenBytes",
                   "id": "1",
                   "meta": {},
                   "settings": {},
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Shared Preferences Written Bytes by App Version",
+          "title": "User Defaults Written Bytes by App Version",
           "tooltip": {
             "msResolution": false,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -668,11 +707,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Average Internal Storage Size - {{AndroidOSVersion}}",
+              "alias": "Average Internal Storage Size - {{IOSVersion}}",
               "bucketAggs": [
                 {
                   "fake": true,
-                  "field": "AndroidOSVersion",
+                  "field": "IOSVersion",
                   "id": "3",
                   "settings": {
                     "order": "desc",
@@ -702,7 +741,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -713,7 +752,8 @@
           "tooltip": {
             "msResolution": false,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -780,11 +820,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Average Shared Preferences Size - {{AndroidOSVersion}}",
+              "alias": "Average User Defaults Size - {{IOSVersion}}",
               "bucketAggs": [
                 {
                   "fake": true,
-                  "field": "AndroidOSVersion",
+                  "field": "IOSVersion",
                   "id": "3",
                   "settings": {
                     "order": "desc",
@@ -807,25 +847,26 @@
               "dsType": "elasticsearch",
               "metrics": [
                 {
-                  "field": "SharedPreferencesWrittenBytes",
+                  "field": "UserDefaultsWrittenBytes",
                   "id": "1",
                   "meta": {},
                   "settings": {},
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Shared Preferences Written Bytes by OS Version",
+          "title": "User Defaults Written Bytes by OS Version",
           "tooltip": {
             "msResolution": false,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -936,7 +977,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -947,7 +988,8 @@
           "tooltip": {
             "msResolution": false,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -1014,7 +1056,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Average Shared Preferences Size - Device Model {{DeviceModel}}",
+              "alias": "Average User Defaults Size - Device Model {{DeviceModel}}",
               "bucketAggs": [
                 {
                   "fake": true,
@@ -1041,25 +1083,26 @@
               "dsType": "elasticsearch",
               "metrics": [
                 {
-                  "field": "SharedPreferencesWrittenBytes",
+                  "field": "UserDefaultsWrittenBytes",
                   "id": "1",
                   "meta": {},
                   "settings": {},
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Shared Preferences Written Bytes by Device Model",
+          "title": "User Defaults Written Bytes by Device Model",
           "tooltip": {
             "msResolution": false,
             "shared": true,
-            "value_type": "cumulative"
+            "value_type": "cumulative",
+            "sort": 0
           },
           "type": "graph",
           "xaxis": {
@@ -1123,7 +1166,7 @@
           "value": [
             "$__all"
           ],
-          "text": "$__all"
+          "text": "All"
         },
         "datasource": null,
         "hide": 0,
@@ -1137,168 +1180,13 @@
             "selected": true
           },
           {
-            "text": "Aquaris E4-5",
-            "value": "Aquaris E4-5",
+            "text": "iPad6,7",
+            "value": "iPad6,7",
             "selected": false
           },
           {
-            "text": "Aquaris X5",
-            "value": "Aquaris X5",
-            "selected": false
-          },
-          {
-            "text": "D2303",
-            "value": "D2303",
-            "selected": false
-          },
-          {
-            "text": "GT-I8260L",
-            "value": "GT-I8260L",
-            "selected": false
-          },
-          {
-            "text": "GT-I9060",
-            "value": "GT-I9060",
-            "selected": false
-          },
-          {
-            "text": "GT-I9060M",
-            "value": "GT-I9060M",
-            "selected": false
-          },
-          {
-            "text": "GT-P5110",
-            "value": "GT-P5110",
-            "selected": false
-          },
-          {
-            "text": "GT-P5210",
-            "value": "GT-P5210",
-            "selected": false
-          },
-          {
-            "text": "HP Slate 10 HD",
-            "value": "HP Slate 10 HD",
-            "selected": false
-          },
-          {
-            "text": "HTC One",
-            "value": "HTC One",
-            "selected": false
-          },
-          {
-            "text": "Lenovo B8000-F",
-            "value": "Lenovo B8000-F",
-            "selected": false
-          },
-          {
-            "text": "NBX-T7A3IP",
-            "value": "NBX-T7A3IP",
-            "selected": false
-          },
-          {
-            "text": "Nexus 5X",
-            "value": "Nexus 5X",
-            "selected": false
-          },
-          {
-            "text": "ONIX 10-6 OC",
-            "value": "ONIX 10-6 OC",
-            "selected": false
-          },
-          {
-            "text": "P00C",
-            "value": "P00C",
-            "selected": false
-          },
-          {
-            "text": "P022",
-            "value": "P022",
-            "selected": false
-          },
-          {
-            "text": "Q-3778",
-            "value": "Q-3778",
-            "selected": false
-          },
-          {
-            "text": "RCT6203W46",
-            "value": "RCT6203W46",
-            "selected": false
-          },
-          {
-            "text": "SGP321",
-            "value": "SGP321",
-            "selected": false
-          },
-          {
-            "text": "SM-G350E",
-            "value": "SM-G350E",
-            "selected": false
-          },
-          {
-            "text": "SM-G530FZ",
-            "value": "SM-G530FZ",
-            "selected": false
-          },
-          {
-            "text": "SM-G900M",
-            "value": "SM-G900M",
-            "selected": false
-          },
-          {
-            "text": "SM-G925F",
-            "value": "SM-G925F",
-            "selected": false
-          },
-          {
-            "text": "SM-T113NU",
-            "value": "SM-T113NU",
-            "selected": false
-          },
-          {
-            "text": "SM-T530",
-            "value": "SM-T530",
-            "selected": false
-          },
-          {
-            "text": "SM-T580",
-            "value": "SM-T580",
-            "selected": false
-          },
-          {
-            "text": "SM-T710",
-            "value": "SM-T710",
-            "selected": false
-          },
-          {
-            "text": "VF-795",
-            "value": "VF-795",
-            "selected": false
-          },
-          {
-            "text": "X5S",
-            "value": "X5S",
-            "selected": false
-          },
-          {
-            "text": "X6pro",
-            "value": "X6pro",
-            "selected": false
-          },
-          {
-            "text": "XT1032",
-            "value": "XT1032",
-            "selected": false
-          },
-          {
-            "text": "orbis",
-            "value": "orbis",
-            "selected": false
-          },
-          {
-            "text": "xo4",
-            "value": "xo4",
+            "text": "x86_64",
+            "value": "x86_64",
             "selected": false
           }
         ],
@@ -1311,7 +1199,7 @@
           "value": [
             "$__all"
           ],
-          "text": "$__all"
+          "text": "All"
         },
         "datasource": null,
         "hide": 0,
@@ -1323,6 +1211,11 @@
             "text": "All",
             "value": "$__all",
             "selected": true
+          },
+          {
+            "text": "1.0 [1]",
+            "value": "1.0 [1]",
+            "selected": false
           }
         ],
         "query": "{\"find\": \"terms\", \"field\": \"VersionName\"}\t",
@@ -1334,13 +1227,13 @@
           "value": [
             "$__all"
           ],
-          "text": "$__all"
+          "text": "All"
         },
         "datasource": null,
         "hide": 0,
         "includeAll": true,
         "multi": true,
-        "name": "AndroidOSVersion",
+        "name": "iOSVersion",
         "options": [
           {
             "text": "All",
@@ -1348,47 +1241,17 @@
             "selected": true
           },
           {
-            "text": "API16",
-            "value": "API16",
+            "text": "10.3",
+            "value": "10.3",
             "selected": false
           },
           {
-            "text": "API17",
-            "value": "API17",
-            "selected": false
-          },
-          {
-            "text": "API18",
-            "value": "API18",
-            "selected": false
-          },
-          {
-            "text": "API19",
-            "value": "API19",
-            "selected": false
-          },
-          {
-            "text": "API21",
-            "value": "API21",
-            "selected": false
-          },
-          {
-            "text": "API22",
-            "value": "API22",
-            "selected": false
-          },
-          {
-            "text": "API23",
-            "value": "API23",
-            "selected": false
-          },
-          {
-            "text": "API24",
-            "value": "API24",
+            "text": "10.3.2",
+            "value": "10.3.2",
             "selected": false
           }
         ],
-        "query": "{\"find\": \"terms\", \"field\": \"AndroidOSVersion\"}",
+        "query": "{\"find\": \"terms\", \"field\": \"IOSVersion\"}",
         "refresh": 1,
         "type": "query"
       }
@@ -1400,5 +1263,6 @@
   "refresh": "1m",
   "schemaVersion": 12,
   "version": 15,
-  "links": []
+  "links": [],
+  "gnetId": null
 }
