@@ -7,6 +7,7 @@ machine:
     LOG_APP_LEVEL: INFO
     MYSQL_USER: ubuntu
     MYSQL_PASSWORD: ""
+    _JAVA_OPTIONS: "-Xms512m -Xmx1024m"
 
 dependencies:
   override:

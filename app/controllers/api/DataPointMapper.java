@@ -25,7 +25,7 @@ public class DataPointMapper {
     private static final String NUMBER_OF_CORES = "NumberOfCores";
     private static final String VERSION_NAME = "VersionName";
     private static final String ANDROID_OS_VERSION = "AndroidOSVersion";
-    private static final String IOS_VERSION = "IOSVersion";
+    static final String IOS_VERSION = "IOSVersion";
     private static final String BATTERY_SAVER_ON = "BatterySaverOn";
     private static final String SCREEN_NAME = "ScreenName";
     private static final String FRAMES_PER_SECOND = "FramesPerSecond";

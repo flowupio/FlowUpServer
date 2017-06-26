@@ -49,26 +49,25 @@ public class CreateUser {
     }
 
     private CompletionStage<User> setupDashboards(User user) {
-        return dashboardsClient.createUser(user).thenCompose(userWithGrafana -> {
-            return joinApplicationDashboards(userWithGrafana, userWithGrafana.getOrganizations().get(0));
-        });
+        return dashboardsClient.createUser(user)
+                .thenCompose(userWithGrafana -> joinApplicationDashboards(userWithGrafana, userWithGrafana.getOrganizations().get(0)));
     }
 
     private CompletionStage<User> joinApplicationDashboards(User user, Organization organization) {
         if (organization.getApplications().isEmpty()) {
             return CompletableFuture.completedFuture(user);
         }
-        return addUserToApplications(user, organization).thenCompose(aVoid -> {
-            return dashboardsClient.switchUserContext(user, organization.getApplications().get(0)).thenCompose(application -> {
-                return dashboardsClient.deleteUserInDefaultOrganisation(user);
-            });
-        });
+        return addUserToApplications(user, organization)
+                .thenCompose(aVoid -> dashboardsClient.switchUserContext(user, organization.getApplications().get(0))
+                        .thenCompose(application -> dashboardsClient.deleteUserInDefaultOrganisation(user)));
     }
 
     private CompletableFuture<Void> addUserToApplications(User user, Organization organization) {
-        CompletableFuture[] completionStages = organization.getApplications().stream().map(application -> {
-            return dashboardsClient.addUserToOrganisation(user, application);
-        }).toArray(CompletableFuture[]::new);
+        CompletableFuture[] completionStages = organization.getApplications().stream()
+                .map(application -> dashboardsClient.addUserToOrganisation(user, application)
+                        .thenCompose(application1 -> dashboardsClient.updateHomeDashboard(user, application1)))
+                .toArray(CompletableFuture[]::new);
+
         return CompletableFuture.allOf(completionStages);
     }
 }

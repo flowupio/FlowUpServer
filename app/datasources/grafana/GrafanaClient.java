@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import datasources.elasticsearch.ElasticSearchDatasource;
 import models.Application;
+import models.Platform;
 import models.User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -15,12 +16,17 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import usecases.DashboardsClient;
+import usecases.mapper.DashboardMapper;
+import usecases.models.Dashboard;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 public class GrafanaClient implements DashboardsClient {
 
@@ -32,6 +38,10 @@ public class GrafanaClient implements DashboardsClient {
     private static final String API_ADMIN_USERS = "/api/admin/users";
     private static final String API_USER_USING_ORGANISATION_ID = "/api/user/using/:orgId";
 
+    private static final String API_DASHBOARDS = "/api/dashboards/db";
+    private static final String API_DASHBOARDS_SEARCH = "/api/search?limit=100&query=";
+
+    private static final String API_PREFERENCES = "/api/user/preferences";
 
     private final WSClient ws;
     private final String baseUrl;
@@ -39,9 +49,11 @@ public class GrafanaClient implements DashboardsClient {
     private final String adminUser;
     private final String adminPassword;
     private final String elasticsearchEndpoint;
+    private final DashboardMapper dashboardMapper;
+    private final DashboardsDataSource dashboardsDataSource;
 
     @Inject
-    public GrafanaClient(WSClient ws, @Named("grafana") Configuration grafanaConf, @Named("elasticsearch") Configuration elasticsearchConf) {
+    public GrafanaClient(WSClient ws, @Named("grafana") Configuration grafanaConf, @Named("elasticsearch") Configuration elasticsearchConf, DashboardMapper dashboardMapper, DashboardsDataSource dashboardsDataSource) {
         this.ws = ws;
 
         this.apiKey = grafanaConf.getString("api_key");
@@ -51,6 +63,8 @@ public class GrafanaClient implements DashboardsClient {
         this.baseUrl = getGrafanaBaseUrl(grafanaConf);
 
         this.elasticsearchEndpoint = getElasticSearchEndpoint(elasticsearchConf);
+        this.dashboardMapper = dashboardMapper;
+        this.dashboardsDataSource = dashboardsDataSource;
     }
 
     private String getGrafanaBaseUrl(@Named("grafana") Configuration grafanaConf) {
@@ -125,8 +139,8 @@ public class GrafanaClient implements DashboardsClient {
     @Override
     public CompletionStage<Application> createDatasource(Application application) {
         return this.switchUserContext(application).thenCompose(applicationSwitched -> {
-                    ObjectNode jsonNode = Json.newObject().put("timeField", "@timestamp").put("esVersion", 2);
-                    JsonNode request = Json.newObject()
+            ObjectNode jsonNode = Json.newObject().put("timeField", "@timestamp").put("esVersion", 2);
+            JsonNode request = Json.newObject()
                     .put("orgId", application.getGrafanaOrgId())
                     .put("name", "default")
                     .put("type", "elasticsearch")
@@ -167,11 +181,56 @@ public class GrafanaClient implements DashboardsClient {
         return getWsRequestForUser(user.getEmail(), user.getGrafanaPassword(), adminUserEndpoint).post(request).thenApply(this::parseWsResponse).thenApply(grafanaResponse -> application);
     }
 
+    @Override
+    public CompletionStage<Void> updateHomeDashboard(User user, Application application) {
+        return get(API_DASHBOARDS_SEARCH).thenCompose(response -> {
+            Optional<DashboardDescriptionResponse> homeDashboard = response.stream()
+                    .filter(dashboard -> dashboard.getUri().equals("db/home"))
+                    .findFirst();
+
+            if (!homeDashboard.isPresent()) {
+                return CompletableFuture.completedFuture(null);
+            }
+
+            int homeDashboardId = homeDashboard.get().getId();
+            ObjectNode request = Json.newObject()
+                    .put("orgId", Integer.parseInt(application.getGrafanaOrgId()))
+                    .put("userId", Integer.parseInt(user.getGrafanaUserId()))
+                    .put("homeDashboardId", homeDashboardId);
+            return put(API_PREFERENCES, request).thenRun(() -> {
+            });
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> createDashboards(Application application, Platform platform) {
+        return get(API_DASHBOARDS_SEARCH).thenCompose(response -> {
+            if (response.size() > 0) {
+                return CompletableFuture.completedFuture(null);
+            }
+
+            List<Dashboard> dashboards = dashboardsDataSource.getDashboards(platform);
+            List<CompletableFuture> requests = dashboards.stream()
+                    .map(dashboard -> dashboardMapper.map(application, dashboard))
+                    .map(request -> getWsRequestForAdminUser(API_DASHBOARDS).post(request).thenApply(this::parseWsDashboardResponse).toCompletableFuture())
+                    .collect(Collectors.toList());
+            return CompletableFuture.allOf(requests.toArray(new CompletableFuture[0]));
+        }).toCompletableFuture();
+    }
+
     private CompletionStage<Application> switchUserContext(Application application) {
         String adminUserEndpoint = API_USER_USING_ORGANISATION_ID.replaceFirst(":orgId", application.getGrafanaOrgId());
         ObjectNode request = Json.newObject();
 
         return post(adminUserEndpoint, request).thenApply(grafanaResponse -> application);
+    }
+
+    private CompletionStage<List<DashboardDescriptionResponse>> get(String adminUserEndpoint) {
+        return getWsRequestForAdminUser(adminUserEndpoint).get().thenApply(this::parseWsQueryResponse);
+    }
+
+    private CompletionStage<GrafanaResponse> put(String adminUserEndpoint, JsonNode request) {
+        return getWsRequestForAdminUser(adminUserEndpoint).put(request).thenApply(this::parseWsResponse);
     }
 
     private CompletionStage<GrafanaResponse> post(String adminUserEndpoint, JsonNode request) {
@@ -193,13 +252,6 @@ public class GrafanaClient implements DashboardsClient {
         return wsRequest;
     }
 
-    private WSRequest getWsRequest(String adminUserEndpoint) {
-        WSRequest wsRequest = ws.url(baseUrl + adminUserEndpoint).setHeader("Accept", "application/json").setContentType("application/json")
-                .setHeader("Authorization", "Bearer " + this.apiKey);
-        Logger.debug(wsRequest.getHeaders().toString());
-        return wsRequest;
-    }
-
     @NotNull
     private GrafanaResponse parseWsResponse(WSResponse wsResponse) {
         Logger.debug(wsResponse.getAllHeaders().toString());
@@ -207,6 +259,25 @@ public class GrafanaClient implements DashboardsClient {
         GrafanaResponse grafanaResponse = Json.fromJson(wsResponse.asJson(), GrafanaResponse.class);
         grafanaResponse.setStatus(wsResponse.getStatus());
         return grafanaResponse;
+    }
+
+    @NotNull
+    private GrafanaDashboardResponse parseWsDashboardResponse(WSResponse wsResponse) {
+        Logger.debug(wsResponse.getAllHeaders().toString());
+        Logger.debug(wsResponse.getBody());
+        return Json.fromJson(wsResponse.asJson(), GrafanaDashboardResponse.class);
+    }
+
+    @NotNull
+    private List<DashboardDescriptionResponse> parseWsQueryResponse(WSResponse wsResponse) {
+        Logger.debug(wsResponse.getAllHeaders().toString());
+        Logger.debug(wsResponse.getBody());
+        try {
+            return Arrays.asList(Json.mapper().readValue(wsResponse.getBody(), DashboardDescriptionResponse[].class));
+        } catch (IOException e) {
+            Logger.error("Unable to parse grafana query response", e);
+            return Collections.emptyList();
+        }
     }
 }
 
