@@ -55,7 +55,7 @@ public class BufferedElasticSearchDatasourceTest extends WithFlowUpApplication i
     }
 
     @Test
-    public void givenAUniqueReportRequestWhenWriteDataPointsICalledThenReportIsBufferedAndReturnEmptyList() throws ExecutionException, InterruptedException {
+    public void givenAUniqueReportRequestWhenWriteDataPointsIsCalledThenReportIsBufferedAndReturnEmptyList() throws ExecutionException, InterruptedException {
         Report report = givenAReportWithXMetrics(1);
         Application application = givenAnyApplicationWithOrganizationId(UUID.fromString("9cdc0b15-bdb0-4209-a3d2-3bc7012d9793"));
         setupSuccessfulElasticsearchClient();
