@@ -1,9 +1,9 @@
 import com.google.inject.Inject;
-import datasources.grafana.HttpServerErrorHandler;
 import error.AirbrakeErrorHandler;
 import error.WithJsonErrorHandler;
 import play.Configuration;
 import play.Environment;
+import play.Logger;
 import play.api.OptionalSourceMapper;
 import play.api.UsefulException;
 import play.api.routing.Router;
@@ -12,6 +12,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.inject.Provider;
+import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
 
 public class ErrorHandler extends DefaultHttpErrorHandler implements WithJsonErrorHandler {
@@ -42,8 +43,25 @@ public class ErrorHandler extends DefaultHttpErrorHandler implements WithJsonErr
     }
 
     @Override
+    public CompletionStage<Result> onServerError(Http.RequestHeader request, Throwable exception) {
+        logHeaders(request);
+        return super.onServerError(request, exception);
+    }
+
+    @Override
     protected void logServerError(Http.RequestHeader request, UsefulException usefulException) {
         airbrakeErrorHandler.logServerError(request, usefulException, environment);
         super.logServerError(request, usefulException);
+    }
+
+    private void logHeaders(Http.RequestHeader request) {
+        String headersString = request.headers().entrySet().stream().reduce(
+                "Headers[",
+                (acc, stringEntry) -> acc +=
+                        stringEntry.getKey()
+                                + ":"
+                                + Arrays.stream(stringEntry.getValue()).reduce("", (s1, s2) -> s1 + " " + s2) + ", ",
+                (s1, s2) -> s1 + s2) + "]";
+        Logger.error("Server error: " + headersString);
     }
 }
