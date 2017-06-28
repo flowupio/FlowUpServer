@@ -22,7 +22,7 @@ public class DashboardMapper {
     public JsonNode map(Application application, Dashboard dashboard) {
         return Json.newObject()
                 .put("overwrite", true)
-                .put("orgId", application.getGrafanaOrgId())
+                .put("orgId", Integer.parseInt(application.getGrafanaOrgId()))
                 .set("dashboard", mapDashboard(dashboard));
     }
 
