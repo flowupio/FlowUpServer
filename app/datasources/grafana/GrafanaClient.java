@@ -189,7 +189,7 @@ public class GrafanaClient implements DashboardsClient {
                     .findFirst();
 
             if (!homeDashboard.isPresent()) {
-                Logger.warn("No home dashboard found for user: " + user.getGrafanaUserId() + " and organization: " + application.getGrafanaOrgId());
+                Logger.error("No home dashboard found for user: " + user.getGrafanaUserId() + " and organization: " + application.getGrafanaOrgId());
                 return CompletableFuture.completedFuture(null);
             }
 
@@ -207,7 +207,7 @@ public class GrafanaClient implements DashboardsClient {
     public CompletableFuture<Void> createDashboards(Application application, Platform platform) {
         return get(API_DASHBOARDS_SEARCH).thenCompose(response -> {
             if (response.size() > 0) {
-                Logger.warn("Dashboards already found for organization: " + application.getGrafanaOrgId() + ". Not creating dashboards");
+                Logger.error("Dashboards already found for organization: " + application.getGrafanaOrgId() + ". Not creating dashboards");
                 return CompletableFuture.completedFuture(null);
             }
 
