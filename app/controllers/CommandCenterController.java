@@ -6,10 +6,7 @@ import com.spotify.futures.CompletableFutures;
 import datasources.grafana.GrafanaProxy;
 import installationscounter.ui.UpgradeBillingPlanInfo;
 import installationscounter.usecase.GetInstallationsCounterByApiKey;
-import models.ApiKey;
-import models.Application;
-import models.Organization;
-import models.User;
+import models.*;
 import play.Configuration;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -36,7 +33,7 @@ public class CommandCenterController extends Controller {
     private final GetPrimaryOrganization getPrimaryOrganization;
     private final GetApplicationById getApplicationById;
     private final GetKeyMetrics getKeyMetrics;
-    private final GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName;
+    private final GetLatestSDKVersionName getLatestSDKVersionName;
     private final GetBillingInformation getBillingInformation;
     private final GetInstallationsCounterByApiKey getInstallations;
     private final String taxamoPublicApiKey;
@@ -45,7 +42,7 @@ public class CommandCenterController extends Controller {
     @Inject
     public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity,
                                    GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById,
-                                   GetKeyMetrics getKeyMetrics, GetLatestAndroidSDKVersionName getLatestAndroidSDKVersionName,
+                                   GetKeyMetrics getKeyMetrics, GetLatestSDKVersionName getLatestSDKVersionName,
                                    GetBillingInformation getBillingInformation, @Named("taxamo") Configuration configuration,
                                    GetInstallationsCounterByApiKey getInstallations) {
         this.auth = auth;
@@ -54,7 +51,7 @@ public class CommandCenterController extends Controller {
         this.getPrimaryOrganization = getPrimaryOrganization;
         this.getApplicationById = getApplicationById;
         this.getKeyMetrics = getKeyMetrics;
-        this.getLatestAndroidSDKVersionName = getLatestAndroidSDKVersionName;
+        this.getLatestSDKVersionName = getLatestSDKVersionName;
         this.getBillingInformation = getBillingInformation;
         this.taxamoPublicApiKey = configuration.getString("public_api_key");
         this.getInstallations = getInstallations;
@@ -75,23 +72,11 @@ public class CommandCenterController extends Controller {
     }
 
     public CompletionStage<Result> gettingStartedAndroid() {
-        AuthUser authUser = auth.getUser(session());
-        User user = getUserByAuthUserIdentity.execute(authUser);
-        CompletionStage<Organization> organizationFuture = getPrimaryOrganization.execute(user);
-        CompletionStage<String> sdkVersionFuture = getLatestAndroidSDKVersionName.execute();
-        return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
-                ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()))
-        );
+        return gettingStarted(Platform.ANDROID);
     }
 
     public CompletionStage<Result> gettingStartedIOS() {
-        AuthUser authUser = auth.getUser(session());
-        User user = getUserByAuthUserIdentity.execute(authUser);
-        CompletionStage<Organization> organizationFuture = getPrimaryOrganization.execute(user);
-        CompletionStage<String> sdkVersionFuture = getLatestAndroidSDKVersionName.execute();
-        return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
-                ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()))
-        );
+        return gettingStarted(Platform.IOS);
     }
 
     public CompletionStage<Result> gettingStarted() {
@@ -133,5 +118,15 @@ public class CommandCenterController extends Controller {
 
     public Result grafana() {
         return redirect(routes.CommandCenterController.dashboards());
+    }
+
+    private CompletionStage<Result> gettingStarted(Platform platform) {
+        AuthUser authUser = auth.getUser(session());
+        User user = getUserByAuthUserIdentity.execute(authUser);
+        CompletionStage<Organization> organizationFuture = getPrimaryOrganization.execute(user);
+        CompletionStage<String> sdkVersionFuture = getLatestSDKVersionName.execute(platform);
+        return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
+                ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()))
+        );
     }
 }

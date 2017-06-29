@@ -3,6 +3,7 @@ package usecases.repositories;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import models.Platform;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,21 +15,22 @@ import utils.WithResources;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.junit.Assert.assertEquals;
 
-public class AndroidSDKVersionNameRepositoryTest extends WithFlowUpApplication implements WithResources {
+public class SDKVersionNameRepositoryTest extends WithFlowUpApplication implements WithResources {
 
     public static final String MAVEN_CENTRAL_SEARCH_QUERY = "/solrsearch/select?q=g%3A%22io.flowup%22%20AND%20a%3A%22android-sdk%22";
     @Rule
     public WireMockRule wireMockRule = new WireMockRule();
 
-    private AndroidSDKVersionNameRepository repository;
+    private SDKVersionNameRepository repository;
 
     @Before
     public void startPlay() {
         super.startPlay();
         CacheApi cacheApi = app.injector().instanceOf(CacheApi.class);
         WSClient ws = app.injector().instanceOf(WSClient.class);
-        repository = new AndroidSDKVersionNameRepository(cacheApi, ws, "http://localhost:8080/");
-        cacheApi.remove(AndroidSDKVersionNameRepository.ANDROID_SDK_VERSION_CACHE_KEY);
+        repository = new SDKVersionNameRepository(cacheApi, ws, "http://localhost:8080/", "http://localhost:8080/");
+        cacheApi.remove(SDKVersionNameRepository.ANDROID_SDK_VERSION_CACHE_KEY);
+        cacheApi.remove(SDKVersionNameRepository.IOS_SDK_VERSION_CACHE_KEY);
     }
 
     @Test
@@ -38,7 +40,7 @@ public class AndroidSDKVersionNameRepositoryTest extends WithFlowUpApplication i
                         .withBody(getFile("mavencentral/mavenCentralSearchArtifactSearchResponse.json"))
                         .withStatus(200)));
 
-        String sdkVersion = repository.getLatestAndroidSDKVersionName().toCompletableFuture().get();
+        String sdkVersion = repository.getLatestSDKVersionName(Platform.ANDROID).toCompletableFuture().get();
 
         assertEquals("0.1.4", sdkVersion);
     }
@@ -49,7 +51,7 @@ public class AndroidSDKVersionNameRepositoryTest extends WithFlowUpApplication i
                 .willReturn(aResponse()
                         .withStatus(404)));
 
-        String sdkVersion = repository.getLatestAndroidSDKVersionName().toCompletableFuture().get();
+        String sdkVersion = repository.getLatestSDKVersionName(Platform.ANDROID).toCompletableFuture().get();
 
         assertEquals("<LATEST_VERSION>", sdkVersion);
     }
@@ -61,7 +63,7 @@ public class AndroidSDKVersionNameRepositoryTest extends WithFlowUpApplication i
                         .withBody(getFile("mavencentral/mavenCentralSearchArtifactEmptyResponse.json"))
                         .withStatus(200)));
 
-        String sdkVersion = repository.getLatestAndroidSDKVersionName().toCompletableFuture().get();
+        String sdkVersion = repository.getLatestSDKVersionName(Platform.ANDROID).toCompletableFuture().get();
 
         assertEquals("<LATEST_VERSION>", sdkVersion);
     }

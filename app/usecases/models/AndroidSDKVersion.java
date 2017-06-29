@@ -16,8 +16,6 @@ public class AndroidSDKVersion {
         }
         return response.getDocs().get(0).getLatestVersion();
     }
-
-
 }
 
 @Data
