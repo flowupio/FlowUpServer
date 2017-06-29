@@ -148,6 +148,10 @@ code {
     white-space: pre-wrap;
 }
 
+code.inline {
+    display: inline;
+}
+
 .content {
     background-color: white;
 }

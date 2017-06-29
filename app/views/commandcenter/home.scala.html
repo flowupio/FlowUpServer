@@ -45,61 +45,53 @@
 
                     <div class="row">
                         <div class="col-sm-9">
-                            <h2>Add the SDK to your build:</h2>
+                            <h2>Add the SDK to your build</h2>
                             <p>
                                 Add the following dependency to your build.gradle file:
                             </p>
 
-                            <pre><code class="language-groovy">
-dependencies {<br />
-    compile &#039;io.flowup:android-sdk:@sdkVersion&#039;<br />
-    testCompile &#039;io.flowup:android-sdk-no-op:@sdkVersion&#039;<br />
-}
-                            </code></pre>
+                            <pre><code class="language-groovy">dependencies {
+    compile &#039;io.flowup:android-sdk:@sdkVersion&#039;
+    testCompile &#039;io.flowup:android-sdk-no-op:@sdkVersion&#039;
+}</code></pre>
 
-                            <hr class="m-t">
+                            <div class="sm-space"/>
 
-                            <h2>Initialize FlowUp:</h2>
+                            <h2>Initialize FlowUp</h2>
 
                             <p>
-                                Initialize the FlowUp Android SDK in the your Application class onCreate() method.
+                                Initialize the FlowUp Android SDK in your <code class="inline">Application</code> class <code class="inline">onCreate()</code> method.
                             </p>
 
-                            <pre><code class="language-java">
-FlowUp.Builder.with(this)<br />
-    .apiKey(&quot;@apiKey.getValue&quot;)<br />
-    .forceReports(BuildConfig.DEBUG)<br />
-    .start();
-                            </code></pre>
+                            <pre><code class="language-java">FlowUp.Builder.with(this)
+    .apiKey(&quot;@apiKey.getValue&quot;)
+    .forceReports(BuildConfig.DEBUG)
+    .start();</code></pre>
 
-                            <hr class="m-t">
+                            <div class="sm-space"/>
 
-                            <h2>Build and run your application:</h2>
+                            <h2>Build and run your application</h2>
 
                             <p>Build and run your app in an emulator or device to start seeing data. Remember to build the app using the DEBUG build type and adjust the device date/timezone properly.</p>
 
-                            <hr class="m-t">
+                            <div class="sm-space"/>
 
-                            <h2>Refresh this page and start seeing data in just a few seconds:</h2>
+                            <h2>Refresh this page and start seeing data in just a few seconds</h2>
 
                             <p>Within seconds you will see data in your FlowUp Dashboards.</p>
 
                             <p>If your project uses lint remember to add this configuration to your project as follows.</p>
 
-                            <pre><code class="language-groovy">
-android {
+                            <pre><code class="language-groovy">android {
 ...
 lintOptions {
     abortOnError true
     disable 'InvalidPackage'
     }
-}
-                            </code></pre>
+}</code></pre>
 
                             <p><strong>If you face any error related to the build configuration or the application startup like this:</strong></p>
-                            <pre>
-                                <code class="language-java">
-java.lang.IllegalArgumentException: There is no GcmTaskService component registered within this package. Have you extended GcmTaskService correctly?
+                            <pre><code class="language-java">java.lang.IllegalArgumentException: There is no GcmTaskService component registered within this package. Have you extended GcmTaskService correctly?
 at com.google.android.gms.common.internal.zzx.zzb(Unknown Source)
 at com.google.android.gms.gcm.GcmNetworkManager.zzdi(Unknown Source)
 at com.google.android.gms.gcm.GcmNetworkManager.schedule(Unknown Source)
@@ -107,73 +99,14 @@ at io.flowup.config.android.a.a(Unknown Source)
 at io.flowup.FlowUp.p(Unknown Source)
 at io.flowup.FlowUp.d(Unknown Source)
 at io.flowup.FlowUp$1.run(Unknown Source)
-at java.lang.Thread.run(Thread.java:841)
-                                </code>
-                            </pre>
+at java.lang.Thread.run(Thread.java:841)</code></pre>
                             <p>Remember to review the Google Play Services dependencies you have the version 11.0.1 or to exclude it from the Android SDK as follows:</strong></p>
-                            <pre>
-                                <code class="language-groovy">
-compile ("io.flowup:android-sdk:@sdkVersion") {
+                            <pre><code class="language-groovy">compile ("io.flowup:android-sdk:@sdkVersion") {
     exclude group: 'com.google.android.gms'
-}
-                                </code>
-                            </pre>
-
+}</code></pre>
+                            <p>Additionally, remember you can send an email to support@@flowup.io asking for any doubt or issue.</p>
                         </div>
                     </div>
-
-                    <hr class="m-t">
-
-                    <div class="dashhead">
-                        <div class="dashhead-titles">
-                            <h1 class="dashhead-title">Getting started with Flow Up in iOS</h1>
-                        </div>
-                    </div>
-
-                    <hr class="m-t">
-
-                    <div class="row">
-                        <div class="col-sm-9">
-                            <h2>Add the SDK to your build:</h2>
-                            <p>
-                                Add the following dependency to your Podfile:
-                            </p>
-
-                            <pre><code class="language-ruby">
-pod 'FlowUpIOSSDK', '~> 0.0.2'
-                            </code></pre>
-
-                            <hr class="m-t">
-
-                            <h2>Initialize FlowUp:</h2>
-
-                            <p>
-                                Initialize the FlowUp iOS SDK in the your AppDelegate class viewDidLoad method.
-                            </p>
-
-                            <pre><code class="language-objectivec">
-[FlowUp application:application<br/>
-didFinishLaunchingWithOptions:launchOptions<br/>
-                 apiKey:&#64;&quot;@apiKey.getValue&quot;<br/>
-     isDebugModeEnabled:YES];
-                            </code></pre>
-
-                            <hr class="m-t">
-
-                            <h2>Build and run your application:</h2>
-
-                            <p>Build and run your app in the simulator or real device to start seeing data.</p>
-
-                            <hr class="m-t">
-
-                            <h2>Refresh this page and start seeing data in just a few seconds:</h2>
-
-                            <p>Within seconds you will see data in your FlowUp Dashboards.</p>
-                        </div>
-                    </div>
-
-
-                    <p>Additionally, remember you can send an email to support@@flowup.io asking for any doubt or issue.</p>
 
                 </div>
             </div>

@@ -45,56 +45,48 @@
 
                     <div class="row">
                         <div class="col-sm-9">
-                            <h2>Add the SDK to your build:</h2>
+                            <h2>Add the SDK to your build</h2>
                             <p>
-                                Add the following dependency to your Podfile:
+                                Add the following dependency to your <code class="inline">Podfile</code>:
                             </p>
 
-                            <pre><code class="language-ruby">
-pod 'FlowUpIOSSDK', '~> @sdkVersion'
-                            </code></pre>
+                            <pre><code class="language-ruby">pod 'FlowUpIOSSDK', '~> @sdkVersion'</code></pre>
 
-                            <hr class="m-t">
+                            <div class="sm-space"/>
 
-                            <h2>Initialize FlowUp:</h2>
+                            <h2>Initialize FlowUp</h2>
 
                             <p>
-                                Initialize the FlowUp iOS SDK in the your AppDelegate class viewDidLoad method.
+                                Initialize the FlowUp iOS SDK in your <code class="inline">AppDelegate</code> class <code class="inline">application:didFinishLaunchingWithOptions:</code> method.
                             </p>
 
-                            <p>Objective-C:</p>
-                            <pre><code class="language-objectivec">
-[FlowUp application:application<br/>
-didFinishLaunchingWithOptions:launchOptions<br/>
-                 apiKey:&#64;&quot;@apiKey.getValue&quot;<br/>
-     isDebugModeEnabled:YES];
-                            </code></pre>
+                            <p><em>Objective-C:</em></p>
+                            <pre><code class="language-objectivec">[FlowUp application:application
+didFinishLaunchingWithOptions:launchOptions
+                 apiKey:&#64;&quot;@apiKey.getValue&quot;
+     isDebugModeEnabled:YES];</code></pre>
 
-                            <p>Swift</p>
-                            <pre><code class="language-swift">
-[FlowUp application:application<br/>
-didFinishLaunchingWithOptions:launchOptions<br/>
-                 apiKey:&#64;&quot;@apiKey.getValue&quot;<br/>
-     isDebugModeEnabled:YES];
-                            </code></pre>
+                            <p><em>Swift:</em></p>
+                            <pre><code class="language-swift">FlowUp.application(application: application,
+                   didFinishLaunchingWithOptions: launchOptions,
+                   apiKey: &quot;@apiKey.getValue&quot;,
+                   isDebugModeEnabled: true)</code></pre>
 
-                            <hr class="m-t">
+                            <div class="sm-space"/>
 
-                            <h2>Build and run your application:</h2>
+                            <h2>Build and run your application</h2>
 
                             <p>Build and run your app in the simulator or real device to start seeing data.</p>
 
-                            <hr class="m-t">
+                            <div class="sm-space"/>
 
-                            <h2>Refresh this page and start seeing data in just a few seconds:</h2>
+                            <h2>Refresh this page and start seeing data in just a few seconds</h2>
 
                             <p>Within seconds you will see data in your FlowUp Dashboards.</p>
                         </div>
+
+                        <p>Additionally, remember you can send an email to support@@flowup.io asking for any doubt or issue.</p>
                     </div>
-
-
-                    <p>Additionally, remember you can send an email to support@@flowup.io asking for any doubt or issue.</p>
-
                 </div>
             </div>
 
