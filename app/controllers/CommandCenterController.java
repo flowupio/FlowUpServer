@@ -16,6 +16,7 @@ import usecases.*;
 import usecases.models.KeyStatCard;
 import views.html.commandcenter.application;
 import views.html.commandcenter.billing;
+import views.html.commandcenter.gettingStartedIOS;
 import views.html.commandcenter.home;
 
 import javax.inject.Inject;
@@ -120,13 +121,20 @@ public class CommandCenterController extends Controller {
         return redirect(routes.CommandCenterController.dashboards());
     }
 
-    private CompletionStage<Result> gettingStarted(Platform platform) {
+    private CompletionStage<Result> gettingStarted(final Platform platform) {
         AuthUser authUser = auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
         CompletionStage<Organization> organizationFuture = getPrimaryOrganization.execute(user);
         CompletionStage<String> sdkVersionFuture = getLatestSDKVersionName.execute(platform);
-        return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
-                ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()))
+        return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) -> {
+                    switch (platform) {
+                        case IOS:
+                            return ok(gettingStartedIOS.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()));
+                        case ANDROID:
+                        default:
+                            return ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()));
+                    }
+                }
         );
     }
 }
