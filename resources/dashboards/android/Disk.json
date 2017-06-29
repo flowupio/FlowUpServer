@@ -177,7 +177,7 @@
           "valueName": "avg"
         },
         {
-          "content": "# Disk Usage\n\nYour app can write data to the internal storage folder and also in the application shared preferences. There is no a disk quote for your app and there is no a rule of thumb about the amount of data your app can store, a good metric could stay under 100 MB for your internal storage and 10 MB for your shared preferences. If your app consumes more than these values, review your storage implementation you can be filling the user device with data will not be removed until the app be uninstalled.",
+          "content": "# Disk Usage\n\nYour app can write data to the internal storage folder and also in the application shared preferences. There is no disk quota for your app and there is no rule of thumb about the amount of data your app can store, a good metric would be to stay under 100 MB for your internal storage and 10 MB for your shared preferences. If your app consumes more than these values, review your storage implementation, you may be storing data that will not be removed until the app is uninstalled.",
           "editable": true,
           "error": false,
           "id": 1,
@@ -821,7 +821,7 @@
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Shared Preferences Written Bytes by OS Version by OS Version",
+          "title": "Shared Preferences Written Bytes by OS Version",
           "tooltip": {
             "msResolution": false,
             "shared": true,

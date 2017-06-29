@@ -116,6 +116,7 @@ public class ReportRequest {
         private final boolean batterySaverOn;
         private final long internalStorageWrittenBytes;
         private final long sharedPreferencesWrittenBytes;
+        private final long userDefaultsWrittenBytes;
     }
 
     @Data
