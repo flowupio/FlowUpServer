@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 
 public class DashboardsDataSource {
 
-    private static final String ANDROID_DASHBOARDS_FILES_PATH = "resources/dashboards/android";
-    private static final String IOS_DASHBOARDS_FILES_PATH = "resources/dashboards/ios";
+    private static final String ANDROID_DASHBOARDS_FILES_PATH = "conf/resources/dashboards/android";
+    private static final String IOS_DASHBOARDS_FILES_PATH = "conf/resources/dashboards/ios";
 
     private final Environment environment;
 
