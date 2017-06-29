@@ -46,10 +46,27 @@
     background-color: #F4F4F4;
 }
 
-.nav-pills>li>a {
+.nav-pills>li>a, .nav-pills>.nav-subheader {
     border-radius: 0px;
     color: #ffffff;
     font-family: "Proxima Nova","Arial Black", Verdana, "Droid Sans", sans-serif;
+}
+
+.nav-pills>li>ul {
+    margin-left: 30px;
+    margin-top: 7px;
+}
+
+.nav > .nav-subheader {
+    margin-top: 14px;
+}
+
+.nav > .nav {
+    margin-top: 7px;
+}
+
+.nav > li > span {
+    padding: 7px 15px;
 }
 
 /*

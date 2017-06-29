@@ -37,17 +37,15 @@
 
                     <div class="dashhead">
                         <div class="dashhead-titles">
-                            <h1 class="dashhead-title">Getting started with Flow Up</h1>
+                            <h1 class="dashhead-title">Getting started with Flow Up in Android</h1>
                         </div>
-
                     </div>
 
                     <hr class="m-t">
 
                     <div class="row">
                         <div class="col-sm-9">
-
-                            <h2>Add the FlowUp Android SDK to your build:</h2>
+                            <h2>Add the SDK to your build:</h2>
                             <p>
                                 Add the following dependency to your build.gradle file:
                             </p>
@@ -78,7 +76,7 @@ FlowUp.Builder.with(this)<br />
 
                             <h2>Build and run your application:</h2>
 
-                            <p>Build and run your app in an emulator or device to start seeing data. Remember to build the app using the DEBUG build type and review adjust the device date/timezone properly.</p>
+                            <p>Build and run your app in an emulator or device to start seeing data. Remember to build the app using the DEBUG build type and adjust the device date/timezone properly.</p>
 
                             <hr class="m-t">
 
@@ -121,9 +119,61 @@ compile ("io.flowup:android-sdk:@sdkVersion") {
                                 </code>
                             </pre>
 
-                            <p>Additionally, remember you can send an email to support@@flowup.io asking for any doubt or issue.</p>
                         </div>
                     </div>
+
+                    <hr class="m-t">
+
+                    <div class="dashhead">
+                        <div class="dashhead-titles">
+                            <h1 class="dashhead-title">Getting started with Flow Up in iOS</h1>
+                        </div>
+                    </div>
+
+                    <hr class="m-t">
+
+                    <div class="row">
+                        <div class="col-sm-9">
+                            <h2>Add the SDK to your build:</h2>
+                            <p>
+                                Add the following dependency to your Podfile:
+                            </p>
+
+                            <pre><code class="language-ruby">
+pod 'FlowUpIOSSDK', '~> 0.0.2'
+                            </code></pre>
+
+                            <hr class="m-t">
+
+                            <h2>Initialize FlowUp:</h2>
+
+                            <p>
+                                Initialize the FlowUp iOS SDK in the your AppDelegate class viewDidLoad method.
+                            </p>
+
+                            <pre><code class="language-objectivec">
+[FlowUp application:application<br/>
+didFinishLaunchingWithOptions:launchOptions<br/>
+                 apiKey:&#64;&quot;@apiKey.getValue&quot;<br/>
+     isDebugModeEnabled:YES];
+                            </code></pre>
+
+                            <hr class="m-t">
+
+                            <h2>Build and run your application:</h2>
+
+                            <p>Build and run your app in the simulator or real device to start seeing data.</p>
+
+                            <hr class="m-t">
+
+                            <h2>Refresh this page and start seeing data in just a few seconds:</h2>
+
+                            <p>Within seconds you will see data in your FlowUp Dashboards.</p>
+                        </div>
+                    </div>
+
+
+                    <p>Additionally, remember you can send an email to support@@flowup.io asking for any doubt or issue.</p>
 
                 </div>
             </div>

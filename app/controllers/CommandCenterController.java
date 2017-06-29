@@ -74,7 +74,7 @@ public class CommandCenterController extends Controller {
                 });
     }
 
-    public CompletionStage<Result> gettingStarted() {
+    public CompletionStage<Result> gettingStartedAndroid() {
         AuthUser authUser = auth.getUser(session());
         User user = getUserByAuthUserIdentity.execute(authUser);
         CompletionStage<Organization> organizationFuture = getPrimaryOrganization.execute(user);
@@ -82,6 +82,20 @@ public class CommandCenterController extends Controller {
         return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
                 ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()))
         );
+    }
+
+    public CompletionStage<Result> gettingStartedIOS() {
+        AuthUser authUser = auth.getUser(session());
+        User user = getUserByAuthUserIdentity.execute(authUser);
+        CompletionStage<Organization> organizationFuture = getPrimaryOrganization.execute(user);
+        CompletionStage<String> sdkVersionFuture = getLatestAndroidSDKVersionName.execute();
+        return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) ->
+                ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()))
+        );
+    }
+
+    public CompletionStage<Result> gettingStarted() {
+        return gettingStartedAndroid();
     }
 
     public CompletionStage<Result> application(String applicationUUID) {
