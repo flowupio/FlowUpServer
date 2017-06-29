@@ -206,11 +206,6 @@ public class GrafanaClient implements DashboardsClient {
     @Override
     public CompletableFuture<Void> createDashboards(Application application, Platform platform) {
         return get(API_DASHBOARDS_SEARCH).thenCompose(response -> {
-            if (response.size() > 0) {
-                Logger.error("Dashboards already found for organization: " + application.getGrafanaOrgId() + ". Not creating dashboards");
-                return CompletableFuture.completedFuture(null);
-            }
-
             List<Dashboard> dashboards = dashboardsDataSource.getDashboards(platform);
             List<CompletableFuture> requests = dashboards.stream()
                     .map(dashboard -> dashboardMapper.map(application, dashboard))
