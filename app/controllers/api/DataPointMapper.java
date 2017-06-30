@@ -81,7 +81,7 @@ public class DataPointMapper {
         reportRequest.getUi().forEach((ui) -> {
             List<F.Tuple<String, Value>> measurements = new ArrayList<>();
             StatisticalValue frameTime = ui.getFrameTime();
-            if (frameTime.getMean() >= MIN_FRAME_TIME_ALLOWED) {
+            if (frameTime != null && frameTime.getMean() >= MIN_FRAME_TIME_ALLOWED) {
                 measurements.add(new F.Tuple<>(FRAME_TIME, frameTime));
                 measurements.add(new F.Tuple<>(FRAMES_PER_SECOND, computeFramesPerSecond(frameTime)));
             } else {

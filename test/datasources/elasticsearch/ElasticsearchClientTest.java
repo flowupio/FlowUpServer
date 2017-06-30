@@ -1,27 +1,17 @@
 package datasources.elasticsearch;
 
 import apiclient.ApiClientTest;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import play.Configuration;
-import play.libs.ws.WSClient;
-import utils.Time;
-import utils.WithFlowUpApplication;
-import utils.WithResources;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -99,7 +89,7 @@ public class ElasticsearchClientTest extends ApiClientTest {
                         .withBody(getFile(ANY_GET_OLD_DATAPOINTS_RESPONSE))
                         .withStatus(200)));
 
-        SearchResponse searchResponse = elasticsearchClient.getOldDataPoints().toCompletableFuture().get();
+        SearchResponse searchResponse = elasticsearchClient.getOldDataPoints().toCompletableFuture().get().get();
 
         assertEquals(4, searchResponse.getHits().getTotal());
         assertEquals(2, searchResponse.getHits().getHits().size());
@@ -112,7 +102,7 @@ public class ElasticsearchClientTest extends ApiClientTest {
                         .withBody(getFile("elasticsearch/es_get_old_datapoints_empty_response.json"))
                         .withStatus(200)));
 
-        SearchResponse searchResponse = elasticsearchClient.getOldDataPoints().toCompletableFuture().get();
+        SearchResponse searchResponse = elasticsearchClient.getOldDataPoints().toCompletableFuture().get().get();
 
         assertTrue(searchResponse.getHits().getHits().isEmpty());
         assertEquals(0, searchResponse.getHits().getTotal());
@@ -127,6 +117,17 @@ public class ElasticsearchClientTest extends ApiClientTest {
                         .withStatus(200)));
 
         elasticsearchClient.getOldDataPoints().toCompletableFuture().get();
+    }
+
+    @Test
+    public void getOldDataPointsReturnEmptyOptionalWhenElasticReturnsAnError() throws Exception {
+        stubFor(post(urlEqualTo(SEARCH_ENDPOINT))
+                .willReturn(aResponse()
+                        .withStatus(500)));
+
+        Optional<SearchResponse> searchResponse = elasticsearchClient.getOldDataPoints().toCompletableFuture().get();
+
+        assertFalse(searchResponse.isPresent());
     }
 
 }
