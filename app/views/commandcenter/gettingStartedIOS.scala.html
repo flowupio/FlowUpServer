@@ -61,17 +61,35 @@
                             </p>
 
                             <p><em>Objective-C:</em></p>
-                            <pre><code class="language-objectivec">[FlowUp application:application
+                            <pre><code class="language-objectivec">// YourAppDelegate.h
+#import "FlowUp.h"
+
+// YourAppDelegate.m
+&#64;implementation YourAppDelegate
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [FlowUp application:application
 didFinishLaunchingWithOptions:launchOptions
                  apiKey:&#64;&quot;@apiKey.getValue&quot;
-     isDebugModeEnabled:YES];</code></pre>
+     isDebugModeEnabled:YES];
+     return YES;
+}
+&#64;end</code></pre>
 
                             <p><em>Swift:</em></p>
-                            <pre><code class="language-swift">FlowUp.application(application: application,
-                   didFinishLaunchingWithOptions: launchOptions,
-                   apiKey: &quot;@apiKey.getValue&quot;,
-                   isDebugModeEnabled: true)</code></pre>
+                            <pre><code class="language-swift">import FlowUp
 
+class YourAppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        FlowUp.application(application,
+                           didFinishLaunchingWithOptions: launchOptions,
+                           apiKey: &quot;@apiKey.getValue&quot;,
+                           isDebugModeEnabled: true)
+        return true
+    }
+}</code></pre>
+
+                            Remember to disable the debug mode when building a release target.
                             <div class="sm-space"/>
 
                             <h2>Build and run your application</h2>
@@ -85,7 +103,7 @@ didFinishLaunchingWithOptions:launchOptions
                             <p>Within seconds you will see data in your FlowUp Dashboards.</p>
                         </div>
 
-                        <p>Additionally, remember you can send an email to support@@flowup.io asking for any doubt or issue.</p>
+                        <p>Additionally, remember you can send an email to support@@flowup.io with any doubt or issue you may have.</p>
                     </div>
                 </div>
             </div>
