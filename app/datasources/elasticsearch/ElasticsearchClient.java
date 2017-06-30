@@ -6,14 +6,15 @@ import play.Configuration;
 import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
+import play.mvc.Http;
 import utils.Time;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -68,7 +69,7 @@ public class ElasticsearchClient {
         return ws.url(baseUrl + index).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
                 response -> {
                     Logger.debug(response.getBody());
-                    return response.getStatus() == 201 || response.getStatus() == 200;
+                    return response.getStatus() == Http.Status.CREATED || response.getStatus() == Http.Status.OK;
                 }
         );
     }
@@ -99,7 +100,7 @@ public class ElasticsearchClient {
         return ws.url(baseUrl + BULK_ENDPOINT).post(content).thenApply(response -> null);
     }
 
-    public CompletionStage<SearchResponse> getOldDataPoints() {
+    public CompletionStage<Optional<SearchResponse>> getOldDataPoints() {
         SearchBodyQuery bodyQuery = new SearchBodyQuery();
         SearchRange range = new SearchRange();
         SearchTimestamp timestamp = new SearchTimestamp();
@@ -113,17 +114,21 @@ public class ElasticsearchClient {
         return search(searchBody);
     }
 
-    public CompletionStage<SearchResponse> search(SearchBody searchBody) {
+    public CompletionStage<Optional<SearchResponse>> search(SearchBody searchBody) {
         return performQuery(SEARCH_ENDPOINT, searchBody);
     }
 
-    public CompletionStage<SearchResponse> performQuery(String index, SearchBody body) {
+    public CompletionStage<Optional<SearchResponse>> performQuery(String index, SearchBody body) {
         String content = StringUtils.join(Json.toJson(body), "\n", "\n");
         return ws.url(baseUrl + index).setContentType(ELASTIC_CONTENT_TYPE).post(content).thenApply(
                 response -> {
                     Logger.debug(response.getBody());
-                    JsonNode responseBody = response.asJson();
-                    return Json.fromJson(responseBody, SearchResponse.class);
+                    if (response.getStatus() == Http.Status.OK) {
+                        JsonNode responseBody = response.asJson();
+                        return Optional.of(Json.fromJson(responseBody, SearchResponse.class));
+                    } else {
+                        return Optional.empty();
+                    }
                 }
         );
     }

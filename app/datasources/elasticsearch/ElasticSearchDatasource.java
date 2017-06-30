@@ -18,10 +18,7 @@ import usecases.models.*;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -70,11 +67,16 @@ public class ElasticSearchDatasource implements MetricsDatasource {
     }
 
     public CompletionStage<Void> deleteOldDataPoints() {
-        CompletionStage<SearchResponse> response = elasticsearchClient.getOldDataPoints();
+        CompletionStage<Optional<SearchResponse>> response = elasticsearchClient.getOldDataPoints();
         return response.thenCompose(searchResponse -> {
-            List<DeleteRequest> indexesToDelete = mapToDeleteRequests(searchResponse.getHits());
+            if (!searchResponse.isPresent()) {
+                Logger.info("No old data points found");
+                return CompletableFuture.completedFuture(null);
+            }
+
+            Hits hits = searchResponse.get().getHits();
+            List<DeleteRequest> indexesToDelete = mapToDeleteRequests(hits);
             return elasticsearchClient.deleteBulk(indexesToDelete).thenCompose(deleteResponse -> {
-                Hits hits = searchResponse.getHits();
                 if (hits.getTotal() > hits.getHits().size()) {
                     return deleteOldDataPoints();
                 }

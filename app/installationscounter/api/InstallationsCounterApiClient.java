@@ -33,7 +33,11 @@ public class InstallationsCounterApiClient {
         SearchQuery query = getInstallationsQuery(apiKey);
         return elasticClient.performQuery(INSTALLATIONS_COUNTER_INDEX + "/_search",
                 query.getSearchBody()).thenApply(result -> {
-                    JsonNode aggregations = result.getAggregations();
+                    if (!result.isPresent()) {
+                        return 0L;
+                    }
+
+                    JsonNode aggregations = result.get().getAggregations();
                     if (aggregations == null) {
                         return 0L;
                     }
