@@ -180,6 +180,15 @@ code.inline {
     border-top: 1px solid #EEEEEE;
 }
 
+.plan input {
+    text-align: center;
+    font-size: 20px;
+    padding-left: 16px;
+    width: 60px;
+    border: none;
+    border-bottom: 1px dotted black;
+}
+
 .btn-action {
     color: white;
     background-color: #FF196E;
