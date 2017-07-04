@@ -8,6 +8,8 @@ import installationscounter.ui.UpgradeBillingPlanInfo;
 import installationscounter.usecase.GetInstallationsCounterByApiKey;
 import models.*;
 import play.Configuration;
+import play.Logger;
+import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -36,16 +38,19 @@ public class CommandCenterController extends Controller {
     private final GetKeyMetrics getKeyMetrics;
     private final GetLatestSDKVersionName getLatestSDKVersionName;
     private final GetBillingInformation getBillingInformation;
+    private final CreateSubscription createSubscription;
     private final GetInstallationsCounterByApiKey getInstallations;
-    private final String taxamoPublicApiKey;
+    private final String stripePublicApiKey;
+    private final FormFactory formFactory;
 
 
     @Inject
     public CommandCenterController(PlayAuthenticate auth, GrafanaProxy grafanaProxy, GetUserByAuthUserIdentity getUserByAuthUserIdentity,
                                    GetPrimaryOrganization getPrimaryOrganization, GetApplicationById getApplicationById,
                                    GetKeyMetrics getKeyMetrics, GetLatestSDKVersionName getLatestSDKVersionName,
-                                   GetBillingInformation getBillingInformation, @Named("taxamo") Configuration configuration,
-                                   GetInstallationsCounterByApiKey getInstallations) {
+                                   GetBillingInformation getBillingInformation, @Named("stripe") Configuration configuration,
+                                   CreateSubscription createSubscription, GetInstallationsCounterByApiKey getInstallations,
+                                   FormFactory formFactory) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
@@ -54,8 +59,10 @@ public class CommandCenterController extends Controller {
         this.getKeyMetrics = getKeyMetrics;
         this.getLatestSDKVersionName = getLatestSDKVersionName;
         this.getBillingInformation = getBillingInformation;
-        this.taxamoPublicApiKey = configuration.getString("public_api_key");
+        this.stripePublicApiKey = configuration.getString("public_api_key");
+        this.createSubscription = createSubscription;
         this.getInstallations = getInstallations;
+        this.formFactory = formFactory;
     }
 
     public CompletionStage<Result> index() {
@@ -114,7 +121,21 @@ public class CommandCenterController extends Controller {
         return getPrimaryOrganization.execute(user)
                 .thenCompose(organization ->
                         getBillingInformation.execute(organization).thenApply(billingInformation ->
-                                ok(billing.render(user, organization.getApplications(), organization.getBillingId(), taxamoPublicApiKey, billingInformation))));
+                                ok(billing.render(user, organization.getApplications(), stripePublicApiKey, billingInformation))));
+    }
+
+    public CompletionStage<Result> createSubscription() {
+        CreateSubscriptionForm form = formFactory.form(CreateSubscriptionForm.class).bindFromRequest().get();
+
+        Logger.debug("Creating subscription: " + form);
+        return createSubscription.createSubscription(form.getEmail(), form.getCountry(), form.getBuyerIp(),
+                form.getToken(), form.getPlan(), Integer.parseInt(form.getQuantity())).thenApply(success -> {
+            if (success) {
+                return ok();
+            } else {
+                return internalServerError();
+            }
+        });
     }
 
     public Result grafana() {

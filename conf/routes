@@ -15,6 +15,7 @@ GET         /command-center/application/:id        controllers.CommandCenterCont
 GET         /command-center/grafana                controllers.CommandCenterController.grafana
 GET         /command-center/dashboards             controllers.CommandCenterController.dashboards
 GET         /command-center/billing                controllers.CommandCenterController.billing
+POST        /command-center/create-subscription    controllers.CommandCenterController.createSubscription
 
 # Admin Website
 GET         /admin/                                controllers.admin.UserController.index()

@@ -1,39 +1,50 @@
 var plansDiv = document.getElementById("plans");
 var professionalPlanButton = document.getElementById("professional");
 var businessPlanButton = document.getElementById("business");
+var subscribeButton = document.getElementById("subscribe-button");
 
-var taxamoPublicApiKey = plansDiv.dataset.taxamoPublicApiKey;
-Taxamo.initialize(taxamoPublicApiKey);
+var stripeKey = plansDiv.dataset.stripeKey;
 
 professionalPlanButton.onclick = onProfessionalPlanClicked;
 businessPlanButton.onclick = onBusinessPlanClicked;
 
-function onProfessionalPlanClicked(src) {
-    onPlanClicked("company_plan", src.srcElement.dataset.billingId);
+function onProfessionalPlanClicked(event) {
+    onPlanClicked("ProPlan");
+    event.preventDefault();
 }
 
-function onBusinessPlanClicked(src) {
-    onPlanClicked("enterprise_plan", src.srcElement.dataset.billingId);
+function onBusinessPlanClicked(event) {
+    onPlanClicked("BizPlan");
+    event.preventDefault();
 }
 
-function onPlanClicked(planId, billingId) {
-    var transaction = { custom_id: billingId,
-                        custom_fields: [
-                            { key: 'taxed-plan-id', value: planId },
-                            { key: 'untaxed-plan-id', value: planId + '_untaxed' } ],
-                        billing_country_code: Taxamo.defaultTransaction.billing_country_code
-                      };
-    var metadata    = { allowed_payment_providers: 'braintree',
-                        subscription_mode: true,
-                        show_email: true,
-                        show_buyer_name: true,
-                        show_invoice_address: true,
-                        finished_redirect_url: self.location.href};
-
-    var checkout = new Taxamo.Checkout(transaction, metadata);
-    checkout.overlay(function(data) {
-        if (data.success) {
-            setTimeout(location.reload.bind(location), 1000);
+function onPlanClicked(planId) {
+    var handler = StripeCheckout.configure({
+        key: stripeKey,
+        image: '/assets/images/flowup_stripe.png',
+        locale: 'auto',
+        token: function(token) {
+            $.post("create-subscription", {
+                email: token.email,
+                token: token.id,
+                plan: planId,
+                country: token.card.country,
+                buyerIp: token.client_ip,
+                quantity: 100
+            }, function(data) {});
         }
     });
+
+    handler.open({
+        name: 'FlowUp',
+        description: '100 x 1000 devices',
+        zipCode: true,
+        currency: 'USD',
+        billingAddress: true,
+        amount: 100 * 1699
+    });
 }
+
+window.addEventListener('popstate', function() {
+    handler.close();
+});

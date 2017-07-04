@@ -1,4 +1,4 @@
-package datasources.taxamo;
+package datasources.billing;
 
 import com.taxamo.client.model.Transactions;
 import org.apache.commons.lang3.StringUtils;

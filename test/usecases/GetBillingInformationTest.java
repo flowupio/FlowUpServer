@@ -4,7 +4,7 @@ import com.taxamo.client.common.ApiException;
 import com.taxamo.client.model.InvoiceAddress;
 import com.taxamo.client.model.ListTransactionsOut;
 import com.taxamo.client.model.Transactions;
-import datasources.taxamo.TaxamoClient;
+import datasources.billing.TaxamoClient;
 import models.Organization;
 import org.junit.Before;
 import org.junit.Test;

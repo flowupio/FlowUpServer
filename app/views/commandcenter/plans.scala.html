@@ -1,7 +1,7 @@
 @import java.util
-@(billingId: String, taxamoPublicApiKey: String)
+@(stripePublicKey: String)
 
-<div id="plans" class="row" data-taxamo-public-api-key="@taxamoPublicApiKey">
+<div id="plans" class="row" data-stripe-key="@stripePublicKey">
     <div class="col-md-4">
         <div class="well plan">
             <h3 class="text-center"><strong>Developer</strong></h3>
@@ -22,7 +22,7 @@
             <hr class="sm-margin">
             <p class="text-center"><strong>€ 150,00/mo</strong></p>
             <hr class="sm-margin">
-            <a id="professional" class="btn btn-block btn-action" data-billing-id="@billingId">Select</a>
+            <a id="professional" class="btn btn-block btn-action">Select</a>
         </div>
     </div>
 
@@ -34,7 +34,7 @@
             <hr class="sm-margin">
             <p class="text-center"><strong>€ 1500,00/mo</strong></p>
             <hr class="sm-margin">
-            <a id="business" class="btn btn-block btn-action" data-billing-id="@billingId">Select</a>
+            <a id="business" class="btn btn-block btn-action">Select</a>
         </div>
     </div>
 </div>
@@ -45,4 +45,6 @@
 </div>
 
 <script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>
+<script src="https://checkout.stripe.com/checkout.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <script src="@routes.Assets.versioned("javascripts/plans.js")"></script>
