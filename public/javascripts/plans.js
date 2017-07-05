@@ -48,22 +48,38 @@ function onPlanClicked(planId, pricePerQuantity, quantity) {
         image: '/assets/images/flowup_stripe.png',
         locale: 'auto',
         token: function(token) {
-            $.post("create-subscription", {
-                email: token.email,
+            $.ajax(
+            {type: "POST",
+             url: "create-subscription",
+             contentType: 'application/json; charset=utf-8',
+             dataType: 'json',
+             data: JSON.stringify({
+                buyerInformation: {
+                    email: token.email,
+                    name: token.card.name,
+                    cardSuffix: token.card.last4,
+                    ip: token.client_ip
+                },
+                billingAddress: {
+                    countryCode: token.card.country,
+                    city: token.card.address_city,
+                    zipCode: token.card.address_zip,
+                    street: token.card.address_line1
+                },
                 token: token.id,
                 plan: planId,
-                country: token.card.country,
-                buyerIp: token.client_ip,
                 quantity: quantity
-            }, function(data) {});
+            }), function(data) {
+                location.reload();
+            }});
         }
     });
 
     handler.open({
         name: 'FlowUp',
-        description: quantity + ' x 1000 devices',
+        description: (quantity * 1000) + ' devices',
         zipCode: true,
-        currency: 'USD',
+        currency: 'EUR',
         billingAddress: true,
         amount: quantity * pricePerQuantity
     });

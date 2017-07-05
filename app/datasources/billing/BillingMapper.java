@@ -1,7 +1,9 @@
 package datasources.billing;
 
+import com.taxamo.client.model.CustomFields;
 import com.taxamo.client.model.Transactions;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import usecases.models.Billing;
 import usecases.models.Transaction;
 
@@ -34,14 +36,16 @@ class BillingMapper {
                 .collect(Collectors.toList());
 
         Transactions mostRecentTransaction = getMostRecentTaxamoTransaction(taxamoTransactions);
+        String stripeCardLast4Digits = getCardLast4Digits(mostRecentTransaction);
+
         return new Billing(
                 mostRecentTransaction.getBuyerName(),
                 mostRecentTransaction.getBuyerEmail(),
-                mostRecentTransaction.getInvoicePlace(),
+                mostRecentTransaction.getInvoiceAddress().getStreetName(),
                 mostRecentTransaction.getInvoiceAddress().getPostalCode(),
                 mostRecentTransaction.getInvoiceAddress().getCity(),
                 mapCountryCode(mostRecentTransaction.getBillingCountryCode()),
-                mapCreditCardPrefix(mostRecentTransaction.getBuyerCreditCardPrefix()),
+                mapCreditCardPrefix(stripeCardLast4Digits),
                 transactionsMapper.mapPlan(mostRecentTransaction),
                 transactions
         );
@@ -60,8 +64,17 @@ class BillingMapper {
         }).findFirst().orElse(transactions.get(0));
     }
 
-    private String mapCreditCardPrefix(String buyerCreditCardPrefix) {
-        String creditCardWithWildcards = buyerCreditCardPrefix + StringUtils.repeat("*", 16 - buyerCreditCardPrefix.length());
+    @NotNull
+    private String getCardLast4Digits(Transactions mostRecentTransaction) {
+        return mostRecentTransaction.getCustomFields().stream()
+                .filter(item -> TaxamoClient.CARD_NUMBER_SUFFIX_KEY.equals(item.getKey()))
+                .findFirst()
+                .map(CustomFields::getValue)
+                .orElse("****");
+    }
+
+    private String mapCreditCardPrefix(String buyerCreditCardSuffix) {
+        String creditCardWithWildcards = StringUtils.repeat("*", 16 - buyerCreditCardSuffix.length()) + buyerCreditCardSuffix;
         return String.format(
                 "%s %s %s %s",
                 creditCardWithWildcards.substring(0, 4),

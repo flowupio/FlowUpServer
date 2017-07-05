@@ -3,17 +3,14 @@ package controllers;
 import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.user.AuthUser;
 import com.spotify.futures.CompletableFutures;
+import controllers.api.CreateSubscriptionBodyParser;
 import datasources.grafana.GrafanaProxy;
 import installationscounter.ui.UpgradeBillingPlanInfo;
 import installationscounter.usecase.GetInstallationsCounterByApiKey;
 import models.*;
 import play.Configuration;
-import play.Logger;
 import play.data.FormFactory;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.Security;
+import play.mvc.*;
 import usecases.*;
 import usecases.models.KeyStatCard;
 import views.html.commandcenter.application;
@@ -66,9 +63,7 @@ public class CommandCenterController extends Controller {
     }
 
     public CompletionStage<Result> index() {
-        AuthUser authUser = auth.getUser(session());
-        User user = getUserByAuthUserIdentity.execute(authUser);
-        return getPrimaryOrganization.execute(user)
+        return getPrimaryOrganization()
                 .thenApply(organization -> {
                     if (organization.getApplications() == null || organization.getApplications().isEmpty()) {
                         return redirect(routes.CommandCenterController.gettingStarted());
@@ -92,16 +87,14 @@ public class CommandCenterController extends Controller {
     }
 
     public CompletionStage<Result> application(String applicationUUID) {
-        AuthUser authUser = this.auth.getUser(session());
-        User user = getUserByAuthUserIdentity.execute(authUser);
-        CompletionStage<Organization> organizationCompletionStage = getPrimaryOrganization.execute(user);
+        User user = getUser();
 
         Application applicationModel = getApplicationById.execute(UUID.fromString(applicationUUID));
         CompletionStage<List<KeyStatCard>> keyMetricsCompletionStage = getKeyMetrics.execute(applicationModel);
 
         ApiKey apiKey = applicationModel.getOrganization().getApiKey();
         CompletionStage<Long> installationsCompletionStage = getInstallations.execute(apiKey.getValue());
-        return CompletableFutures.combine(organizationCompletionStage, keyMetricsCompletionStage, installationsCompletionStage,
+        return CompletableFutures.combine(getPrimaryOrganization(), keyMetricsCompletionStage, installationsCompletionStage,
                 (organization, statCards, installationsCounter) -> {
                     UpgradeBillingPlanInfo upgradeBillingPlanInfo = new UpgradeBillingPlanInfo(apiKey.getNumberOfAllowedUUIDs(), installationsCounter);
                     return ok(application.render(user, applicationModel, organization.getApplications(), statCards, upgradeBillingPlanInfo));
@@ -116,26 +109,39 @@ public class CommandCenterController extends Controller {
     }
 
     public CompletionStage<Result> billing() {
-        AuthUser authUser = auth.getUser(session());
-        User user = getUserByAuthUserIdentity.execute(authUser);
-        return getPrimaryOrganization.execute(user)
+        User user = getUser();
+        return getPrimaryOrganization()
                 .thenCompose(organization ->
                         getBillingInformation.execute(organization).thenApply(billingInformation ->
                                 ok(billing.render(user, organization.getApplications(), stripePublicApiKey, billingInformation))));
     }
 
+    @BodyParser.Of(CreateSubscriptionBodyParser.class)
     public CompletionStage<Result> createSubscription() {
-        CreateSubscriptionForm form = formFactory.form(CreateSubscriptionForm.class).bindFromRequest().get();
+        CreateSubscriptionForm form = request().body().as(CreateSubscriptionForm.class);
 
-        Logger.debug("Creating subscription: " + form);
-        return createSubscription.createSubscription(form.getEmail(), form.getCountry(), form.getBuyerIp(),
-                form.getToken(), form.getPlan(), Integer.parseInt(form.getQuantity())).thenApply(success -> {
-            if (success) {
-                return ok();
-            } else {
-                return internalServerError();
-            }
-        });
+        return getPrimaryOrganization().thenCompose(organization ->
+                createSubscription(form, organization).thenApply(success -> {
+                    if (success) {
+                        return ok();
+                    } else {
+                        return internalServerError();
+                    }
+                }));
+    }
+
+    private CompletionStage<Organization> getPrimaryOrganization() {
+        User user = getUser();
+        return getPrimaryOrganization.execute(user);
+    }
+
+    private User getUser() {
+        AuthUser authUser = auth.getUser(session());
+        return getUserByAuthUserIdentity.execute(authUser);
+    }
+
+    private CompletionStage<Boolean> createSubscription(CreateSubscriptionForm form, Organization organization) {
+        return createSubscription.createSubscription(form, organization.getBillingId());
     }
 
     public Result grafana() {
@@ -143,11 +149,9 @@ public class CommandCenterController extends Controller {
     }
 
     private CompletionStage<Result> gettingStarted(final Platform platform) {
-        AuthUser authUser = auth.getUser(session());
-        User user = getUserByAuthUserIdentity.execute(authUser);
-        CompletionStage<Organization> organizationFuture = getPrimaryOrganization.execute(user);
+        User user = getUser();
         CompletionStage<String> sdkVersionFuture = getLatestSDKVersionName.execute(platform);
-        return CompletableFutures.combine(organizationFuture, sdkVersionFuture, (organization, sdkVersionName) -> {
+        return CompletableFutures.combine(getPrimaryOrganization(), sdkVersionFuture, (organization, sdkVersionName) -> {
                     switch (platform) {
                         case IOS:
                             return ok(gettingStartedIOS.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()));
