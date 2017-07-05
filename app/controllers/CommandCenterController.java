@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Security.Authenticated(Secured.class)
@@ -145,7 +144,7 @@ public class CommandCenterController extends Controller {
     }
 
     private CompletionStage<Boolean> createSubscription(CreateSubscriptionRequest form, Organization organization) {
-        return createSubscription.createSubscription(form, organization.getBillingId());
+        return createSubscription.execute(form, organization.getBillingId());
     }
 
     public Result grafana() {

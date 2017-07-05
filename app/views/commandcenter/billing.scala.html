@@ -18,7 +18,7 @@
         <hr class="m-t">
 
         @if(billing == null) {
-            @commandcenter.plans(stripePublicKey)
+            @commandcenter.plans(user.getEmail, stripePublicKey)
         } else {
             @commandcenter.billinginfo(billing)
         }

@@ -13,8 +13,8 @@ import java.util.Optional;
 
 public class TaxamoClient {
 
-    static final String CARD_NUMBER_SUFFIX_KEY = "card-suffix";
-    static final String PLAN_ID_KEY = "stripe-plan-id";
+    public static final String CARD_NUMBER_SUFFIX_KEY = "card-suffix";
+    public static final String PLAN_ID_KEY = "stripe-plan-id";
 
     private final TaxamoApi api;
     private final TaxamoTransactionMapper mapper;

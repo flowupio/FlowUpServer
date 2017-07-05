@@ -15,7 +15,7 @@ public class CreateSubscription {
         this.billingDataSource = billingDataSource;
     }
 
-    public CompletionStage<Boolean> createSubscription(CreateSubscriptionRequest createSubscriptionRequest, String billingId) {
+    public CompletionStage<Boolean> execute(CreateSubscriptionRequest createSubscriptionRequest, String billingId) {
         return billingDataSource.createSubscription(createSubscriptionRequest, billingId);
     }
 }

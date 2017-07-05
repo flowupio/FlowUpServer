@@ -4,8 +4,10 @@ var businessPlanButton = document.getElementById("business");
 var subscribeButton = document.getElementById("subscribe-button");
 var professionalQuantityInput = document.getElementById("professional-quantity");
 var businessQuantityInput = document.getElementById("business-quantity");
+var successSnackbar = document.getElementById("success-snackbar");
 var errorSnackbar = document.getElementById("error-snackbar");
 
+var userEmail = plansDiv.dataset.email;
 var stripeKey = plansDiv.dataset.stripeKey;
 
 professionalPlanButton.onclick = onProfessionalPlanClicked;
@@ -14,12 +16,12 @@ professionalQuantityInput.oninput = onPlanInputChange;
 businessQuantityInput.oninput = onPlanInputChange;
 
 function onProfessionalPlanClicked(event) {
-    onPlanClicked("ProPlan", 1700, professionalQuantityInput.value);
+    onPlanClicked("ProPlan", 2100, professionalQuantityInput.value);
     event.preventDefault();
 }
 
 function onBusinessPlanClicked(event) {
-    onPlanClicked("BizPlan", 1200, businessQuantityInput.value);
+    onPlanClicked("BizPlan", 1500, businessQuantityInput.value);
     event.preventDefault();
 }
 
@@ -46,6 +48,7 @@ function onPlanInputChange(event) {
 function onPlanClicked(planId, pricePerQuantity, quantity) {
     var handler = StripeCheckout.configure({
         key: stripeKey,
+        email: userEmail,
         image: '/assets/images/flowup_stripe.png',
         locale: 'auto',
         token: function(token) {
@@ -70,11 +73,14 @@ function onPlanClicked(planId, pricePerQuantity, quantity) {
                         plan: planId,
                         quantity: quantity
                         })
-            }).success(function(data) {
-                location.reload();
-            }).error(function(data) {
-                errorSnackbar.className += " show";
-                setTimeout(function() { errorSnackbar.className = errorSnackbar.className.replace("show", "");}, 2800);
+            }).always(function(data) {
+                if (data.status === 200) {
+                    successSnackbar.className += " show";
+                    setTimeout(function() { successSnackbar.className = successSnackbar.className.replace("show", "");}, 2800);
+                } else {
+                    errorSnackbar.className += " show";
+                    setTimeout(function() { errorSnackbar.className = errorSnackbar.className.replace("show", "");}, 2800);
+                }
             });
         }
     });
