@@ -2,7 +2,7 @@ package controllers.api;
 
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.CreateSubscriptionForm;
+import models.CreateSubscriptionRequest;
 import play.libs.F;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
@@ -16,7 +16,7 @@ import java.util.concurrent.Executor;
 import static play.libs.F.Either.Left;
 import static play.libs.F.Either.Right;
 
-public class CreateSubscriptionBodyParser implements BodyParser<CreateSubscriptionForm> {
+public class CreateSubscriptionBodyParser implements BodyParser<CreateSubscriptionRequest> {
 
     private final BodyParser.Json jsonParser;
     private final Executor executor;
@@ -28,7 +28,7 @@ public class CreateSubscriptionBodyParser implements BodyParser<CreateSubscripti
     }
 
     @Override
-    public Accumulator<ByteString, F.Either<Result, CreateSubscriptionForm>> apply(Http.RequestHeader request) {
+    public Accumulator<ByteString, F.Either<Result, CreateSubscriptionRequest>> apply(Http.RequestHeader request) {
         Accumulator<ByteString, F.Either<Result, JsonNode>> jsonAccumulator = jsonParser.apply(request);
 
         return jsonAccumulator.map(resultOrJson -> {
@@ -41,13 +41,13 @@ public class CreateSubscriptionBodyParser implements BodyParser<CreateSubscripti
         }, executor);
     }
 
-    private F.Either<Result, CreateSubscriptionForm> parse(JsonNode json) {
+    private F.Either<Result, CreateSubscriptionRequest> parse(JsonNode json) {
         try {
-            CreateSubscriptionForm reportRequest = play.libs.Json.fromJson(json, CreateSubscriptionForm.class);
+            CreateSubscriptionRequest reportRequest = play.libs.Json.fromJson(json, CreateSubscriptionRequest.class);
             return Right(reportRequest);
         } catch (Exception e) {
             Result result = Results.badRequest(
-                    "Unable to read " + CreateSubscriptionForm.class.toString() + " from json: " + e.getMessage());
+                    "Unable to read " + CreateSubscriptionRequest.class.toString() + " from json: " + e.getMessage());
             return Left(result);
         }
     }

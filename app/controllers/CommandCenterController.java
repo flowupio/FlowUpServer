@@ -9,6 +9,7 @@ import installationscounter.ui.UpgradeBillingPlanInfo;
 import installationscounter.usecase.GetInstallationsCounterByApiKey;
 import models.*;
 import play.Configuration;
+import play.Logger;
 import play.data.FormFactory;
 import play.mvc.*;
 import usecases.*;
@@ -22,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Security.Authenticated(Secured.class)
@@ -118,7 +120,9 @@ public class CommandCenterController extends Controller {
 
     @BodyParser.Of(CreateSubscriptionBodyParser.class)
     public CompletionStage<Result> createSubscription() {
-        CreateSubscriptionForm form = request().body().as(CreateSubscriptionForm.class);
+        CreateSubscriptionRequest form = request().body().as(CreateSubscriptionRequest.class);
+
+        Logger.info("Creating subscription: " + form);
 
         return getPrimaryOrganization().thenCompose(organization ->
                 createSubscription(form, organization).thenApply(success -> {
@@ -140,7 +144,7 @@ public class CommandCenterController extends Controller {
         return getUserByAuthUserIdentity.execute(authUser);
     }
 
-    private CompletionStage<Boolean> createSubscription(CreateSubscriptionForm form, Organization organization) {
+    private CompletionStage<Boolean> createSubscription(CreateSubscriptionRequest form, Organization organization) {
         return createSubscription.createSubscription(form, organization.getBillingId());
     }
 

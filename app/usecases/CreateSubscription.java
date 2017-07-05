@@ -1,7 +1,7 @@
 package usecases;
 
 import datasources.billing.BillingDataSource;
-import models.CreateSubscriptionForm;
+import models.CreateSubscriptionRequest;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
@@ -15,7 +15,7 @@ public class CreateSubscription {
         this.billingDataSource = billingDataSource;
     }
 
-    public CompletionStage<Boolean> createSubscription(CreateSubscriptionForm createSubscriptionForm, String billingId) {
-        return billingDataSource.createSubscription(createSubscriptionForm, billingId);
+    public CompletionStage<Boolean> createSubscription(CreateSubscriptionRequest createSubscriptionRequest, String billingId) {
+        return billingDataSource.createSubscription(createSubscriptionRequest, billingId);
     }
 }

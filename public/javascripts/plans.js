@@ -4,6 +4,7 @@ var businessPlanButton = document.getElementById("business");
 var subscribeButton = document.getElementById("subscribe-button");
 var professionalQuantityInput = document.getElementById("professional-quantity");
 var businessQuantityInput = document.getElementById("business-quantity");
+var errorSnackbar = document.getElementById("error-snackbar");
 
 var stripeKey = plansDiv.dataset.stripeKey;
 
@@ -48,30 +49,33 @@ function onPlanClicked(planId, pricePerQuantity, quantity) {
         image: '/assets/images/flowup_stripe.png',
         locale: 'auto',
         token: function(token) {
-            $.ajax(
-            {type: "POST",
-             url: "create-subscription",
-             contentType: 'application/json; charset=utf-8',
-             dataType: 'json',
-             data: JSON.stringify({
-                buyerInformation: {
-                    email: token.email,
-                    name: token.card.name,
-                    cardSuffix: token.card.last4,
-                    ip: token.client_ip
-                },
-                billingAddress: {
-                    countryCode: token.card.country,
-                    city: token.card.address_city,
-                    zipCode: token.card.address_zip,
-                    street: token.card.address_line1
-                },
-                token: token.id,
-                plan: planId,
-                quantity: quantity
-            }), function(data) {
+            $.ajax({type: "POST",
+                    url: "create-subscription",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        buyerInformation: {
+                            email: token.email,
+                            name: token.card.name,
+                            cardSuffix: token.card.last4,
+                            ip: token.client_ip
+                        },
+                        billingAddress: {
+                            countryCode: token.card.country,
+                            city: token.card.address_city,
+                            zipCode: token.card.address_zip,
+                            street: token.card.address_line1
+                        },
+                        token: token.id,
+                        plan: planId,
+                        quantity: quantity
+                        })
+            }).success(function(data) {
                 location.reload();
-            }});
+            }).error(function(data) {
+                errorSnackbar.className += " show";
+                setTimeout(function() { errorSnackbar.className = errorSnackbar.className.replace("show", "");}, 2800);
+            });
         }
     });
 
