@@ -19,7 +19,7 @@ database:
 
 test:
   override:
-    - sbt test:
+    - sbt test compile:doc:
         timeout: 1200
 
 deployment:
