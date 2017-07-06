@@ -63,6 +63,10 @@ public class Module extends AbstractModule {
                 .annotatedWith(Names.named("taxamo"))
                 .toInstance(taxamoConf);
 
+        Configuration stripeConf = configuration.getConfig("stripe");
+        bind(Configuration.class)
+                .annotatedWith(Names.named("stripe"))
+                .toInstance(stripeConf);
 
         bind(MetricsDatasource.class)
                 .to(ElasticSearchDatasource.class)

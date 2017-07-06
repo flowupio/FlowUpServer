@@ -1,10 +1,11 @@
 package usecases;
 
 import com.taxamo.client.common.ApiException;
+import com.taxamo.client.model.CustomFields;
 import com.taxamo.client.model.InvoiceAddress;
 import com.taxamo.client.model.ListTransactionsOut;
 import com.taxamo.client.model.Transactions;
-import datasources.taxamo.TaxamoClient;
+import datasources.billing.TaxamoClient;
 import models.Organization;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,7 +101,10 @@ public class GetBillingInformationTest extends WithFlowUpApplication {
         invoiceAddress.setCity("City");
         transaction.setInvoiceAddress(invoiceAddress);
         transaction.setBillingCountryCode("ES");
-        transaction.setBuyerCreditCardPrefix("12345");
+        CustomFields customFields = new CustomFields();
+        customFields.setKey(TaxamoClient.CARD_NUMBER_SUFFIX_KEY);
+        customFields.setValue("1234");
+        transaction.setCustomFields(Collections.singletonList(customFields));
         transactionsOut.setTransactions(Collections.singletonList(transaction));
         when(taxamoClient.getAllTransactions(billingId)).thenReturn(transactionsOut);
     }
@@ -108,7 +112,7 @@ public class GetBillingInformationTest extends WithFlowUpApplication {
     private void assertBillingIsCorrect(Billing billing) {
         assertEquals("Buyer name", billing.getFullName());
         assertEquals("Buyeremail@asd.com", billing.getEmail());
-        assertEquals("1234 5*** **** ****", billing.getCardNumber());
+        assertEquals("**** **** **** 1234", billing.getCardNumber());
         assertEquals(1, billing.getTransactions().size());
     }
 }

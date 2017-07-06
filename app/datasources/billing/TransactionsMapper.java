@@ -1,4 +1,4 @@
-package datasources.taxamo;
+package datasources.billing;
 
 import com.taxamo.client.model.CustomFields;
 import com.taxamo.client.model.Transactions;
@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 class TransactionsMapper {
-
-    private static final String KEY_BRAINTREE_PLAN_ID = "braintree-original-plan-id";
 
     Transaction mapTransaction(Transactions taxamoTransaction) {
         return new Transaction(
@@ -26,21 +24,19 @@ class TransactionsMapper {
 
     @NotNull
     String mapPlan(Transactions taxamoTransaction) {
-        String braintreePlanId = taxamoTransaction.getCustomFields().stream()
-                .filter(item -> KEY_BRAINTREE_PLAN_ID.equals(item.getKey()))
+        String plan = taxamoTransaction.getCustomFields().stream()
+                .filter(item -> TaxamoClient.PLAN_ID_KEY.equals(item.getKey()))
                 .findFirst()
                 .map(CustomFields::getValue)
                 .orElse("unknown");
 
-        switch (braintreePlanId) {
-            case "company_plan":
-            case "company_plan_untaxed":
+        switch (plan) {
+            case "ProPlan":
                 return "Professional";
-            case "enterprise_plan":
-            case "enterprise_plan_untaxed":
+            case "BizPlan":
                 return "Business";
             default:
-                return "Enterprise";
+                return "Developer";
         }
     }
 

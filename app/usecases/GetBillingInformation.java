@@ -1,6 +1,6 @@
 package usecases;
 
-import datasources.taxamo.BillingDataSource;
+import datasources.billing.BillingDataSource;
 import models.Organization;
 import usecases.models.Billing;
 
