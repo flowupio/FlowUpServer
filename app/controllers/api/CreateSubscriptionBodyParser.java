@@ -22,7 +22,7 @@ public class CreateSubscriptionBodyParser implements BodyParser<CreateSubscripti
     private final Executor executor;
 
     @Inject
-    public CreateSubscriptionBodyParser(Json jsonParser, Executor executor) {
+    public CreateSubscriptionBodyParser(BodyParser.Json jsonParser, Executor executor) {
         this.jsonParser = jsonParser;
         this.executor = executor;
     }
