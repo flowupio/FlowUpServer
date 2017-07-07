@@ -40,7 +40,7 @@ public class InsertDataPoints {
 
     private CompletionStage<InsertResult> insertReport(Report report) {
         CompletionStage<Application> futureApplication;
-        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage());
+        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(report.getApiKey(), report.getAppPackage(), report.getPlatform());
         if (application == null) {
             futureApplication = applicationRepository.create(report.getApiKey(), report.getAppPackage(), report.getPlatform());
             sendFirstReportEmail(futureApplication);

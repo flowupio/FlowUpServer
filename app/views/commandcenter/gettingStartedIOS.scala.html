@@ -1,5 +1,6 @@
 @import java.util
-@(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User, apiKey: ApiKey, applications: util.List[Application], sdkVersion: String, autoRefresh: Boolean)
+@import controllers.view.ApplicationViewModel
+@(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User, apiKey: ApiKey, applications: util.List[ApplicationViewModel], sdkVersion: String, autoRefresh: Boolean)
     @views.html.commandcenter.main("Command Center", user) {
         @if(autoRefresh) {
             <script defer src="@routes.Assets.versioned("javascripts/reloadCommandCenter.js")"></script>

@@ -1,5 +1,6 @@
 @import java.util
-@(user: models.User, applications: util.List[models.Application])
+@import controllers.view.ApplicationViewModel
+@(user: models.User, applications: util.List[ApplicationViewModel])
 
 <div class="col-sm-3 sidebar">
     <nav class="nav-sidebar">
@@ -29,7 +30,7 @@
                     </li>
 
                     @for(application <- applications) {
-                        <li><a href="@controllers.routes.CommandCenterController.application(application.getId.toString)">@application.getAppPackage</a></li>
+                        <li><a href="@controllers.routes.CommandCenterController.application(application.getId)">@application.getName</a></li>
                     }
                 }
 
