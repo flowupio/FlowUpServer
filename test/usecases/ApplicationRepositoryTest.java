@@ -65,7 +65,7 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication implements 
 
     @Test
     public void anApplicationNotPreviouslyCreatedDoesNotExist() {
-        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(KARUMI_ORG, ANY_APP_PACKAGE);
+        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(KARUMI_ORG, ANY_APP_PACKAGE, Platform.ANDROID);
 
         assertNull(application);
     }
@@ -75,7 +75,7 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication implements 
         givenAUserAlreadyCreated(ANY_KARUMI_EMAIL);
         ApiKey apiKey = givenAnApplication(KARUMI_ORG, ANY_APP_PACKAGE);
 
-        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(apiKey.getValue(), ANY_APP_PACKAGE);
+        Application application = applicationRepository.getApplicationByApiKeyValueAndAppPackage(apiKey.getValue(), ANY_APP_PACKAGE, Platform.ANDROID);
 
         assertNotNull(application);
     }
@@ -87,17 +87,34 @@ public class ApplicationRepositoryTest extends WithFlowUpApplication implements 
         givenAUserAlreadyCreated(ANY_FLOWUP_EMAIL);
         ApiKey anyOtherApiKey = givenAnApplication(FLOW_UP_ORG, ANY_APP_PACKAGE);
 
-        Application existFirstOrg = applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyApiKey.getValue(), ANY_APP_PACKAGE);
-        Application existSecondOrg = applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyOtherApiKey.getValue(), ANY_APP_PACKAGE);
+        Application existFirstOrg = applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyApiKey.getValue(), ANY_APP_PACKAGE, Platform.ANDROID);
+        Application existSecondOrg = applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyOtherApiKey.getValue(), ANY_APP_PACKAGE, Platform.ANDROID);
+
+        assertNotNull(existFirstOrg);
+        assertNotNull(existSecondOrg);
+    }
+
+    @Test
+    public void supportsTwoApplicationsWithTheSamePackageNameAndSameOrgButDifferentPlatform() throws Exception {
+        givenAUserAlreadyCreated(ANY_KARUMI_EMAIL);
+        ApiKey anyApiKey = givenAnApplication(KARUMI_ORG, ANY_APP_PACKAGE, Platform.ANDROID);
+        ApiKey anyOtherApiKey = givenAnApplication(KARUMI_ORG, ANY_APP_PACKAGE, Platform.IOS);
+
+        Application existFirstOrg = applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyApiKey.getValue(), ANY_APP_PACKAGE, Platform.ANDROID);
+        Application existSecondOrg = applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyOtherApiKey.getValue(), ANY_APP_PACKAGE, Platform.IOS);
 
         assertNotNull(existFirstOrg);
         assertNotNull(existSecondOrg);
     }
 
     private ApiKey givenAnApplication(String orgName, String packageName) throws InterruptedException, ExecutionException {
+        return givenAnApplication(orgName, packageName, Platform.ANDROID);
+    }
+
+    private ApiKey givenAnApplication(String orgName, String packageName, Platform platform) throws InterruptedException, ExecutionException {
         Organization organization = organizationDatasource.create(orgName);
         ApiKey apiKey = organization.getApiKey();
-        applicationRepository.create(apiKey.getValue(), packageName, Platform.ANDROID).toCompletableFuture().get();
+        applicationRepository.create(apiKey.getValue(), packageName, platform).toCompletableFuture().get();
         return apiKey;
     }
 

@@ -1,6 +1,5 @@
 @import java.util
-@import controllers.view.ApplicationViewModel
-@(user: models.User, applications: util.List[ApplicationViewModel])
+@(user: models.User, applications: util.List[controllers.view.ApplicationViewModel])
 
 <div class="col-sm-3 sidebar">
     <nav class="nav-sidebar">
@@ -21,7 +20,7 @@
                     <span>Getting Started</span>
                     <ul class="nav nav-pills nav-stacked">
                         <li><a href="@controllers.routes.CommandCenterController.gettingStartedAndroid()">Android</a></li>
-                        <li><a href="@controllers.routes.CommandCenterController.gettingStartedIOS()">iOS</a></li> 
+                        <li><a href="@controllers.routes.CommandCenterController.gettingStartedIOS()">iOS</a></li>
                     </ul>
                 </li>
                 @if(!applications.isEmpty) {

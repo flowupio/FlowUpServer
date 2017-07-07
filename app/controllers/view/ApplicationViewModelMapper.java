@@ -12,10 +12,10 @@ public class ApplicationViewModelMapper {
     }
 
     public ApplicationViewModel map(Application application) {
-        ApplicationViewModel applicationViewModel = new ApplicationViewModel();
-        applicationViewModel.setId(application.getId().toString());
-        applicationViewModel.setName(mapName(application));
-        return applicationViewModel;
+        return new ApplicationViewModel(
+                application.getId().toString(),
+                mapName(application)
+        );
     }
 
     private String mapName(Application application) {
