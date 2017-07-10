@@ -30,7 +30,7 @@ public class ApplicationRepository {
         this.cacheApi = cacheApi;
     }
 
-    public Application getApplicationByApiKeyValueAndAppPackage(String apiKeyValue, String appPackage) {
+    public Application getApplicationByApiKeyValueAndAppPackage(String apiKeyValue, String appPackage, Platform platform) {
         ApiKey apiKey = apiKeyRepository.getApiKey(apiKeyValue);
         if (apiKey == null) {
             return null;
@@ -41,12 +41,13 @@ public class ApplicationRepository {
         }
         String organizationId = organization.getId().toString();
 
-        return getApplicationByPackageAndOrgId(appPackage, organizationId);
+        return getApplicationByPackageAndOrgId(appPackage, organizationId, platform);
     }
 
-    private Application getApplicationByPackageAndOrgId(String appPackage, String organizationId) {
+    private Application getApplicationByPackageAndOrgId(String appPackage, String organizationId, Platform platform) {
+        String normalizedAppPackage = normalizeAppPackage(appPackage, platform);
         return cacheApi.getOrElse(getCacheKey(appPackage, organizationId), () ->
-                applicationDatasource.findApplicationByPackageAndOrgId(appPackage, organizationId));
+                applicationDatasource.findApplicationByPackageAndOrgId(normalizedAppPackage, organizationId));
     }
 
     private String getCacheKey(String appPackage, String organizationId) {
@@ -59,9 +60,11 @@ public class ApplicationRepository {
             return null;
         }
 
-        Application application = applicationDatasource.create(appPackage, apiKey);
+        String normalizedAppPackage = normalizeAppPackage(appPackage, platform);
 
-        String cacheKey = getCacheKey(apiKeyValue, appPackage);
+        Application application = applicationDatasource.create(normalizedAppPackage, apiKey);
+
+        String cacheKey = getCacheKey(apiKeyValue, normalizedAppPackage);
         cacheApi.set(cacheKey, true);
 
         return dashboardsClient.createOrg(application)
@@ -96,5 +99,15 @@ public class ApplicationRepository {
 
     public CompletableFuture<List<Application>> findAll() {
         return applicationDatasource.findAll();
+    }
+
+    private String normalizeAppPackage(String appPackage, Platform platform) {
+        switch (platform) {
+            case IOS:
+                return appPackage + Application.IOS_APPLICATION_SUFFIX;
+            case ANDROID:
+            default:
+                return appPackage;
+        }
     }
 }

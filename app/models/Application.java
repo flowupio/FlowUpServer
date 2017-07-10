@@ -16,6 +16,9 @@ import java.util.UUID;
 @UniqueConstraint(columnNames = {"app_package", "organization_id"})
 public class Application extends Model implements Serializable {
 
+    public static final String IOS_APPLICATION_SUFFIX = " - iOS";
+    public static final String ANDROID_APPLICATION_SUFFIX = " - Android";
+
     private static final long serialVersionUID = 1L;
 
     @Id

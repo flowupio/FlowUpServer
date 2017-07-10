@@ -128,7 +128,7 @@ public class InsertDataPointsTest {
     }
 
     private void givenThereIsAnApplicationAlreadyCreated(Application application) {
-        when(applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyString(), anyString()))
+        when(applicationRepository.getApplicationByApiKeyValueAndAppPackage(anyString(), anyString(), isA(Platform.class)))
                 .thenReturn(application);
     }
 

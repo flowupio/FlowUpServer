@@ -4,13 +4,13 @@ import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.user.AuthUser;
 import com.spotify.futures.CompletableFutures;
 import controllers.api.CreateSubscriptionBodyParser;
+import controllers.view.ApplicationViewModelMapper;
 import datasources.grafana.GrafanaProxy;
 import installationscounter.ui.UpgradeBillingPlanInfo;
 import installationscounter.usecase.GetInstallationsCounterByApiKey;
 import models.*;
 import play.Configuration;
 import play.Logger;
-import play.data.FormFactory;
 import play.mvc.*;
 import usecases.*;
 import usecases.models.KeyStatCard;
@@ -39,7 +39,7 @@ public class CommandCenterController extends Controller {
     private final CreateSubscription createSubscription;
     private final GetInstallationsCounterByApiKey getInstallations;
     private final String stripePublicApiKey;
-    private final FormFactory formFactory;
+    private final ApplicationViewModelMapper applicationViewModelMapper;
 
 
     @Inject
@@ -48,7 +48,7 @@ public class CommandCenterController extends Controller {
                                    GetKeyMetrics getKeyMetrics, GetLatestSDKVersionName getLatestSDKVersionName,
                                    GetBillingInformation getBillingInformation, @Named("stripe") Configuration configuration,
                                    CreateSubscription createSubscription, GetInstallationsCounterByApiKey getInstallations,
-                                   FormFactory formFactory) {
+                                   ApplicationViewModelMapper applicationViewModelMapper) {
         this.auth = auth;
         this.grafanaProxy = grafanaProxy;
         this.getUserByAuthUserIdentity = getUserByAuthUserIdentity;
@@ -60,7 +60,7 @@ public class CommandCenterController extends Controller {
         this.stripePublicApiKey = configuration.getString("public_api_key");
         this.createSubscription = createSubscription;
         this.getInstallations = getInstallations;
-        this.formFactory = formFactory;
+        this.applicationViewModelMapper = applicationViewModelMapper;
     }
 
     public CompletionStage<Result> index() {
@@ -98,7 +98,8 @@ public class CommandCenterController extends Controller {
         return CompletableFutures.combine(getPrimaryOrganization(), keyMetricsCompletionStage, installationsCompletionStage,
                 (organization, statCards, installationsCounter) -> {
                     UpgradeBillingPlanInfo upgradeBillingPlanInfo = new UpgradeBillingPlanInfo(apiKey.getNumberOfAllowedUUIDs(), installationsCounter);
-                    return ok(application.render(user, applicationModel, organization.getApplications(), statCards, upgradeBillingPlanInfo));
+                    return ok(application.render(user, applicationModel, applicationViewModelMapper.map(organization.getApplications()),
+                            statCards, upgradeBillingPlanInfo));
                 });
     }
 
@@ -114,7 +115,7 @@ public class CommandCenterController extends Controller {
         return getPrimaryOrganization()
                 .thenCompose(organization ->
                         getBillingInformation.execute(organization).thenApply(billingInformation ->
-                                ok(billing.render(user, organization.getApplications(), stripePublicApiKey, billingInformation))));
+                                ok(billing.render(user, applicationViewModelMapper.map(organization.getApplications()), stripePublicApiKey, billingInformation))));
     }
 
     @BodyParser.Of(CreateSubscriptionBodyParser.class)
@@ -157,10 +158,12 @@ public class CommandCenterController extends Controller {
         return CompletableFutures.combine(getPrimaryOrganization(), sdkVersionFuture, (organization, sdkVersionName) -> {
                     switch (platform) {
                         case IOS:
-                            return ok(gettingStartedIOS.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()));
+                            return ok(gettingStartedIOS.render(auth, user, organization.getApiKey(),
+                                    applicationViewModelMapper.map(organization.getApplications()), sdkVersionName, !organization.hasApplications()));
                         case ANDROID:
                         default:
-                            return ok(home.render(auth, user, organization.getApiKey(), organization.getApplications(), sdkVersionName, !organization.hasApplications()));
+                            return ok(home.render(auth, user, organization.getApiKey(),
+                                    applicationViewModelMapper.map(organization.getApplications()), sdkVersionName, !organization.hasApplications()));
                     }
                 }
         );

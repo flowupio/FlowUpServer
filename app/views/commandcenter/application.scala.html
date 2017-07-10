@@ -1,7 +1,8 @@
 @import java.util
 @import usecases.models.KeyStatCard
 @import installationscounter.ui.UpgradeBillingPlanInfo
-@(user: models.User, application: models.Application, applications: util.List[Application], keyStatCards: util.List[KeyStatCard], upgradeBillingPlanInfo: UpgradeBillingPlanInfo)
+@import controllers.view.ApplicationViewModel
+@(user: models.User, application: models.Application, applications: util.List[ApplicationViewModel], keyStatCards: util.List[KeyStatCard], upgradeBillingPlanInfo: UpgradeBillingPlanInfo)
 
 @views.html.commandcenter.main("Command Center", user) {
 
