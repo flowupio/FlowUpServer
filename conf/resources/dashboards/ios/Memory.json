@@ -1,7 +1,6 @@
 {
   "id": null,
   "title": "Memory",
-  "originalTitle": "Memory",
   "tags": [],
   "style": "dark",
   "timezone": "browser",
@@ -77,7 +76,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND _type:memory_data",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion AND _type:memory_data",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -158,7 +157,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -177,7 +176,7 @@
           "valueName": "avg"
         },
         {
-          "content": "# Memory Usage\n\nThe process associated with your app is executed using a 192 MB heap by default in most of the Android OS distributions. Your application should not allocate more than 192 MB or an OutOfMemoryException will be thrown. Some applications are configured with an AndroidManifest flag named \"largeHeap=true\". If this flag is enabled the size of the heap will be configured with 512 MB instead of 192 MB. Even when this values depends on the Android OS distribution configured by the manufacturer most of the devices are using these values.",
+          "content": "# Memory Usage\n\nIn normal conditions, your app has a memory cap that can't be exceeded and that depends on the specific device your app is running on. It can vary from the 127MB the first iPad had to the 2GB of memory of the iPhone 7+.\n\nAs a general rule, your app should never use more than the 40% of your total memory. If your app ends up using more than that, iOS can kill your app, resulting in a crash from the user point of view.",
           "editable": true,
           "error": false,
           "id": 1,
@@ -249,7 +248,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND _type:memory_data",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion AND _type:memory_data",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -346,7 +345,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -468,7 +467,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND _type:memory_data",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion AND _type:memory_data",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -580,7 +579,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -668,11 +667,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Average Memory Consumption - {{AndroidOSVersion}}",
+              "alias": "Average Memory Consumption - {{IOSVersion}}",
               "bucketAggs": [
                 {
                   "fake": true,
-                  "field": "AndroidOSVersion",
+                  "field": "IOSVersion",
                   "id": "3",
                   "settings": {
                     "order": "desc",
@@ -702,7 +701,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND _type:memory_data",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion AND _type:memory_data",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -780,11 +779,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Average Bytes Allocated - {{AndroidOSVersion}}",
+              "alias": "Average Bytes Allocated - {{IOSVersion}}",
               "bucketAggs": [
                 {
                   "fake": true,
-                  "field": "AndroidOSVersion",
+                  "field": "IOSVersion",
                   "id": "3",
                   "settings": {
                     "order": "desc",
@@ -814,7 +813,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -936,7 +935,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion AND _type:memory_data",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion AND _type:memory_data",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -1048,7 +1047,7 @@
                   "type": "avg"
                 }
               ],
-              "query": "DeviceModel:$Device AND VersionName:$VersionName AND AndroidOSVersion:$AndroidOSVersion",
+              "query": "DeviceModel:$Device AND VersionName:$VersionName AND IOSVersion:$iOSVersion",
               "refId": "A",
               "timeField": "@timestamp"
             }
@@ -1340,7 +1339,7 @@
         "hide": 0,
         "includeAll": true,
         "multi": true,
-        "name": "AndroidOSVersion",
+        "name": "iOSVersion",
         "options": [
           {
             "text": "All",
@@ -1388,7 +1387,7 @@
             "selected": false
           }
         ],
-        "query": "{\"find\": \"terms\", \"field\": \"AndroidOSVersion\"}",
+        "query": "{\"find\": \"terms\", \"field\": \"IOSVersion\"}",
         "refresh": 1,
         "type": "query"
       }

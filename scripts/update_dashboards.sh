@@ -8,7 +8,7 @@ PLATFORM="ios"
 for ORGANIZATION_ID in {394..394}
 do
     printf "\n[Migrating dashboards for organization with id $ORGANIZATION_ID]"
-    for DASHBOARD_FILE in resources/dashboards/$PLATFORM/*.json
+    for DASHBOARD_FILE in conf/resources/dashboards/$PLATFORM/*.json
     do
         DASHBOARD=`cat $DASHBOARD_FILE`
         printf "\nUploading dashboard $DASHBOARD_FILE...\n"
