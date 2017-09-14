@@ -55,6 +55,7 @@ public interface WithResources {
     default Application givenAnyApplicationWithOrganizationId(UUID uuid) {
         Application application = mock(Application.class);
         Organization organization = mock(Organization.class);
+        when(application.getAppPackage()).thenReturn("App package");
         when(application.getOrganization()).thenReturn(organization);
         when(organization.getId()).thenReturn(uuid);
         return application;
