@@ -84,7 +84,7 @@ public class CommandCenterController extends Controller {
     }
 
     public CompletionStage<Result> gettingStarted() {
-        return gettingStartedAndroid();
+        return gettingStartedIOS();
     }
 
     public CompletionStage<Result> application(String applicationUUID) {
