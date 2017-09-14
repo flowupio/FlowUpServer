@@ -331,7 +331,11 @@ public class ElasticSearchDatasource implements MetricsDatasource {
 
     @NotNull
     public static String indexName(String appPackage, String organizationId) {
-        return String.join(DELIMITER, FLOWUP, organizationId, appPackage).toLowerCase();
+        // iOS packages are stored with a " - iOS" suffix so we are stripping it out when accessing elasticsearch
+        String normalizedAppPackage = appPackage.endsWith(Application.IOS_APPLICATION_SUFFIX)
+                ? appPackage.substring(0, appPackage.length() - Application.IOS_APPLICATION_SUFFIX.length())
+                : appPackage;
+        return String.join(DELIMITER, FLOWUP, organizationId, normalizedAppPackage).toLowerCase();
     }
 
     private List<DeleteRequest> mapToDeleteRequests(Hits hits) {
