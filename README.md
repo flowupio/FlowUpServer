@@ -21,21 +21,9 @@ AWS Codepipeline is watching the bucket and will deploy to elastic beanstalk `fl
 
 Available at http://flowupapp-env.eu-west-1.elasticbeanstalk.com/
 
-## How to setup elasticsearch locally
+## How to setup MySQL, elasticsearch, grafana and redis locally
 
-`docker run -p 127.0.0.1:9200:9200 -d elasticsearch:2.3`
-Test your setup http://asquera.de/blog/2013-07-10/an-elasticsearch-workflow/
-
-## How to setup MYSQL locally
-
-`docker run -e MYSQL_ROOT_PASSWORD=my-secret-pw -e MYSQL_DATABASE=flowupdb -e MYSQL_USER=flowupUser -e MYSQL_PASSWORD=flowupPassword -p 127.0.0.1:3306:3306 -d mysql:5.6`
-
-## How to setup grafana locally
-
-`docker run -p 3000:3000 -d grafana/grafana`
-
-##  How to setup redis locally
-`docker run -p 127.0.0.1:6379:6379 -d redis:3.2`
+`docker-compose up`
 
 ## How to execute the stress tests
 
