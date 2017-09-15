@@ -710,7 +710,7 @@
             "selected": true
           }
         ],
-        "query": "{\"find\": \"terms\", \"field\": \"iOSVersion\"}",
+        "query": "{\"find\": \"terms\", \"field\": \"IOSVersion\"}",
         "refresh": 1,
         "regex": "",
         "type": "query"
