@@ -1,0 +1,251 @@
+/*
+ * Sidebar
+ */
+
+/* Hide for mobile, show later */
+.sidebar {
+    display: none;
+}
+@media (min-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0px;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+        background-color: #333743;
+        margin-left: auto;
+        padding: 40px 20px 20px 15px;
+    }
+}
+
+/* Sidebar navigation */
+.nav-sidebar {
+    margin-left: 20px;
+}
+.nav-sidebar > li > a {
+    padding-right: 20px;
+    padding-left: 20px;
+}
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+    color: #fff;
+    background-color: #428bca;
+}
+
+.nav-toggleable-sm {
+    padding-top: 95px;
+}
+
+.nav>li>a:focus, .nav>li>a:hover {
+    color: #555;
+    background-color: #F4F4F4;
+}
+
+.nav-pills>li>a, .nav-pills>.nav-subheader {
+    border-radius: 0px;
+    color: #ffffff;
+    font-family: "Proxima Nova","Arial Black", Verdana, "Droid Sans", sans-serif;
+}
+
+.nav-pills>li>ul {
+    margin-left: 30px;
+    margin-top: 7px;
+}
+
+.nav > .nav-subheader {
+    margin-top: 14px;
+}
+
+.nav > .nav {
+    margin-top: 7px;
+}
+
+.nav > li > span {
+    padding: 7px 15px;
+}
+
+/*
+ * Main content
+ */
+
+.main {
+    padding: 20px;
+}
+@media (min-width: 768px) {
+    .main {
+        padding-right: 40px;
+        padding-left: 40px;
+    }
+}
+.main .page-header {
+    margin-top: 0;
+}
+
+/*
+ * Placeholder dashboard ideas
+ */
+
+.placeholders {
+    margin-bottom: 30px;
+    text-align: center;
+}
+.placeholders h4 {
+    margin-bottom: 0;
+}
+.placeholder {
+    margin-bottom: 20px;
+}
+.placeholder img {
+    display: inline-block;
+    border-radius: 50%;
+}
+
+
+/* global body padding */
+body {
+    padding-bottom: 20px;
+    background-color: #F4F4F4;
+}
+
+@media (min-width: 768px) {
+    body {
+        padding-bottom: 50px;
+    }
+}
+
+
+/* global spacing overrides */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    margin-top: 0;
+}
+hr {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+hr.sm-margin {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.navbar-fixed-top,
+.navbar-static-top {
+    border-bottom: 0;
+}
+
+.navbar {
+    background-color: #ffffff;
+}
+
+code {
+    display: block;
+    white-space: pre-wrap;
+}
+
+code.inline {
+    display: inline;
+}
+
+.content {
+    background-color: white;
+}
+
+.statcard-desc {
+    font-size: 73%;
+}
+
+.statcard-number {
+    font-size: 26px;
+}
+
+.sm-space {
+    margin-top: 30px;
+}
+
+/* Billing plans */
+.plan {
+    background-color: white;
+    color: #555;
+    font-family: "Proxima Nova","Arial Black", Verdana, "Droid Sans", sans-serif;
+    min-height: 236px;
+}
+
+.plan hr {
+    border-top: 1px solid #EEEEEE;
+}
+
+.plan input {
+    text-align: center;
+    font-size: 20px;
+    padding-left: 16px;
+    width: 60px;
+    border: none;
+    border-bottom: 1px dotted black;
+}
+
+.btn-action {
+    color: white;
+    background-color: #FF196E;
+}
+
+.btn-action:hover, .btn-action:focus {
+    color: #333;
+}
+
+.btn-neg-action {
+    color: white;
+    background-color: #333743;
+}
+
+.btn-neg-action:hover, .btn-neg-action:focus {
+    color: white;
+    background-color: #51586a;
+}
+
+.snackbar {
+    visibility: hidden;
+    min-width: 150px;
+    margin-left: -125px;
+    background-color: #333743;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 46%;
+    right: 20%;
+    bottom: 30px;
+}
+
+.snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}

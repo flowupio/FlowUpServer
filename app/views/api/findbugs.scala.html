@@ -1,0 +1,47 @@
+@import usecases.models.StatCard
+@import java.util
+@import usecases.models.KeyStatCard
+@import usecases.models.KeyStatRow
+@import usecases.models.KeyStatDetail
+@(application: models.Application, keyStatRows: util.List[KeyStatRow], keyStatDetails: util.List[KeyStatDetail], domain: String)
+
+
+<table class="tableContent">
+    <tbody>
+    <tr>
+        <td colspan=2><h1 class="dashhead-title">@application.getAppPackage</h1></td>
+    </tr>
+    <tr>
+        <td colspan=2><h2 class="dashhead-subtitle">Summary</h2></td>
+    </tr>
+    @for(keyStatRow <- keyStatRows) {
+    <tr>
+        <td class="statcard-cell">
+            @statcard(keyStatRow.getFirst.getDescription, keyStatRow.getFirst.getNumber, keyStatRow.getFirst.getUnit, keyStatRow.getFirst.getLineChart, keyStatRow.getFirst.getThreshold, false, domain)
+        </td>
+        @if(keyStatRow.getSecond != null) {
+            <td class="statcard-cell">
+                @statcard(keyStatRow.getSecond.getDescription, keyStatRow.getSecond.getNumber, keyStatRow.getSecond.getUnit, keyStatRow.getSecond.getLineChart, keyStatRow.getSecond.getThreshold, false, domain)
+            </td>
+        }
+    </tr>
+    }
+    @for(keyStatDetail <- keyStatDetails) {
+        <tr>
+            <td colspan=2><h2 class="dashhead-subtitle">@keyStatDetail.getDescription</h2></td>
+        </tr>
+        <tr>
+        @for(keyStatRow <- keyStatDetail.getRows) {
+            <td class="statcard-cell">
+                @statcard(keyStatRow.getFirst.getDescription, keyStatRow.getFirst.getNumber, keyStatRow.getFirst.getUnit, keyStatRow.getFirst.getLineChart, keyStatRow.getFirst.getThreshold, false, domain)
+            </td>
+            @if(keyStatRow.getSecond != null) {
+                <td class="statcard-cell">
+                    @statcard(keyStatRow.getSecond.getDescription, keyStatRow.getSecond.getNumber, keyStatRow.getSecond.getUnit, keyStatRow.getSecond.getLineChart, keyStatRow.getSecond.getThreshold, false, domain)
+                </td>
+            }
+        }
+        </tr>
+    }
+    </tbody>
+</table>

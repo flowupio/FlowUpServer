@@ -1,0 +1,87 @@
+@import java.util
+@import usecases.models.Billing
+@(billing: Billing)
+
+<div class="row">
+    <div class="col-sm-12">
+        <h4>Invoice information</h4>
+    </div>
+    <div class="col-sm-12 sm-space"></div>
+    <div class="col-sm-6">
+        <dl class="dl-horizontal">
+            <dt>Name</dt>
+            <dd>@billing.getFullName</dd>
+            <dt>Email</dt>
+            <dd>@billing.getEmail</dd>
+            <dt>Address</dt>
+            <dd>@billing.getAddress</dd>
+            <dd>@billing.getCity
+            @billing.getPostalCode
+            @billing.getCountry</dd>
+        </dl>
+    </div>
+
+    <div class="col-sm-6">
+        <dl class="dl-horizontal">
+            <dt>Credit card</dt>
+            <dd><i>@billing.getCardNumber</i></dd>
+            <dt>Current plan</dt>
+            <dd>@billing.getCurrentPlan</dd>
+        </dl>
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h4>Payment history</h4>
+    </div>
+    <div class="col-sm-12">
+        <table class="table table-condensed">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Plan</th>
+                <th>Invoice</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for(transaction <- billing.getTransactions) {
+            <tr>
+                <td>
+                    @transaction.getId
+                </td>
+                <td>
+                    @transaction.getCreationDate
+                </td>
+                <td>
+                    @transaction.getAmount @transaction.getCurrency
+                </td>
+                <td>
+                    @transaction.getPlan
+                </td>
+                <td>
+                    @if(transaction.getInvoiceUrl != null) {
+                    <a href="@transaction.getInvoiceUrl">Link</a>
+                    }
+                </td>
+            </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="sm-space"></div>
+
+<div class="row">
+    <div class="pull-right">
+        <a href="mailto:sales@@flowup.io?Subject=Change%20current%20plan"
+           class="btn btn-action">Change plan</a>
+        <a href="mailto:sales@@flowup.io?Subject=Cancel%20my%20subscription"
+           class="btn btn-neg-action">Cancel subscription</a>
+    </div>
+</div>

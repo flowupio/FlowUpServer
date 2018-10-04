@@ -1,0 +1,47 @@
+@*
+* This template is called from the `index` template. This template
+* handles the rendering of the page header and body tags. It takes
+* two arguments, a `String` for the title of the page and an `Html`
+* object to insert into the body of the page.
+*@
+@(title: String)(content: Html)
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>@title</title>
+
+        <link href="@routes.Assets.versioned("bootstrap-dashboard/toolkit-light.min.css")" rel="stylesheet">
+        <link href="@routes.Assets.versioned("stylesheets/main.css")" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="@routes.Assets.versioned("favicon/favicon.ico")">
+        <link rel="apple-touch-icon" sizes="57x57" href="@routes.Assets.versioned("favicon/apple-icon-57x57.png")">
+        <link rel="apple-touch-icon" sizes="60x60" href="@routes.Assets.versioned("favicon/apple-icon-60x60.png")">
+        <link rel="apple-touch-icon" sizes="72x72" href="@routes.Assets.versioned("favicon/apple-icon-72x72.png")">
+        <link rel="apple-touch-icon" sizes="76x76" href="@routes.Assets.versioned("favicon/apple-icon-76x76.png")">
+        <link rel="apple-touch-icon" sizes="114x114" href="@routes.Assets.versioned("favicon/apple-icon-114x114.png")">
+        <link rel="apple-touch-icon" sizes="120x120" href="@routes.Assets.versioned("favicon/apple-icon-120x120.png")">
+        <link rel="apple-touch-icon" sizes="144x144" href="@routes.Assets.versioned("favicon/apple-icon-144x144.png")">
+        <link rel="apple-touch-icon" sizes="152x152" href="@routes.Assets.versioned("favicon/apple-icon-152x152.png")">
+        <link rel="apple-touch-icon" sizes="180x180" href="@routes.Assets.versioned("favicon/apple-icon-180x180.png")">
+        <link rel="icon" type="image/png" sizes="192x192"  href="@routes.Assets.versioned("favicon/android-icon-192x192.png")">
+        <link rel="icon" type="image/png" sizes="32x32" href="@routes.Assets.versioned("favicon/favicon-32x32.png")">
+        <link rel="icon" type="image/png" sizes="96x96" href="@routes.Assets.versioned("favicon/favicon-96x96.png")">
+        <link rel="icon" type="image/png" sizes="16x16" href="@routes.Assets.versioned("favicon/favicon-16x16.png")">
+        <link rel="manifest" href="@routes.Assets.versioned("favicon/manifest.json")">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="@routes.Assets.versioned("favicon/ms-icon-144x144.png")">
+
+        @ga()
+    </head>
+    <body>
+        <div class="container">
+            @content
+        </div>
+        <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
+        <script src="@routes.Assets.versioned("bootstrap-dashboard/toolkit.min.js")"></script>
+    </body>
+</html>

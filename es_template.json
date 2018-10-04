@@ -1,0 +1,153 @@
+{
+  "template": "flowup-*",
+  "settings": {
+    "index.codec": "best_compression",
+    "refresh_interval" : "10s"
+  },
+  "mappings": {
+    "_default_": {
+      "dynamic_templates": [
+        {
+          "strings": {
+            "match": "*",
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "string",
+              "doc_values": false,
+              "index": "not_analyzed"
+            }
+          }
+        }
+      ],
+      "_all": {
+        "enabled": false
+      },
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "VersionName": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "AndroidOSVersion": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "BatterySaverOn": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "AppPackage": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "DeviceModel": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "ScreenDensity": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "ScreenSize": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "InstallationUUID": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "NumberOfCores": {
+          "type": "string",
+          "index": "not_analyzed"
+        }
+      }
+    },
+    "network_data": {
+      "properties": {
+        "BytesUploaded": {
+          "type": "float"
+        },
+        "BytesDownloaded": {
+          "type": "float"
+        }
+      }
+    },
+    "ui_data": {
+      "properties": {
+        "count": {
+          "type": "integer"
+        },
+        "min": {
+          "type": "float"
+        },
+        "max": {
+          "type": "float"
+        },
+        "mean": {
+          "type": "float"
+        },
+        "median": {
+          "type": "float"
+        },
+        "standardDev": {
+          "type": "float"
+        },
+        "p1": {
+          "type": "float"
+        },
+        "p2": {
+          "type": "float"
+        },
+        "p5": {
+          "type": "float"
+        },
+        "p10": {
+          "type": "float"
+        },
+        "p90": {
+          "type": "float"
+        },
+        "p95": {
+          "type": "float"
+        },
+        "p98": {
+          "type": "float"
+        },
+        "p99": {
+          "type": "float"
+        }
+      }
+    },
+    "cpu_data": {
+      "properties": {
+        "Consumption": {
+          "type": "integer"
+        }
+      }
+    },
+    "gpu_data": {
+    },
+    "memory_data": {
+      "properties": {
+        "Consumption": {
+          "type": "integer"
+        },
+        "BytesAllocated": {
+          "type": "long"
+        }
+      }
+    },
+    "disk_data": {
+      "properties": {
+        "InternalStorageWrittenBytes": {
+          "type": "long"
+        },
+        "SharedPreferencesWrittenBytes": {
+          "type": "long"
+        }
+      }
+    }
+  }
+}

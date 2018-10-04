@@ -1,0 +1,21 @@
+@(user: models.User = null)
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#">
+                        <span class="icon icon-user"></span>
+                        @user.getName()
+                    </a>
+                </li>
+                <li>
+                    <a href="@routes.HomeController.logout()">
+                        <span class="icon icon-log-out"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

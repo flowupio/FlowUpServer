@@ -1,0 +1,113 @@
+@import java.util
+@import controllers.view.ApplicationViewModel
+@(playAuth: com.feth.play.module.pa.PlayAuthenticate, user: models.User, apiKey: ApiKey, applications: util.List[ApplicationViewModel], sdkVersion: String, autoRefresh: Boolean)
+    @views.html.commandcenter.main("Command Center", user) {
+        @if(autoRefresh) {
+            <script defer src="@routes.Assets.versioned("javascripts/reloadCommandCenter.js")"></script>
+        }
+        @if(!user.isActive) {
+            <div class="row">
+
+                @commandcenter.sidebar(user, applications)
+
+                <div class="col-sm-9 col-sm-offset-3 main content">
+
+                    <div class="dashhead">
+                        <div class="dashhead-titles">
+                            <h1 class="dashhead-title">Hang in there buddy! Just a little bit longer...</h1>
+                            <h2 class="dashhead-subtitle">We are working hard preparing a cozy place for your app in our servers.</h2>
+                        </div>
+                    </div>
+                    <p>Thank you so much for signing up to FlowUp! Because of the high usage of FlowUp, we're activating accounts on a user-by-user basis. You'll get a second email as soon as we're ready for you.</p>
+
+
+                        <p>Cheers,</p>
+                        <p>The FlowUp Team.</p>
+
+                    <hr class="m-t">
+
+                </div>
+            </div>
+
+        } else {
+            <div class="row">
+
+                @commandcenter.sidebar(user, applications)
+
+                <div class="col-sm-9 col-sm-offset-3 main content">
+
+                    <div class="dashhead">
+                        <div class="dashhead-titles">
+                            <h1 class="dashhead-title">Getting started with Flow Up in iOS</h1>
+                        </div>
+                    </div>
+
+                    <hr class="m-t">
+
+                    <div class="row">
+                        <div class="col-sm-9">
+                            <h2>Add the SDK to your build</h2>
+                            <p>
+                                Add the following dependency to your <code class="inline">Podfile</code>:
+                            </p>
+
+                            <pre><code class="language-ruby">pod 'FlowUpIOSSDK', '~> @sdkVersion'</code></pre>
+
+                            <div class="sm-space"/>
+
+                            <h2>Initialize FlowUp</h2>
+
+                            <p>
+                                Initialize the FlowUp iOS SDK in your <code class="inline">AppDelegate</code> class <code class="inline">application:didFinishLaunchingWithOptions:</code> method.
+                            </p>
+
+                            <p><em>Objective-C:</em></p>
+                            <pre><code class="language-objectivec">// YourAppDelegate.h
+#import "FlowUp.h"
+
+// YourAppDelegate.m
+&#64;implementation YourAppDelegate
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [FlowUp application:application
+didFinishLaunchingWithOptions:launchOptions
+                 apiKey:&#64;&quot;@apiKey.getValue&quot;
+     isDebugModeEnabled:YES];
+     return YES;
+}
+&#64;end</code></pre>
+
+                            <p><em>Swift:</em></p>
+                            <pre><code class="language-swift">import FlowUp
+
+class YourAppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        FlowUp.application(application,
+                           didFinishLaunchingWithOptions: launchOptions,
+                           apiKey: &quot;@apiKey.getValue&quot;,
+                           isDebugModeEnabled: true)
+        return true
+    }
+}</code></pre>
+
+                            Remember to disable the debug mode when building a release target.
+                            <div class="sm-space"/>
+
+                            <h2>Build and run your application</h2>
+
+                            <p>Build and run your app in the simulator or real device to start seeing data. Within seconds you will see data in your FlowUp Dashboards.</p>
+
+                            <h2>Release</h2>
+                                <p>Our SDK is implemented in Objective-C and it uses a variety of APIs to collect all the system 
+                                    metrics we use to detect and show you potential performance issues in your app. <b>We don't use any 
+                                        private API</b> (and never will!) so it's completely safe to use FlowUp in your app and upload it 
+                                        to the App Store.</p>
+                        </div>
+
+                        <p>Additionally, remember you can send an email to support@@flowup.io with any doubt or issue you may have.</p>
+                    </div>
+                </div>
+            </div>
+
+        }
+    }

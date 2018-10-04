@@ -1,0 +1,59 @@
+@import play.libs.Json
+@import usecases.models.LineChart
+@import usecases.models.Threshold
+@import usecases.models.Unit
+@(description: String, mainNumber: Double, unit: Unit, lineChart: LineChart, threshold: Threshold, drawLineChart: Boolean = true)
+
+@statcardClass(threshold: Threshold) = @{
+if(threshold == Threshold.NO_DATA) {
+"statcard-info"
+} else if(threshold == Threshold.SEVERE) {
+"statcard-danger"
+} else if(threshold == Threshold.WARNING) {
+"statcard-warning"
+} else if(threshold == Threshold.OK) {
+"statcard-success"
+}
+}
+
+@humanReadableByteCount(bytes: Double, si: Boolean) = @{
+val unit: Int = if(si) 1000
+else 1024
+var formattedString = bytes.toString
+if(bytes < unit) {
+formattedString = bytes + " B"
+} else {
+val exp: Int = (Math.log(bytes) / Math.log(unit)).toInt
+val pre: String = (if(si) "kMGTPE"
+else "KMGTPE").charAt(exp - 1) + (if(si) ""
+else "i")
+formattedString = "%.2f %sB".format(bytes / Math.pow(unit, exp), pre)
+}
+formattedString
+}
+
+@numberFormat(mainNumber: Double, unit: Unit)= @{
+if(unit == Unit.NONE) {
+"%.2f".format(mainNumber)
+} else if(unit == Unit.PERCENTAGE) {
+"%.2f".format(mainNumber) + " %"
+} else if (unit == Unit.BYTE) {
+humanReadableByteCount(mainNumber, false)
+}
+}
+
+<div class="statcard @statcardClass(threshold)">
+    <div class="p-a">
+        <span class="statcard-desc">@description</span>
+        @if(mainNumber != null) {
+        <h2 class="statcard-number">@numberFormat(mainNumber, unit)</h2>
+        } else {
+        <h2 class="statcard-number">N/A</h2>
+        }
+        <hr class="statcard-hr m-b-0">
+    </div>
+    @if(drawLineChart) {
+    <canvas width="378" height="94" class="sparkline" data-chart="spark-line" data-value="[{data:@Json.toJson(lineChart.getValues).toString}]" data-labels="@lineChart.getLabels.map(label => "'" + label + "'").mkString(",")" style="width: 189px;
+    height: 47px;"></canvas>
+    }
+</div>

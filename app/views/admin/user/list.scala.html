@@ -1,0 +1,150 @@
+@(currentPage: com.avaje.ebean.PagedList[User], currentSortBy: String, currentOrder: String, currentFilter: String)
+@****************************************
+* Helper generating navigation links *
+****************************************@
+@link(newPage: Int, newSortBy: String) = @{
+
+    var sortBy = currentSortBy
+    var order = currentOrder
+
+    if(newSortBy != null) {
+        sortBy = newSortBy
+        if(currentSortBy == newSortBy) {
+            if(currentOrder == "asc") {
+                order = "desc"
+            } else {
+                order = "asc"
+            }
+        } else {
+            order = "asc"
+        }
+    }
+
+    // Generate the link
+    controllers.admin.routes.UserController.list(newPage, sortBy, order, currentFilter)
+
+}
+
+    @**********************************
+    * Helper generating table headers *
+    ***********************************@
+@header(key: String, title: String) = {
+    <th class="@key.replace(".", "_") header @if(currentSortBy == key) @{
+        if(currentOrder == "asc") "headerSortDown" else "headerSortUp"
+    }">
+        <a href="@link(0, key)">@title</a>
+    </th>
+}
+
+
+@views.html.admin.main {
+
+    <h1 id="homeTitle">@Messages("users.list.title", currentPage.getTotalRowCount)</h1>
+
+    @if(flash.containsKey("success")) {
+        <div class="alert-message warning">
+            <strong>Done!</strong> @flash.get("success")
+        </div>
+    }
+
+    <div id="actions">
+        <form action="@link(0, "name")" method="GET">
+            <div class="flextable">
+                <div class="flextable-item flextable-primary">
+                    <input type="search" class="form-control" id="searchbox" name="f" value="@currentFilter" placeholder="Filter by user name...">
+                </div>
+                <div class="flextable-item">
+                    <div class="btn-group">
+                        <input type="submit" id="searchsubmit" value="Filter by name" class="btn btn-primary-outline">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <a class="btn success" id="add" href="@controllers.admin.routes.UserController.create()">Add a new user</a>
+
+    </div>
+
+    @if(currentPage.getTotalRowCount == 0) {
+
+        <div class="well">
+            <em>Nothing to display</em>
+        </div>
+
+    } else {
+
+        <div class="table-responsive">
+        <table class="table" data-sort="table">
+            <thead>
+                <tr>
+                    @header("name", "name")
+                    @header("email", "email")
+                    @header("emailValidated", "emailValidated")
+                    @header("active", "active")
+                    @header("activate.user", "activate user")
+                </tr>
+            </thead>
+            <tbody>
+
+            @for(user <- currentPage.getList) {
+                <tr>
+                    <td><a href="@controllers.admin.routes.UserController.edit(user.getId.toString)">@user.getName</a></td>
+                    <td>
+                    @if(user.getEmail == null) {
+                        <em>-</em>
+                    } else {
+                        @user.getEmail
+                    }
+                    </td>
+                    <td>
+                    @user.isEmailValidated
+                    </td>
+                    <td>
+                    @user.isActive
+                    </td>
+                    <td>
+                        @if(user.isActive) {
+                            <input type="submit" disabled="disabled" value="Already active" class="btn btn-primary-outline">
+                        } else {
+                            <form method="post" action="@controllers.admin.routes.UserController.activate(user.getId.toString)">
+                                <input type="submit" id="activatesubmit" value="Activate" class="btn btn-primary-outline">
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+
+            </tbody>
+        </table>
+</div>
+        <div id="pagination" class="pagination">
+            <ul>
+                @if(currentPage.hasPrev) {
+                    <li class="prev">
+                        <a href="@link(currentPage.getPageIndex - 1, null)">&larr; Previous</a>
+                    </li>
+                } else {
+                    <li class="prev disabled">
+                        <a>&larr; Previous</a>
+                    </li>
+                }
+                <li class="current">
+                    <a>Displaying @currentPage.getDisplayXtoYofZ(" to ", " of ")</a>
+                </li>
+                @if(currentPage.hasNext) {
+                    <li class="next">
+                        <a href="@link(currentPage.getPageIndex + 1, null)">Next &rarr;</a>
+                    </li>
+                } else {
+                    <li class="next disabled">
+                        <a>Next &rarr;</a>
+                    </li>
+                }
+            </ul>
+        </div>
+
+    }
+
+}
+
+            

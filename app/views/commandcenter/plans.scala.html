@@ -1,0 +1,59 @@
+@import java.util
+@(email: String, stripePublicKey: String)
+
+<div id="plans" class="row" data-email="@email" data-stripe-key="@stripePublicKey">
+    <div class="col-md-4">
+        <div class="well plan">
+            <h3 class="text-center"><strong>Developer</strong></h3>
+            <hr class="sm-margin">
+            <p class="text-center">20 Daily Active Users</p>
+            <hr class="sm-margin">
+            <p class="text-center"><strong>Free</strong></p>
+            <hr class="sm-margin">
+            <a href="#" class="btn btn-block btn-neg-action disabled">Current plan</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="well plan">
+            <h3 class="text-center"><strong>Professional</strong></h3>
+            <hr class="sm-margin">
+            <p class="text-center">Up to 100.000 daily users</p>
+            <hr class="sm-margin">
+            <p class="text-center"><strong>€ 21,00/mo*</strong></p>
+            <p class="text-center">*per 1.000 users, per month</p>
+            <hr class="sm-margin">
+            <p class="text-center"><input id="professional-quantity" type="number" value="1"> x 1.000 devices</p>
+            <hr class="sm-margin">
+            <a id="professional" class="btn btn-block btn-action">Select</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="well plan">
+            <h3 class="text-center"><strong>Business</strong></h3>
+            <hr class="sm-margin">
+            <p class="text-center">More than 100.000 daily users</p>
+            <hr class="sm-margin">
+            <p class="text-center"><strong>€ 15,00/mo*</strong></p>
+            <p class="text-center">*per 1.000 users, per month</p>
+            <hr class="sm-margin">
+            <p class="text-center"><input id="business-quantity" type="number" value="101"> x 1.000 devices</p>
+            <hr class="sm-margin">
+            <a id="business" class="btn btn-block btn-action">Select</a>
+        </div>
+    </div>
+</div>
+
+<div class="row col-md-12">
+    <p>Need a larger plan, a higher level of support, or don't know which plan is right for you? Send us an
+        email to <a class="email" href="mailto:sales@@flowup.io">sales@@flowup.io</a>.</p>
+</div>
+
+<div id="success-snackbar" class="snackbar">Your subscription has been registered successfully and will appear here in a moment.</div>
+<div id="error-snackbar" class="snackbar">There was an error processing your subscription. Contact us at <a class="email" href="mailto:sales@@flowup.io">sales@@flowup.io</a>.</div>
+
+<script type="text/javascript" src="https://api.taxamo.com/js/v1/taxamo.all.js"></script>
+<script src="https://checkout.stripe.com/checkout.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="@routes.Assets.versioned("javascripts/plans.js")"></script>

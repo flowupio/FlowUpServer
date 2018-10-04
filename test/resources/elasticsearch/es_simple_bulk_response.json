@@ -1,0 +1,20 @@
+{
+  "took": 67,
+  "errors": false,
+  "items": [
+    {
+      "create": {
+        "_index": "flowup-network_data",
+        "_type": "counter",
+        "_id": "AVe4CB89xL5tw_jvDTTd",
+        "_version": 1,
+        "_shards": {
+          "total": 2,
+          "successful": 1,
+          "failed": 0
+        },
+        "status": 201
+      }
+    }
+  ]
+}

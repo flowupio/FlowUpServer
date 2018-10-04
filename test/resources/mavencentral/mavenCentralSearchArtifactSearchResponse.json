@@ -1,0 +1,45 @@
+{
+  "response": {
+    "docs": [
+      {
+        "a": "android-sdk",
+        "ec": [
+          ".aar",
+          ".pom"
+        ],
+        "g": "io.flowup",
+        "id": "io.flowup:android-sdk",
+        "latestVersion": "0.1.4",
+        "p": "aar",
+        "repositoryId": "central",
+        "text": [
+          "io.flowup",
+          "android-sdk",
+          ".aar",
+          ".pom"
+        ],
+        "timestamp": 1479120548000,
+        "versionCount": 9
+      }
+    ],
+    "numFound": 1,
+    "start": 0
+  },
+  "responseHeader": {
+    "QTime": 1,
+    "params": {
+      "fl": "id,g,a,latestVersion,p,ec,repositoryId,text,timestamp,versionCount",
+      "indent": "off",
+      "q": "g:\"io.flowup\" AND a:\"android-sdk\"",
+      "sort": "score desc,timestamp desc,g asc,a asc",
+      "spellcheck": "true",
+      "spellcheck.count": "5",
+      "version": "2.2",
+      "wt": "json"
+    },
+    "status": 0
+  },
+  "spellcheck": {
+    "suggestions": []
+  }
+}

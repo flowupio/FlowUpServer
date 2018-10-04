@@ -1,0 +1,78 @@
+@(playAuth: com.feth.play.module.pa.PlayAuthenticate)
+
+@import com.feth.play.module.pa.views.html._
+
+@main("Log In / Sign Up to FlowUp") {
+    <style>
+        body {
+            background: #333743;
+            color: #DEDEDE;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+        p {
+            text-align: center;
+        }
+        a {
+            color: #FF196E;
+        }
+        .logo {
+            margin-bottom: 50px;
+        }
+
+        .form-signin {
+            max-width: 330px;
+            padding: 15px;
+            margin: 0 auto;
+        }
+        .form-signin .form-signin-heading,
+        .form-signin .checkbox {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .form-signin .checkbox {
+            font-weight: normal;
+        }
+        .form-signin .form-control {
+            position: relative;
+            height: auto;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .form-signin .form-control:focus {
+            z-index: 2;
+        }
+        .form-signin input[type="email"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        .form-signin input[type="password"] {
+            margin-bottom: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+    </style>
+
+     <div class="form-signin">
+         <div class="row">
+             <div class="col-xs-6 col-xs-offset-3">
+                 <img src="@routes.Assets.versioned("images/logo.png")" class="img-responsive logo" alt="Flow Up">
+             </div>
+         </div>
+         <h2 class="form-signin-heading">Log In / Sign Up</h2>
+         <div id="login">
+         @providerAvailable("google") { available: Boolean =>
+             @if(available) {
+                 <a href="@com.feth.play.module.pa.controllers.routes.Authenticate.authenticate("google")" class="btn" role="button">
+                     <img alt="Sign in with Google" class="img-responsive" src="@routes.Assets.versioned("images/google_signin_button/2x/btn_google_signin_dark_normal_web@2x.png")">
+                 </a>
+                 <p>By signing up you agree to our FlowUp Software <a href="//flowup.io/termsAndConditions.html">Terms and Conditions.</a></p>
+             }
+         }
+         </div>
+     </div>
+}
